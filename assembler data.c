@@ -4,5 +4,4 @@
 void initialize_all(){
     IC = 100;
     DC = 0;
-    symbols = NULL;
 }
