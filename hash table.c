@@ -1,8 +1,15 @@
 #include <stdlib.h>
 #include "hash table.h"
+#include "helpfunctions.h"
 hash_item* create_hash_item(char* key, void* item){
-hash_item* new_hash = (hash_item*)calloc(1,sizeof(hash_item));
+hash_item* new_hash = hash_item_alloc(1);
 new_hash->key = key;
 new_hash->item = item;
-    return new_hash;
+return new_hash;
+}
+hash_item* hash_item_alloc(int size){
+    hash_item* hashp = (hash_item*)calloc(size,sizeof(hash_item));
+    if (hashp == NULL)
+        stop(MEMORY,"");
+    return hashp;
 }
