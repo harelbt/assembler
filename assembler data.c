@@ -2,7 +2,7 @@
 #include "assembler data.h"
 
 void initialize_all(){
-    IC = 0;
+    IC = 100;
     DC = 0;
     symbols = NULL;
 }
