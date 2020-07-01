@@ -1,7 +1,3 @@
-/*
- Created by Harel Bentabou on 07/06/2020.
- Update  08/06/2020: new funcs: 1)str_to_binary 2)int_to_str 3)invert_short_arr(private / static).
-*/
 #include "helpfunctions.h"
 
 static void invert_short_arr(short int*, int);
@@ -9,7 +5,7 @@ static void invert_short_arr(short int*, int);
 int skip_white_chars(FILE* file){
     int ch;
     /*_____________________________________________________________*/
-    while ((ch = fgetc(file)) == '\n' || ch == ' ');/*skipping engine*/
+    while ((ch = fgetc(file)) == '\n' || ch == ' ' || ch == '\t');/*skipping engine*/
     /*_____________________________________________________________*/
     return ch;
 }
@@ -362,21 +358,21 @@ char* get_line_no_spaces(FILE* file){
 }
 char* get_next_word(FILE* file){
     char* string = allocate_arr_memory(2, "char");/*initial allocation*/
-    char* p = string;
     int ch = skip_white_chars(file);/*gets first char after white characters*/
     int i =0;
     /*_____________________________________________________________*/
     if (ch == EOF){/*no word found*/
         return "";
     }
-    *p = (char) ch;/*enters first non white character*/
+    string[0] = (char) ch;/*enters first non white character*/
     i++;/*gets ready for the next character*/
-    string = realloc_arr_memory(string,(i + 1),"char");/*expanding string*/
-    while ((ch = fgetc(file)) != '\n' && ch != ' ' && ch != EOF){/*gets characters*/
-        *(p+i) = (char) ch;
+    string = realloc_arr_memory(string,(i + 2),"char");/*expanding string*/
+    while ((ch = fgetc(file)) != '\n' && ch != ' ' && ch != EOF && ch != '\t'){/*gets characters*/
+        string[i] = (char) ch;
         i++;
         string = realloc_arr_memory(string,(i + 1),"char");/*expanding string*/
     }
+    string[i] = '\0';
     /*_____________________________________________________________*/
     return string;
 }
