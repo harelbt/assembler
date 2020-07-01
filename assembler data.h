@@ -5,15 +5,11 @@
 #define ORDER 1
 #define INSTRUCTION 0
 #define LABEL_MAX_LENGTH 31
-int IC, DC;
 typedef struct {
     char name[LABEL_MAX_LENGTH];
     char* address;
     char sentence_type;
     char extern_or_entry;
 } symbol;
-symbol* symbol_table;
-char* data_table;
-long symbol_tabel_length;
-void initialize_all();
+void initialize_all(int* IC, int* DC, symbol* symbol_table, int* data_table, long* symbol_tabel_length);
 #endif /*ASSEMBLER_ASSEMBLER_DATA_H*/

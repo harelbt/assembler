@@ -1,13 +1,6 @@
 #include <stdlib.h>
 #include "assembler data.h"
 #include "helpfunctions.h"
-void initialize_all(){
-    IC = 100;
-    DC = 0;
-    symbol_table = NULL;
-    data_table = NULL;
-    symbol_tabel_length = 0;
-}
 void insert_symbol(symbol to_enter){
     symbol_tabel_length++;
     if (symbol_tabel_length == 1){

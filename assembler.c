@@ -1,14 +1,17 @@
 #include "words.h"
-#include "helpfunctions.h"
-#include "assembler data.h"
 #include "first pass.h"
 int main (int argc, char* argv[]){
+    int IC = 100;
+    int DC = 0;
+    symbol* symbol_table = NULL;
+    int* data_table = NULL;
+    long symbol_tabel_length = 0;
     int i = 1;
     if (argc == 1) {
         stop(EXIT_FAILURE, "no assembly code was supplied");
     }
     while (i < argc) {
-        initialize_all();
+        initialize_all(&IC, &DC, symbol_table, data_table, &symbol_tabel_length);
         first_pass(argv[i]);
         /*second_pass();*/
         i++;
