@@ -11,4 +11,12 @@ typedef struct {
     char sentence_type;
     char extern_or_entry;
 } symbol;
+typedef struct {
+    char* line;
+    char* label;
+    char* operator;
+    char* first_operand;
+    char* second_operand;
+    short int is_comment;
+}line;
 #endif /*ASSEMBLER_ASSEMBLER_DATA_H*/
