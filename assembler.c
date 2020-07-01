@@ -11,7 +11,6 @@ int main (int argc, char* argv[]){
         stop(EXIT_FAILURE, "no assembly code was supplied");
     }
     while (i < argc) {
-        initialize_all(&IC, &DC, symbol_table, data_table, &symbol_tabel_length);
         first_pass(argv[i]);
         /*second_pass();*/
         i++;
