@@ -78,6 +78,11 @@ FILE* open_file(const char* file_name, const char* open_type){
  * returns the address*/
 void* allocate_arr_memory (int size, const char* type){
     /*allocation*/
+    if (!strcmp(type,"symbol")) {
+        symbol * p = (symbol *) malloc(sizeof(symbol) * size);
+        POINTER_CHECK
+        return p;
+    }
     if (!strcmp(type,"char")) {
         char* p = (char *) malloc(sizeof(char) * size);
         POINTER_CHECK
@@ -200,6 +205,11 @@ void* allocate_arr_memory (int size, const char* type){
  * returns the address*/
 void* realloc_arr_memory (void* ptr, int size, const char* type){
     /*reallocation*/
+    if (!strcmp(type,"symbol")) {
+        symbol * p = (symbol *) realloc(ptr, sizeof(symbol) * size);
+        POINTER_CHECK
+        return p;
+    }
     if (!strcmp(type,"char")) {
         char* p = (char *) realloc(ptr, sizeof(char) * size);
         POINTER_CHECK

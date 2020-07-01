@@ -6,7 +6,7 @@
 #include <string.h>
 #include <stdarg.h>
 #include <math.h>
-
+#include "assembler data.h"
 #define INPUT 10
 #define OUTPUT 11
 #define MEMORY 12
