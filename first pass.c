@@ -13,3 +13,6 @@ int read_line(FILE* file){
     /*HANDLE SYMBOL*/
     /*HANDLE (OPERATORS AND OPERANDS) OR DATA*/
 }
+void error_handle(char* line){
+
+}

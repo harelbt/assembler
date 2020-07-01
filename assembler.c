@@ -10,7 +10,8 @@ int main (int argc, char* argv[]){
     while (i < argc) {
         initialize_all();
         first_pass(argv[i]);
-        second_pass();
+        //second_pass();
         i++;
     }
+    return 0;
 }
