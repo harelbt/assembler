@@ -1,12 +1,12 @@
 #include "first pass.h"
 int first_pass(char* file){
     FILE* filep = open_file(file,"r");
-    while (filep != EOF) {
-        read_line(filep);
-    }
+    while (read_line(filep) != EOF) {}
 }
-void read_line(FILE* file){
+int read_line(FILE* file){
     char* line = get_line_dynamic(file);
+    if (!strcmp(line, ""))
+        return EOF;
     /*ERROR HANDLING HERE*/
     /*RECOGNIZE SENTENCE TYPE*/
     /*HANDLE SYMBOL*/

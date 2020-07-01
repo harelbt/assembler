@@ -640,6 +640,8 @@ char* get_line_dynamic(FILE* file){
     char* str = allocate_arr_memory(2, "char");
     int ch = skip_spaces(file);
     int length = 1;
+    if (ch == EOF)
+        return "";
     str[0] = (char) ch;
     while ((ch = fgetc(file)) != '\n' && ch != EOF){
         str = realloc_arr_memory(str,length +2, "char");
