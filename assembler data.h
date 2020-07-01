@@ -16,4 +16,4 @@ symbol* symbol_table;
 char* data_table;
 long symbol_tabel_length;
 void initialize_all();
-#endif //ASSEMBLER_ASSEMBLER_DATA_H
+#endif /*ASSEMBLER_ASSEMBLER_DATA_H*/
