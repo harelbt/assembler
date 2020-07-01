@@ -1,4 +1,4 @@
-#include "words.h"
+#include "helpfunctions.h"
 #include "first pass.h"
 int main (int argc, char* argv[]){
     int IC = 100;

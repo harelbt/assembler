@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include "assembler data.h"
 #include "helpfunctions.h"
 void insert_symbol(symbol to_enter, symbol* symbol_table, long* symbol_tabel_length){
