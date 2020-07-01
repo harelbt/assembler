@@ -8,8 +8,8 @@ int read_line(FILE* file){
     char* line = get_line_dynamic(file);
     if (!strcmp(line, ""))
         return EOF;
-    /*RECOGNIZE SENTENCE TYPE*/
     /*ERROR HANDLING HERE*/
+    /*RECOGNIZE SENTENCE TYPE*/
     /*HANDLE SYMBOL*/
     /*HANDLE (OPERATORS AND OPERANDS) OR DATA*/
 }
