@@ -2,12 +2,7 @@
 #ifndef ASSEMBLER_ERRORS_H
 #define ASSEMBLER_ERRORS_H
 #define UNEXPECTED_SEMICOLON 1
-#include "assembler data.h"
-typedef struct error_message{
-    char* error;
-    int line;
-    struct error_message* next;
-}error;
+#include "assembler data types.h"
 
 error* report_error(line* sentence, short int error_code, error* error_list);
 void insert_error(error* error_list, char* message, int line);

@@ -3,8 +3,6 @@
 #include "helpfunctions.h"
 #include "errors.h"
 
-
-
 void first_pass(char * file);
 int read_line(FILE* file, line* sentence);
 short int parse (line* sentence, error* error_list);

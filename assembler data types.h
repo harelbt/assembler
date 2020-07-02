@@ -1,5 +1,5 @@
-#ifndef ASSEMBLER_ASSEMBLER_DATA_H
-#define ASSEMBLER_ASSEMBLER_DATA_H
+#ifndef ASSEMBLER_ASSEMBLER_DATA_TYPES_H
+#define ASSEMBLER_ASSEMBLER_DATA_TYPES_H
 #define EXTERN 1
 #define ENTRY 0
 #define ORDER 1
@@ -20,5 +20,9 @@ typedef struct {
     short int is_comment;
     int line_number;
 }line;
-
-#endif /*ASSEMBLER_ASSEMBLER_DATA_H*/
+typedef struct error_message{
+    char* error;
+    int line;
+    struct error_message* next;
+}error;
+#endif /*ASSEMBLER_ASSEMBLER_DATA_TYPES_H*/

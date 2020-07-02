@@ -16,7 +16,9 @@ void first_pass(char* file){
         /*HANDLE SYMBOL*/
         /*HANDLE (OPERATORS AND OPERANDS) OR DATA*/
     }
-    output_errors(&error_list);
+    if (error_list.error != NULL) {
+        output_errors(&error_list);
+    }
 }
 int read_line(FILE* file, line* sentence){
     sentence->line = get_line_dynamic(file);

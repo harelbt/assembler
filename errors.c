@@ -13,7 +13,7 @@ error* report_error(line* sentence, short int error_code, error* error_list){
     return error_list;
 }
 void insert_error(error* error_list, char* message, int line) {
-    error *new_error = NULL;
+    error *new_error = allocate_arr_memory(1, "error");
     error *curr_pointer;
     error *prev_pointer;
     if (error_list->error == NULL) {
@@ -39,12 +39,12 @@ void output_errors(error* error_list){
     error* curr_pointer = error_list;
     error* prev_pointer = NULL;
     while (curr_pointer->next != NULL) {
-        printf("ERROR: %s. in line %d", curr_pointer->error, curr_pointer->line);
+        printf("ERROR: %s. in line %d\n", curr_pointer->error, curr_pointer->line);
         prev_pointer = curr_pointer;
         curr_pointer = curr_pointer->next;
         free(prev_pointer);
     }
-    printf("ERROR: %s. in line %d", curr_pointer->error, curr_pointer->line);
+    printf("ERROR: %s in line %d", curr_pointer->error, curr_pointer->line);
     free(curr_pointer);
 }
 static void create_error(error* new_list, char* message, int line){

@@ -28,7 +28,7 @@ LABEL 3	mov	# -9	# 8
 ;שגיאה(אופרנד חסר)
 	mov	nexist	r2	 
 ;שגיאה(התווית באופרנד המקור לא קיימת)
-;comment		
+ d;comment		
 		
 cmp	#-9;	r2		
 	cmp	#-9	r2	
