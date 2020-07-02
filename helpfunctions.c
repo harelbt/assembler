@@ -1,5 +1,5 @@
 #include "helpfunctions.h"
-
+#include "errors.h"
 static void invert_short_arr(short int*, int);
 /*returns the first char after the white chars*/
 int skip_white_chars(FILE* file){

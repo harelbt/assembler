@@ -20,9 +20,5 @@ typedef struct {
     short int is_comment;
     int line_number;
 }line;
-typedef struct error_message{
-    char* error;
-    int line;
-    struct error_message* next;
-}error;
+
 #endif /*ASSEMBLER_ASSEMBLER_DATA_H*/

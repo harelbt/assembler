@@ -16,7 +16,7 @@ void insert_error(error* error_list, char* message, int line) {
     error *new_error = NULL;
     error *curr_pointer;
     error *prev_pointer;
-    if (error_list == NULL) {
+    if (error_list->error == NULL) {
         create_error(error_list, message, line);
         return;
     }
@@ -48,7 +48,6 @@ void output_errors(error* error_list){
     free(curr_pointer);
 }
 static void create_error(error* new_list, char* message, int line){
-    new_list = allocate_arr_memory(1, "error");
     new_list->error = message;
     new_list->line = line;
     new_list->next = NULL;
