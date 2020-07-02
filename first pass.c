@@ -23,17 +23,7 @@ short int parse (line* sentence){
     comment_check(sentence);
 
 }
-short int report_error(line* sentence, short int error_code){
-    static char** error_table;
-    error_table = allocate_arr_memory(1,"char*");
-    switch (error_code) {
-        case UNEXPECTED_SEMICOLON:{
-            printf("unexpected semicolon.");
-        }
 
-    }
-    printf("line %d\n", sentence->line_number);
-}
 int find_semicolon(line* sentence){
     int i = 0;
     while (sentence->line[i]){

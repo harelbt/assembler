@@ -74,6 +74,11 @@ FILE* open_file(const char* file_name, const char* open_type){
  * returns the address*/
 void* allocate_arr_memory (int size, const char* type){
     /*allocation*/
+    if (!strcmp(type,"error")) {
+        error* p = (error*) malloc(sizeof(error) * size);
+        POINTER_CHECK
+        return p;
+    }
     if (!strcmp(type,"line")) {
         line* p = (line*) malloc(sizeof(line) * size);
         POINTER_CHECK
@@ -86,11 +91,6 @@ void* allocate_arr_memory (int size, const char* type){
     }
     if (!strcmp(type,"char")) {
         char* p = (char*) malloc(sizeof(char) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type,"char*")) {
-        char** p = (char**) malloc(sizeof(char*) * size);
         POINTER_CHECK
         return p;
     }
