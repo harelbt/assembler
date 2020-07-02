@@ -89,6 +89,11 @@ void* allocate_arr_memory (int size, const char* type){
         POINTER_CHECK
         return p;
     }
+    if (!strcmp(type,"char*")) {
+        char** p = (char**) malloc(sizeof(char*) * size);
+        POINTER_CHECK
+        return p;
+    }
     if (!strcmp(type, "unsigned char")) {
         unsigned char* p = (unsigned char *) malloc(sizeof( char) * size);
         POINTER_CHECK
@@ -202,6 +207,7 @@ void* allocate_arr_memory (int size, const char* type){
     /*_____________________________________________________________*/
     return NULL;
 }
+
 /*reallocates memory for array of any type safely and exits program in case of failure with a proper massage to stderr
  * returns the address*/
 void* realloc_arr_memory (void* ptr, int size, const char* type){

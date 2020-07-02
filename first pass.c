@@ -2,7 +2,10 @@
 void first_pass(char* file){
     FILE* filep = open_file(file,"r");
     line* sentence = allocate_arr_memory(1,"line");
+    int line_number = 1;
     while (!read_line(filep, sentence)) {
+        sentence->line_number = line_number;
+        line_number++;
         parse(sentence);
         /*error_check(line);*/
         /*RECOGNIZE SENTENCE TYPE*/
@@ -14,7 +17,6 @@ int read_line(FILE* file, line* sentence){
     sentence->line = get_line_dynamic(file);
         if (!strcmp(sentence->line, ""))
             return EOF;
-        puts(sentence -> line);
     return 0;
 }
 short int parse (line* sentence){
@@ -22,7 +24,15 @@ short int parse (line* sentence){
 
 }
 short int report_error(line* sentence, short int error_code){
+    static char** error_table;
+    error_table = allocate_arr_memory(1,"char*");
+    switch (error_code) {
+        case UNEXPECTED_SEMICOLON:{
+            printf("unexpected semicolon.");
+        }
 
+    }
+    printf("line %d\n", sentence->line_number);
 }
 int find_semicolon(line* sentence){
     int i = 0;
@@ -39,6 +49,6 @@ void comment_check(line* sentence){
         sentence->is_comment = 1;
     }
     if (semicolon_index > 0){
-
+        report_error(sentence, UNEXPECTED_SEMICOLON);
     }
 }
