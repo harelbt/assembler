@@ -13,10 +13,11 @@ typedef struct {
 } symbol;
 typedef struct {
     char* line;
-    char* label;
+    symbol label;
     char* operator;
     char* first_operand;
     char* second_operand;
     short int is_comment;
+    int line_number;
 }line;
 #endif /*ASSEMBLER_ASSEMBLER_DATA_H*/

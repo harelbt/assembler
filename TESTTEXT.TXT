@@ -271,7 +271,19 @@ X:	add	r3	r2
 ;שגיאה(אופרנד לא תקף)	
 	jsr	#7	 
 ;שגיאה(אופרנד לא חוקי)	
-	jsr	#-7	 
+.data #6,  #7, #-7
+.data #6,  7, #-7
+;שגיאה(אין #)
+string. "khskhbkd"
+"jdcbjcn"
+"dcncdnlc"
+data #6,  #7, #-7
+#9,
+#-3
+kdjndkjcnjknnjkncln
+;שגיאה(לא אומר כלום)
+	jsr	#-7
+LLL: kka #6 r1
 ;שגיאה(אופרנד לא חוקי)	
 	jsr	# 7	 
 ;שגיאה(רווח)	
