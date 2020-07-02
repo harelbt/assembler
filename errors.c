@@ -13,14 +13,14 @@ error* report_error(line* sentence, short int error_code, error* error_list){
     return error_list;
 }
 void insert_error(error* error_list, char* message, int line) {
-    error *new_error;
+    error *new_error = NULL;
     error *curr_pointer;
     error *prev_pointer;
     if (error_list == NULL) {
-        error_list_initialize(error_list, message, line);
+        create_error(error_list, message, line);
         return;
     }
-    new_error =  allocate_arr_memory(1, "error");
+    create_error(new_error, message, line);
     curr_pointer = error_list;
     prev_pointer = NULL;
 
@@ -28,11 +28,12 @@ void insert_error(error* error_list, char* message, int line) {
         prev_pointer = curr_pointer;
         curr_pointer = curr_pointer->next;
     }
+
 }
 void output_errors(error* error_list){
 
 }
-static void error_list_initialize(error* new_list, char* message, int line){
+static void create_error(error* new_list, char* message, int line){
     new_list = allocate_arr_memory(1, "error");
     new_list->error = message;
     new_list->line = line;
