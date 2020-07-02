@@ -24,14 +24,28 @@ void insert_error(error* error_list, char* message, int line) {
     curr_pointer = error_list;
     prev_pointer = NULL;
 
-    while (error_list->line < line && curr_pointer->next != NULL) {
+    while (curr_pointer->line < line && curr_pointer->next != NULL) {
         prev_pointer = curr_pointer;
         curr_pointer = curr_pointer->next;
     }
-
+    if (curr_pointer->line < line){
+        curr_pointer->next = new_error;
+    } else {
+        new_error->next = curr_pointer;
+        prev_pointer->next = new_error;
+    }
 }
 void output_errors(error* error_list){
-
+    error* curr_pointer = error_list;
+    error* prev_pointer = NULL;
+    while (curr_pointer->next != NULL) {
+        printf("ERROR: %s. in line %d", curr_pointer->error, curr_pointer->line);
+        prev_pointer = curr_pointer;
+        curr_pointer = curr_pointer->next;
+        free(prev_pointer);
+    }
+    printf("ERROR: %s. in line %d", curr_pointer->error, curr_pointer->line);
+    free(curr_pointer);
 }
 static void create_error(error* new_list, char* message, int line){
     new_list = allocate_arr_memory(1, "error");
