@@ -182,4 +182,7 @@ char four_binaries_to_hex (short int binary);
  * @return the original array with the negative result in a short int array (also changes the original given array)
  */
 short int* comp_of_2 (short int* binary,long length);
+
+int find_first_char(line* sentence);
+int find_semicolon(line* sentence);
 #endif /*HELP_H*/

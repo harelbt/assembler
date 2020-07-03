@@ -5,6 +5,8 @@
 #define ORDER 1
 #define INSTRUCTION 0
 #define LABEL_MAX_LENGTH 31
+#define TRUE 1
+#define FALSE 0
 typedef struct {
     char name[LABEL_MAX_LENGTH];
     char* address;
@@ -12,12 +14,20 @@ typedef struct {
     char extern_or_entry;
 } symbol;
 typedef struct {
-    char* line;
-    symbol label;
     char* operator;
     char* first_operand;
     char* second_operand;
+}instruction;
+typedef struct {
+    char* order;
+    /**/
+}order;
+typedef struct {
+    char* line;
+    symbol label;
+    instruction instruction_parts;
     short int is_comment;
+    short int is_empty_line;
     int line_number;
 }line;
 typedef struct error_message{

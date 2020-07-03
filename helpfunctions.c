@@ -767,3 +767,21 @@ short int* comp_of_2 (short int* binary,long length){
     }
     return binary;
 }
+int find_first_char(line* sentence){
+    int i = 0;
+    while (sentence->line[i]){
+        if (sentence->line[i] != ' ' && sentence->line[i] != '\t' && sentence->line[i] != '\n')
+            return i;
+        i++;
+    }
+    return -1;
+}
+int find_semicolon(line* sentence){
+    int i = 0;
+    while (sentence->line[i]){
+        if (sentence->line[i] == ';')
+            return i;
+        i++;
+    }
+    return -1;
+}

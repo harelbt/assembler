@@ -19,6 +19,8 @@ void first_pass(char* file){
     if (error_list.error != NULL) {
         output_errors(&error_list);
     }
+    fclose(filep);
+    free(sentence);
 }
 int read_line(FILE* file, line* sentence){
     sentence->line = get_line_dynamic(file);
@@ -27,25 +29,26 @@ int read_line(FILE* file, line* sentence){
     return 0;
 }
 short int parse (line* sentence, error* error_list){
+
     comment_check(sentence, error_list);
-
+    empty_line_check(sentence);
 }
 
-int find_semicolon(line* sentence){
-    int i = 0;
-    while (sentence->line[i]){
-        if (sentence->line[i] == ';')
-            return i;
-        i++;
-    }
-    return -1;
-}
+
+
 void comment_check(line* sentence, error* error_list){
     int semicolon_index = find_semicolon(sentence);
-    if (!semicolon_index){
-        sentence->is_comment = 1;
+    int first_char_index = find_first_char(sentence);
+    if (semicolon_index == first_char_index && semicolon_index >= 0){
+        sentence->is_comment = TRUE;
     }
-    if (semicolon_index > 0){
+    if (semicolon_index > first_char_index && semicolon_index > 0 && first_char_index >= 0){
         report_error(sentence, UNEXPECTED_SEMICOLON, error_list);
     }
+}
+void empty_line_check (line* sentence){
+    if (find_first_char(sentence) == -1){
+        sentence->is_empty_line = TRUE;
+    } else
+        sentence->is_empty_line = FALSE;
 }
