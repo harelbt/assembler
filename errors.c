@@ -22,18 +22,11 @@ void insert_error(error* error_list, char* message, int line) {
     }
     create_error(new_error, message, line);
     curr_pointer = error_list;
-    prev_pointer = NULL;
 
-    while (curr_pointer->line < line && curr_pointer->next != NULL) {
-        prev_pointer = curr_pointer;
+    while (curr_pointer->next != NULL) {
         curr_pointer = curr_pointer->next;
     }
-    if (curr_pointer->line < line){
-        curr_pointer->next = new_error;
-    } else {
-        new_error->next = curr_pointer;
-        prev_pointer->next = new_error;
-    }
+    curr_pointer->next = new_error;
 }
 void output_errors(error* error_list){
     error* curr_pointer = error_list;
