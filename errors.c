@@ -21,7 +21,6 @@ static void insert_error(error* error_list, char* message, int line) {
     }
     create_error(new_error, message, line);
     insert_node("error", error_list, new_error);
-
 }
 void output_errors(error* error_list){
     error* curr_pointer = error_list;

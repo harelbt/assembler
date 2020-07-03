@@ -12,7 +12,7 @@ void first_pass(char* file){
         sentence->line_number = line_number;
         line_number++;
         if (strcmp(sentence->line, "\n")) {
-            parse(sentence, &error_list);
+            parse_line(sentence, &error_list);
             /*RECOGNIZE SENTENCE TYPE*/
             /*HANDLE SYMBOL*/
             /*HANDLE (OPERATORS AND OPERANDS) OR DATA*/
@@ -30,11 +30,11 @@ int read_line(FILE* file, line* sentence){
             return EOF;
     return 0;
 }
-short int parse (line* sentence, error* error_list){
+short int parse_line (line* sentence, error* error_list){
     empty_line_check(sentence);
-    if (sentence->is_empty_line == FALSE) {
+    if (sentence->flags.is_empty_line == FALSE) {
         comment_check(sentence, error_list);
-        if (sentence->is_comment == FALSE){
+        if (sentence->flags.is_comment == FALSE){
 
         }
     }
@@ -46,7 +46,7 @@ void comment_check(line* sentence, error* error_list){
     int semicolon_index = find_semicolon(sentence);
     int first_char_index = find_first_char(sentence);
     if (semicolon_index == first_char_index && semicolon_index >= 0){
-        sentence->is_comment = TRUE;
+        sentence->flags.is_comment = TRUE;
     }
     if (semicolon_index > first_char_index && semicolon_index > 0 && first_char_index >= 0){
         report_error(sentence, UNEXPECTED_SEMICOLON, error_list);
@@ -54,7 +54,7 @@ void comment_check(line* sentence, error* error_list){
 }
 void empty_line_check (line* sentence){
     if (find_first_char(sentence) == -1){
-        sentence->is_empty_line = TRUE;
+        sentence->flags.is_empty_line = TRUE;
     } else
-        sentence->is_empty_line = FALSE;
+        sentence->flags.is_empty_line = FALSE;
 }

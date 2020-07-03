@@ -20,14 +20,20 @@ typedef struct {
 }instruction;
 typedef struct {
     char* order;
-    /**/
+    char* data;
 }order;
+typedef struct {
+    short int is_comment;
+    short int is_empty_line;
+    short int is_instruction;
+    short int is_order;
+}line_flags;
 typedef struct {
     char* line;
     symbol label;
     instruction instruction_parts;
-    short int is_comment;
-    short int is_empty_line;
+    order order_parts;
+    line_flags flags;
     int line_number;
 }line;
 typedef struct error_message{
