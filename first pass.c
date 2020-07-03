@@ -29,9 +29,13 @@ int read_line(FILE* file, line* sentence){
     return 0;
 }
 short int parse (line* sentence, error* error_list){
-
-    comment_check(sentence, error_list);
     empty_line_check(sentence);
+    if (sentence->is_empty_line == FALSE) {
+        comment_check(sentence, error_list);
+        if (sentence->is_comment == FALSE){
+
+        }
+    }
 }
 
 
