@@ -4,18 +4,12 @@ void first_pass(char* file){
     FILE* filep = open_file(file,"r");
     line* sentence = allocate_arr_memory(1,"line");
     error error_list;
-    error_list.line = 0;
-    error_list.error = NULL;
-    error_list.next = NULL;
     int line_number = 1;
     while (!read_line(filep, sentence)) {
         sentence->line_number = line_number;
         line_number++;
         if (strcmp(sentence->line, "\n")) {
             parse_line(sentence, &error_list);
-            /*RECOGNIZE SENTENCE TYPE*/
-            /*HANDLE SYMBOL*/
-            /*HANDLE (OPERATORS AND OPERANDS) OR DATA*/
         }
     }
     if (error_list.error != NULL) {

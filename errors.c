@@ -2,7 +2,7 @@
 #include "errors.h"
 #include "helpfunctions.h"
 #include "linked list.h"
-error* report_error(line* sentence, short int error_code, error* error_list){
+void report_error(line* sentence, short int error_code, error* error_list){
     char* message;
     switch (error_code) {
         case UNEXPECTED_SEMICOLON:{
@@ -11,7 +11,6 @@ error* report_error(line* sentence, short int error_code, error* error_list){
 
     }
     insert_error(error_list,message,sentence->line_number);
-    return error_list;
 }
 static void insert_error(error* error_list, char* message, int line) {
     error *new_error = allocate_arr_memory(1, "error");

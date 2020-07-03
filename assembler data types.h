@@ -41,4 +41,5 @@ typedef struct error_message{
     int line;
     struct error_message* next;
 }error;
+static void create_symbol(symbol* to_initialize, char* name, char* address, char sentence_type, char extern_or_entry);
 #endif /*ASSEMBLER_ASSEMBLER_DATA_TYPES_H*/
