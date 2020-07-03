@@ -27,7 +27,7 @@ void output_errors(error* error_list){
     error* curr_pointer = error_list;
     error* prev_pointer = NULL;
     while (curr_pointer->next != NULL) {
-        printf("ERROR: %s. in line %d\n", curr_pointer->error, curr_pointer->line);
+        printf("ERROR: %s in line %d\n", curr_pointer->error, curr_pointer->line);
         prev_pointer = curr_pointer;
         curr_pointer = curr_pointer->next;
         free(prev_pointer);

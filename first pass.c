@@ -11,10 +11,12 @@ void first_pass(char* file){
     while (!read_line(filep, sentence)) {
         sentence->line_number = line_number;
         line_number++;
-        parse(sentence, &error_list);
-        /*RECOGNIZE SENTENCE TYPE*/
-        /*HANDLE SYMBOL*/
-        /*HANDLE (OPERATORS AND OPERANDS) OR DATA*/
+        if (strcmp(sentence->line, "\n")) {
+            parse(sentence, &error_list);
+            /*RECOGNIZE SENTENCE TYPE*/
+            /*HANDLE SYMBOL*/
+            /*HANDLE (OPERATORS AND OPERANDS) OR DATA*/
+        }
     }
     if (error_list.error != NULL) {
         output_errors(&error_list);

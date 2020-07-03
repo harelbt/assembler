@@ -649,6 +649,9 @@ char* get_line_dynamic(FILE* file){
     int length = 1;
     if (ch == EOF)
         return "";
+    if (ch == '\n'){
+        return "\n";
+    }
     str[0] = (char) ch;
     while ((ch = fgetc(file)) != '\n' && ch != EOF){
         str = realloc_arr_memory(str,length +2, "char");
