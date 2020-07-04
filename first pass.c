@@ -10,6 +10,7 @@ void first_pass(char* file){
         line_number++;
         if (strcmp(sentence->line, "\n")) {
             parse_line(sentence, &error_list);
+            if (error_list.error != NULL){}
         }
     }
     if (error_list.error != NULL) {
@@ -24,7 +25,8 @@ int read_line(FILE* file, line* sentence){
             return EOF;
     return 0;
 }
-short int parse_line (line* sentence, error* error_list){
+void parse_line (line* sentence, error* error_list){
+    find_signes(sentence);
     empty_line_check(sentence);
     if (sentence->flags.is_empty_line == FALSE) {
         comment_check(sentence, error_list);
@@ -33,9 +35,9 @@ short int parse_line (line* sentence, error* error_list){
         }
     }
 }
+void find_signes(line* sentence){
 
-
-
+}
 void comment_check(line* sentence, error* error_list){
     int semicolon_index = find_semicolon(sentence);
     int first_char_index = find_first_char(sentence);
