@@ -7,8 +7,12 @@ void report_error(line* sentence, short int error_code, error* error_list){
     switch (error_code) {
         case UNEXPECTED_SEMICOLON:{
             message = "unexpected semicolon.";
+            break;
         }
-
+        case UNEXPECTED_HASHMARK:{
+            message = "unexpected hash mark.";
+            break;
+        }
     }
     insert_error(error_list,message,sentence->line_number);
 }

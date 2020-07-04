@@ -42,6 +42,7 @@ typedef struct error_message{
     struct error_message* next;
 }error;
 typedef struct {
+    int colon_index;
     int semicolon_index;
     int first_hash_mark_index;
     int second_hash_mark_index;
@@ -50,7 +51,6 @@ typedef struct {
     int second_register_index;
     int first_quotation_mark;
     int second_quotation_mark;
-    int operator_index;
 }line_marks_index;
 static void create_symbol(symbol* to_initialize, char* name, char* address, char sentence_type, char extern_or_entry);
 #endif /*ASSEMBLER_ASSEMBLER_DATA_TYPES_H*/

@@ -26,7 +26,8 @@ int read_line(FILE* file, line* sentence){
     return 0;
 }
 void parse_line (line* sentence, error* error_list){
-    find_signes(sentence);
+    line_marks_index indexes;
+    find_signs(sentence, &indexes, error_list);
     empty_line_check(sentence);
     if (sentence->flags.is_empty_line == FALSE) {
         comment_check(sentence, error_list);
@@ -35,8 +36,57 @@ void parse_line (line* sentence, error* error_list){
         }
     }
 }
-void find_signes(line* sentence){
-
+void find_signs(line* sentence, line_marks_index* indexes, error* error_list){
+    int i = 0;
+    short int colon_found = 0;
+    short int semicolon_found = 0;
+    short int dot_found = 0;
+    short int number_of_hash_marks = 0;
+    short int number_of_quotation_marks = 0;
+    short int number_of_registers = 0;
+    while (sentence->line[i]){
+        switch (sentence->line[i]) {
+            case ':':{
+                if (!colon_found) {
+                    indexes->colon_index = i;
+                    colon_found = 1;
+                }
+                break;
+            }
+            case ';':{
+                if (!semicolon_found) {
+                    indexes->semicolon_index = i;
+                    semicolon_found = 1;
+                }
+                break;
+            }
+            case '.':{
+                if (!dot_found) {
+                    indexes->dot_index = i;
+                    dot_found = 1;
+                }
+                break;
+            }
+            case '#':{
+                if (number_of_hash_marks < 2) {
+                    if (!number_of_hash_marks) {
+                        indexes->first_hash_mark_index = i;
+                        number_of_hash_marks++;
+                        break;
+                    }
+                    if (number_of_hash_marks == 1) {
+                        indexes->second_hash_mark_index = i;
+                        number_of_hash_marks++;
+                        break;
+                    }
+                } else
+                    report_error(sentence,UNEXPECTED_HASHMARK,error_list);
+            }
+            case 'r':{}
+            case '\"':{}
+        }
+        i++;
+    }
 }
 void comment_check(line* sentence, error* error_list){
     int semicolon_index = find_semicolon(sentence);
