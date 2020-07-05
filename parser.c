@@ -143,16 +143,17 @@ static void empty_line_check (line* sentence, line_marks_index indexes){
         sentence->flags.is_empty_line = FALSE;
 }
 void extract_operator(line* sentence, char* operators_table, line_marks_index indexes, error* error_list){
-    int number_of_operators = 0;
-    char operator [4];
-    int str_length = (int) strlen(sentence->line);
     typedef struct {
         int str_length;
         char* operator;
         line sentence;
-        int* number_of_operators;
+        int number_of_operators;
         char* operators_table[16][3];
     }operator_variables;
+    int number_of_operators = 0;
+    char operator [4];
+    int str_length = (int) strlen(sentence->line);
+
     if (str_length < 3){
         define_as_not_instruction(sentence);
         if (indexes.first_register_index >= 0){
