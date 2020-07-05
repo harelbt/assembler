@@ -35,10 +35,12 @@ typedef struct {
     order order_parts;
     line_flags flags;
     int line_number;
+    int char_number;
 }line;
 typedef struct error_message{
     char* error;
     int line;
+    int char_number;
     struct error_message* next;
 }error;
 typedef struct {

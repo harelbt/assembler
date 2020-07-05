@@ -4,6 +4,7 @@ void first_pass(char* file){
     FILE* filep = open_file(file,"r");
     line* sentence = allocate_arr_memory(1,"line");
     error error_list;
+    error_list.error = NULL;
     int line_number = 1;
     while (!read_line(filep, sentence)) {
         sentence->line_number = line_number;
@@ -79,8 +80,10 @@ void find_signs(line* sentence, line_marks_index* indexes, error* error_list){
                         number_of_hash_marks++;
                         break;
                     }
-                } else
-                    report_error(sentence,UNEXPECTED_HASHMARK,error_list);
+                } else {
+                    sentence->char_number = i;
+                    report_error(sentence, UNEXPECTED_HASHMARK, error_list);
+                }
             }
             case 'r':{}
             case '\"':{}

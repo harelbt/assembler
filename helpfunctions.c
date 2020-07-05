@@ -782,8 +782,10 @@ int find_first_char(line* sentence){
 int find_semicolon(line* sentence){
     int i = 0;
     while (sentence->line[i]){
-        if (sentence->line[i] == ';')
+        if (sentence->line[i] == ';') {
+            sentence->char_number = i;
             return i;
+        }
         i++;
     }
     return -1;

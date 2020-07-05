@@ -9,4 +9,4 @@ add_executable(assembler
         helpfunctions.c
         helpfunctions.h
         words.c
-        words.h assembler.c "first pass.c" "first pass.h" "assembler data types.c" "assembler data types.h" "hash table.c" "hash table.h" errors.c errors.h "linked list.c" "linked list.h")
+        words.h assembler.c "first pass.c" "first pass.h" "assembler data types.c" "assembler data types.h" errors.c errors.h)
