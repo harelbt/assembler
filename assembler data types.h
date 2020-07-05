@@ -14,7 +14,8 @@ typedef struct {
     char extern_or_entry;
 } symbol;
 typedef struct {
-    char* operator;
+    int opcode;
+    int function;
     char* first_operand;
     char* second_operand;
 }instruction;
@@ -31,8 +32,8 @@ typedef struct {
 typedef struct {
     char* line;
     symbol label;
-    instruction instruction_parts;
-    order order_parts;
+    instruction code_parts;
+    order data_parts;
     line_flags flags;
     int line_number;
     int char_number;

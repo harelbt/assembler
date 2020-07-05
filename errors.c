@@ -20,6 +20,14 @@ void report_error(line* sentence, short int error_code, error* error_list){
             message = "unexpected quotation mark.";
             break;
         }
+        case REGISTER_NO_OPERATOR:{
+            message = "register is written but no operator found.";
+            break;
+        }
+        case HASHMARK_NO_OPERATOR:{
+            message = "hash mark is written but no operator found.";
+            break;
+        }
     }
     insert_error(error_list,message,sentence->line_number, sentence->char_number);
 }
