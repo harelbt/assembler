@@ -12,6 +12,14 @@ void report_error(line* sentence, short int error_code, error* error_list){
             message = "unexpected hash mark.";
             break;
         }
+        case UNEXPECTED_REGISTER:{
+            message = "unexpected register.";
+            break;
+        }
+        case UNEXPECTED_QUOT_MARK:{
+            message = "unexpected quotation mark.";
+            break;
+        }
     }
     insert_error(error_list,message,sentence->line_number, sentence->char_number);
 }

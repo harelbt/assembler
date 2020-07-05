@@ -3,6 +3,8 @@
 #define ASSEMBLER_ERRORS_H
 #define UNEXPECTED_SEMICOLON 1
 #define UNEXPECTED_HASHMARK 2
+#define UNEXPECTED_REGISTER 3
+#define UNEXPECTED_QUOT_MARK 4
 #include "assembler data types.h"
 
 void report_error(line* sentence, short int error_code, error* error_list);

@@ -3,6 +3,7 @@
 LABEL1:	mov	#7	r1	
 	mov	# 7	r1	 
 ;שגיאה(רווח)
+mov str stri
 				
 LABEL2:	mov	#-9	r2	
 	mov	#-9	r 2	 
@@ -148,6 +149,8 @@ X:	add	r3	r2
 	lea	r5	X	
 	lea	r9	r2	 
 ;שגיאה(אופרנד מקור לא תקף)
+lea	r3	r2 r4
+
 	lea	r1	r8	 
 ;שגיאה(אופרנד יעד לא תקף)
 	lea	r1		 
@@ -276,12 +279,12 @@ X:	add	r3	r2
 .data 6,  7, -7
 .data #6,  7, -7
 ;שגיאה(יש #)
-string. "khskhbkd"
-"jdcbjcn"
-"dcncdnlc"
-data 6,  7, -7
-9,
--3
+.string "khskhbkd"
+.string "jdcbjcn""
+.string "dcncdnlc"
+.data 6,  7, -7
+.data 9,
+.data -3
 kdjndkjcnjknnjkncln
 ;שגיאה(לא אומר כלום)
 	jsr	#-7
@@ -343,6 +346,7 @@ LABEL1:	prn	str
 	rts			
 	stop			
 DATA:	.data	-6		
+stri: .string "certy"
 str:	.string	"abcdef"		
 JH:	.entry	str	
 ;להתעלם מהתווית	

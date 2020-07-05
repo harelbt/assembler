@@ -44,6 +44,7 @@ typedef struct error_message{
     struct error_message* next;
 }error;
 typedef struct {
+    int first_char_index;
     int colon_index;
     int semicolon_index;
     int first_hash_mark_index;
