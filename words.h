@@ -9,7 +9,7 @@ typedef struct {
 /**
  * turns a word into hex
  * @param to_convert the word to convert
- * @return a string of the hex represantation of the word
+ * @return a string of the hex representation of the word
  */
 char* word_to_hex(word to_convert);
 /**

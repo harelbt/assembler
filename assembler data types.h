@@ -28,6 +28,7 @@ typedef struct {
     short int is_empty_line;
     short int is_instruction;
     short int is_order;
+    short int is_label;
 }line_flags;
 typedef struct {
     char* line;
