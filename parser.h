@@ -73,10 +73,10 @@ break;}
          line_marks_index indexes;
      }operator_variables;
 
- void parse_line (line* sentence, error* error_list);
-static void comment_check(line* sentence, error* error_list, line_marks_index indexes);
+ void parse_line (line* sentence);
+static void comment_check(line* sentence, line_marks_index indexes);
 static void empty_line_check (line* sentence, line_marks_index indexes);
-static void find_signs(line* sentence, line_marks_index* indexes, error* error_list);
+static void find_signs(line* sentence, line_marks_index* indexes);
 static void extract_operator(line* sentence, line_marks_index indexes);
 static int recognize_operator(char* operator,int* opcode, int* function);
 static void find_and_handle_operators(operator_variables* op_variables);

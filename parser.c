@@ -1,18 +1,18 @@
 #include <stdlib.h>
 #include <string.h>
 #include "parser.h"
-void parse_line (line* sentence, error* error_list){
+void parse_line (line* sentence){
     line_marks_index indexes;
-    find_signs(sentence, &indexes, error_list);
+    find_signs(sentence, &indexes);
     empty_line_check(sentence, indexes);
     if (sentence->flags.is_empty_line == FALSE) {
-        comment_check(sentence, error_list, indexes);
+        comment_check(sentence, indexes);
         if (sentence->flags.is_comment == FALSE){
             extract_operator(sentence, indexes);
         }
     }
 }
-static void find_signs(line* sentence, line_marks_index* indexes, error* error_list) {
+static void find_signs(line* sentence, line_marks_index* indexes) {
     int i = 0;
     short int colon_found = 0;
     short int semicolon_found = 0;
@@ -50,7 +50,7 @@ static void find_signs(line* sentence, line_marks_index* indexes, error* error_l
         i++;
     }
 }
-static void comment_check(line* sentence, error* error_list, line_marks_index indexes){
+static void comment_check(line* sentence, line_marks_index indexes){
     if (indexes.semicolon_index == -1){
         sentence->flags.is_comment = FALSE;
         return;
@@ -71,12 +71,11 @@ static void empty_line_check (line* sentence, line_marks_index indexes){
 }
 static void extract_operator(line* sentence, line_marks_index indexes){
     operator_variables op_variables;
-    initialize_operator_variables(&op_variables, sentence, indexes);
-
     if (op_variables.str_length < 3){
         define_as_not_instruction(sentence);
         inspect_non_instruction_line(sentence, indexes);
     }
+    initialize_operator_variables(&op_variables, sentence, indexes);
     find_and_handle_operators(&op_variables);
 }
 
@@ -84,6 +83,7 @@ static void find_and_handle_operators(operator_variables* op_variables){
     int i = 0;
     int recognized_opcode = -1;
     int recognized_function = -1;
+    /**/
     while (i < op_variables->str_length - 2){
         strncpy(op_variables->operator, op_variables->sentence->line+i, 3);
         if (recognize_operator(op_variables->operator, &recognized_opcode, &recognized_function) == 1){

@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include "errors.h"
 #include "helpfunctions.h"
 void report_error(line* sentence, short int error_code){
@@ -32,6 +31,8 @@ void report_error(line* sentence, short int error_code){
             printf("Extra operator in line %d.\n", sentence->line_number);
             break;
         }
+        default:
+            return;
     }
 }
 void inspect_non_instruction_line(line* sentence, line_marks_index indexes){
@@ -42,6 +43,6 @@ void inspect_non_instruction_line(line* sentence, line_marks_index indexes){
         report_error(sentence, HASHMARK_NO_OPERATOR);
     }
 }
-void inspect_instruction_line(line* sentence, line_marks_index indexes){
+/*void inspect_instruction_line(line* sentence, line_marks_index indexes){
 
-}
+}*/

@@ -37,12 +37,6 @@ typedef struct {
     line_flags flags;
     int line_number;
 }line;
-typedef struct error_message{
-    char* error;
-    int line;
-    int char_number;
-    struct error_message* next;
-}error;
 typedef struct {
     int first_char_index;
     int colon_index;
