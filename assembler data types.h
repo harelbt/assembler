@@ -36,7 +36,6 @@ typedef struct {
     order data_parts;
     line_flags flags;
     int line_number;
-    int char_number;
 }line;
 typedef struct error_message{
     char* error;

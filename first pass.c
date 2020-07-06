@@ -14,9 +14,6 @@ void first_pass(char* file){
             if (error_list.error != NULL){}
         }
     }
-    /*if (error_list.error != NULL) {
-        output_errors(&error_list);
-    }*/
     fclose(filep);
     free(sentence);
 }

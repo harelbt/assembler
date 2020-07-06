@@ -1,9 +1,9 @@
+#include <stdlib.h>
 #include <string.h>
 #include "parser.h"
 void parse_line (line* sentence, error* error_list){
     line_marks_index indexes;
     find_signs(sentence, &indexes, error_list);
-
     empty_line_check(sentence, indexes);
     if (sentence->flags.is_empty_line == FALSE) {
         comment_check(sentence, error_list, indexes);
@@ -29,98 +29,25 @@ static void find_signs(line* sentence, line_marks_index* indexes, error* error_l
         }
         switch (sentence->line[i]) {
             case ':': {
-                if (!colon_found) {
-                    indexes->colon_index = i;
-                    colon_found = 1;
-                }
-                break;
+                COLON_CASE
             }
             case ';': {
-                if (!semicolon_found) {
-                    indexes->semicolon_index = i;
-                    semicolon_found = 1;
-                }
-                break;
+                SEMICOLON_CASE
             }
             case '.': {
-                if (!dot_found) {
-                    indexes->dot_index = i;
-                    dot_found = 1;
-                }
-                break;
+               DOT_CASE
             }
             case '#': {
-                if (number_of_hash_marks < 2) {
-                    if (!number_of_hash_marks) {
-                        indexes->first_hash_mark_index = i;
-                        number_of_hash_marks++;
-                        break;
-                    }
-                    if (number_of_hash_marks == 1) {
-                        indexes->second_hash_mark_index = i;
-                        number_of_hash_marks++;
-                        break;
-                    }
-                } else {
-                    sentence->char_number = i;
-                    report_error(sentence, UNEXPECTED_HASHMARK);
-                    break;
-                }
+                HASHMARK_CASE
             }
             case 'r': {
-                int str_length = (int) strlen(sentence->line);
-                if (number_of_registers < 2) {
-                    if (REGISTER_CONDITION) {
-                        if (!number_of_registers) {
-                            indexes->first_register_index = i;
-                            number_of_registers++;
-                            break;
-                        }
-                        if (number_of_registers == 1) {
-                            indexes->second_register_index = i;
-                            number_of_registers++;
-                        }
-                        break;
-                    }
-                    break;
-                } else {
-                    sentence->char_number = i;
-                    report_error(sentence, UNEXPECTED_REGISTER);
-                    break;
-                }
+                REGISTER_CASE
             }
             case '\"': {
-                if (number_of_quotation_marks < 2) {
-                    if (!number_of_quotation_marks) {
-                        indexes->first_quotation_mark = i;
-                        number_of_quotation_marks++;
-                        break;
-                    }
-                    if (number_of_quotation_marks == 1) {
-                        indexes->second_quotation_mark = i;
-                        number_of_quotation_marks++;
-                        break;
-                    }
-                } else {
-                    sentence->char_number = i;
-                    report_error(sentence, UNEXPECTED_QUOT_MARK);
-                    break;
-                }
+                QUOT_MARK_CASE
             }
         }
         i++;
-    }
-    if (!semicolon_found) {
-        indexes->semicolon_index = -1;
-    }
-    if (!colon_found) {
-        indexes->colon_index = -1;
-    }
-    if (!dot_found) {
-        indexes->dot_index = -1;
-    }
-    if (!first_char_found) {
-        indexes->first_char_index = -1;
     }
 }
 static void comment_check(line* sentence, error* error_list, line_marks_index indexes){
@@ -144,33 +71,19 @@ static void empty_line_check (line* sentence, line_marks_index indexes){
 }
 static void extract_operator(line* sentence, line_marks_index indexes){
     operator_variables op_variables;
-    op_variables.number_of_operators = 0;
-    op_variables.operator[3] = '\0';
-    op_variables.sentence = sentence;
-    op_variables.str_length = (int) strlen(sentence->line);
+    initialize_operator_variables(&op_variables, sentence, indexes);
 
     if (op_variables.str_length < 3){
         define_as_not_instruction(sentence);
-        if (indexes.first_register_index >= 0){
-            report_error(sentence, REGISTER_NO_OPERATOR);
-        }
-        if (indexes.first_hash_mark_index >= 0){
-            report_error(sentence, HASHMARK_NO_OPERATOR);
-        }
+        inspect_non_instruction_line(sentence, indexes);
     }
     find_and_handle_operators(&op_variables);
 }
-static int recognize_operator(char* operator, int* opcode, int* function){
-    int i = 0;
-    while (i < 16){
 
-        i++;
-    }
-}
 static void find_and_handle_operators(operator_variables* op_variables){
     int i = 0;
-    int recognized_opcode;
-    int recognized_function;
+    int recognized_opcode = -1;
+    int recognized_function = -1;
     while (i < op_variables->str_length - 2){
         strncpy(op_variables->operator, op_variables->sentence->line+i, 3);
         if (recognize_operator(op_variables->operator, &recognized_opcode, &recognized_function) == 1){
@@ -179,17 +92,37 @@ static void find_and_handle_operators(operator_variables* op_variables){
         }
         i++;
     }
-    handle_operators(op_variables->number_of_operators, op_variables->sentence);
+    handle_operators(op_variables, recognized_opcode, recognized_function);
 }
-static void handle_operators(int number_of_operators, line* sentence){
-    if (!number_of_operators){
-        define_as_not_instruction(sentence);
+static int recognize_operator(char* operator, int* opcode, int* function){
+    char** endp = NULL;
+    int i = 0;
+    char* operators_table[16][3] = {{"mov", "0", ""},{"cmp", "1", ""},{"add", "2", "1"},{"sub", "2", "2"},{"lea", "4", ""},
+                                    {"clr", "5", "1"},{"not", "5", "2"},{"inc", "5", "3"},{"dec", "5", "4"},{"jmp", "9", "1"},
+                                    {"bne","9", "2"},{"jsr", "9", "3"},{"red", "12", ""},{"prn", "13", ""},{"rts", "14", ""},
+                                    {"stop", "15", ""}};
+    while (i < 16){
+        if (!strcmp(operator, operators_table[i][0])){
+            *opcode = strtod(operators_table[i][1],endp);
+            *function = strtod(operators_table[i][2],endp);
+            return 1;
+        }
+        i++;
     }
-    if (number_of_operators == 1){
-
+    return 0;
+}
+static void handle_operators(operator_variables* op_variables, int recognized_opcode, int recognized_function){
+    if (!(op_variables->number_of_operators)){
+        define_as_not_instruction(op_variables->sentence);
+        inspect_non_instruction_line(op_variables->sentence, op_variables->indexes);
     }
-    if (number_of_operators > 1){
-        report_error(sentence, EXTRA_OPERATORS);
+    if (op_variables->number_of_operators == 1){
+        op_variables->sentence->code_parts.opcode = recognized_opcode;
+        op_variables->sentence->code_parts.function = recognized_function;
+        op_variables->sentence->flags.is_instruction = 1;
+    }
+    if (op_variables->number_of_operators > 1){
+        report_error(op_variables->sentence, EXTRA_OPERATORS);
     }
 }
 static void define_as_not_instruction(line* sentence){
@@ -210,4 +143,11 @@ void assume_no_signes(line_marks_index* indexes){
     indexes->second_hash_mark_index = -1;
     indexes->dot_index = -1;
     indexes->colon_index = -1;
+}
+void initialize_operator_variables(operator_variables* op_variables, line* sentence, line_marks_index indexes){
+    op_variables->number_of_operators = 0;
+    op_variables->operator[3] = '\0';
+    op_variables->sentence = sentence;
+    op_variables->str_length = (int) strlen(sentence->line);
+    op_variables->indexes = indexes;
 }
