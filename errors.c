@@ -1,37 +1,40 @@
 #include <stdlib.h>
 #include "errors.h"
 #include "helpfunctions.h"
-void report_error(line* sentence, short int error_code, error* error_list){
-    char* message;
+void report_error(line* sentence, short int error_code){
+    printf("ERROR: ");
     switch (error_code) {
         case UNEXPECTED_SEMICOLON:{
-            message = "unexpected semicolon.";
+            printf("unexpected semicolon in line %d, column %d.\n", sentence->line_number, sentence->char_number);
             break;
         }
         case UNEXPECTED_HASHMARK:{
-            message = "unexpected hash mark.";
+            printf("unexpected hash mark in line %d, column %d.\n", sentence->line_number, sentence->char_number);
             break;
         }
         case UNEXPECTED_REGISTER:{
-            message = "unexpected register.";
+            printf("unexpected register in line %d, column %d.\n", sentence->line_number, sentence->char_number);
             break;
         }
         case UNEXPECTED_QUOT_MARK:{
-            message = "unexpected quotation mark.";
+            printf("unexpected quotation mark in line %d, column %d.\n", sentence->line_number, sentence->char_number);
             break;
         }
         case REGISTER_NO_OPERATOR:{
-            message = "register is written but no operator found.";
+            printf("register is written but no operator found in line %d, column %d.\n", sentence->line_number, sentence->char_number);
             break;
         }
         case HASHMARK_NO_OPERATOR:{
-            message = "hash mark is written but no operator found.";
+            printf("hash mark is written but no operator found in line %d, column %d.\n", sentence->line_number, sentence->char_number);
+            break;
+        }
+        case EXTRA_OPERATORS:{
+            printf("Extra operator in line %d, column %d.\n", sentence->line_number, sentence->char_number);
             break;
         }
     }
-    insert_error(error_list,message,sentence->line_number, sentence->char_number);
 }
-static void insert_error(error* error_list, char* message, int line, int char_number) {
+/*static void insert_error(error* error_list, char* message, int line, int char_number) {
     error *new_error = allocate_arr_memory(1, "error");
     if (error_list->error == NULL) {
         create_error(error_list, message, line, char_number);
@@ -64,4 +67,4 @@ void insert_node(error* error_list, error* new_error){
         curr_pointer = curr_pointer->next;
     }
     curr_pointer->next = new_error;
-}
+}*/

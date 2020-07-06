@@ -1,6 +1,6 @@
 #include <string.h>
 #include "parser.h"
-void parse_line (line* sentence, error* error_list, char* operators_table){
+void parse_line (line* sentence, error* error_list){
     line_marks_index indexes;
     find_signs(sentence, &indexes, error_list);
 
@@ -8,7 +8,7 @@ void parse_line (line* sentence, error* error_list, char* operators_table){
     if (sentence->flags.is_empty_line == FALSE) {
         comment_check(sentence, error_list, indexes);
         if (sentence->flags.is_comment == FALSE){
-            extract_operator(sentence, operators_table, indexes, error_list);
+            extract_operator(sentence, indexes);
         }
     }
 }
@@ -63,7 +63,7 @@ static void find_signs(line* sentence, line_marks_index* indexes, error* error_l
                     }
                 } else {
                     sentence->char_number = i;
-                    report_error(sentence, UNEXPECTED_HASHMARK, error_list);
+                    report_error(sentence, UNEXPECTED_HASHMARK);
                     break;
                 }
             }
@@ -85,7 +85,7 @@ static void find_signs(line* sentence, line_marks_index* indexes, error* error_l
                     break;
                 } else {
                     sentence->char_number = i;
-                    report_error(sentence, UNEXPECTED_REGISTER, error_list);
+                    report_error(sentence, UNEXPECTED_REGISTER);
                     break;
                 }
             }
@@ -103,7 +103,7 @@ static void find_signs(line* sentence, line_marks_index* indexes, error* error_l
                     }
                 } else {
                     sentence->char_number = i;
-                    report_error(sentence, UNEXPECTED_QUOT_MARK, error_list);
+                    report_error(sentence, UNEXPECTED_QUOT_MARK);
                     break;
                 }
             }
@@ -133,7 +133,7 @@ static void comment_check(line* sentence, error* error_list, line_marks_index in
         return;
     }
     if (UNEXPECTED_SEMICOLON_CONDITION){
-        report_error(sentence, UNEXPECTED_SEMICOLON, error_list);
+        report_error(sentence, UNEXPECTED_SEMICOLON);
     }
 }
 static void empty_line_check (line* sentence, line_marks_index indexes){
@@ -142,52 +142,46 @@ static void empty_line_check (line* sentence, line_marks_index indexes){
     } else
         sentence->flags.is_empty_line = FALSE;
 }
-void extract_operator(line* sentence, char* operators_table, line_marks_index indexes, error* error_list){
-    typedef struct {
-        int str_length;
-        char* operator;
-        line sentence;
-        int number_of_operators;
-        char* operators_table[16][3];
-    }operator_variables;
-    int number_of_operators = 0;
-    char operator [4];
-    int str_length = (int) strlen(sentence->line);
+static void extract_operator(line* sentence, line_marks_index indexes){
+    operator_variables op_variables;
+    op_variables.number_of_operators = 0;
+    op_variables.operator[3] = '\0';
+    op_variables.sentence = sentence;
+    op_variables.str_length = (int) strlen(sentence->line);
 
-    if (str_length < 3){
+    if (op_variables.str_length < 3){
         define_as_not_instruction(sentence);
         if (indexes.first_register_index >= 0){
-            report_error(sentence, REGISTER_NO_OPERATOR, error_list);
+            report_error(sentence, REGISTER_NO_OPERATOR);
         }
         if (indexes.first_hash_mark_index >= 0){
-            report_error(sentence, HASHMARK_NO_OPERATOR, error_list);
+            report_error(sentence, HASHMARK_NO_OPERATOR);
         }
     }
-    operator[3] = '\0';
-    find_and_handle_operators(str_length, operator, *sentence, &number_of_operators, operators_table);
+    find_and_handle_operators(&op_variables);
 }
-static int recognize_operator(char* operator, char* operators_table, int* opcode, int* function){
+static int recognize_operator(char* operator, int* opcode, int* function){
     int i = 0;
     while (i < 16){
 
         i++;
     }
 }
-static void find_and_handle_operators(int str_length, char* operator, line sentence, int* number_of_operators, char* operators_table){
+static void find_and_handle_operators(operator_variables* op_variables){
     int i = 0;
     int recognized_opcode;
     int recognized_function;
-    while (i < str_length - 2){
-        strncpy(operator, sentence.line+i, 3);
-        if (recognize_operator(operator, operators_table, &recognized_opcode, &recognized_function) == 1){
-            if (i == 0 || (i > 0 && (sentence.line[i-1] == ' ' || sentence.line[i-1] == '\t')))
-                *number_of_operators++;
+    while (i < op_variables->str_length - 2){
+        strncpy(op_variables->operator, op_variables->sentence->line+i, 3);
+        if (recognize_operator(op_variables->operator, &recognized_opcode, &recognized_function) == 1){
+            if (i == 0 || (i > 0 && (op_variables->sentence->line[i-1] == ' ' || op_variables->sentence->line[i-1] == '\t')))
+                op_variables->number_of_operators++;
         }
         i++;
     }
-    handle_operators(number_of_operators, sentence, error_list);
+    handle_operators(op_variables->number_of_operators, op_variables->sentence);
 }
-static void handle_operators(int number_of_operators, line* sentence, error* error_list){
+static void handle_operators(int number_of_operators, line* sentence){
     if (!number_of_operators){
         define_as_not_instruction(sentence);
     }
@@ -195,7 +189,7 @@ static void handle_operators(int number_of_operators, line* sentence, error* err
 
     }
     if (number_of_operators > 1){
-        report_error(sentence, )
+        report_error(sentence, EXTRA_OPERATORS);
     }
 }
 static void define_as_not_instruction(line* sentence){

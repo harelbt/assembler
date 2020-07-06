@@ -1,6 +1,6 @@
 #include "first pass.h"
 #include "parser.h"
-void first_pass(char* file, char* operators_table){
+void first_pass(char* file){
     FILE* filep = open_file(file,"r");
     line* sentence = allocate_arr_memory(1,"line");
     error error_list;
@@ -10,13 +10,13 @@ void first_pass(char* file, char* operators_table){
         sentence->line_number = line_number;
         line_number++;
         if (strcmp(sentence->line, "\n")) {
-            parse_line(sentence, &error_list, operators_table);
+            parse_line(sentence, &error_list);
             if (error_list.error != NULL){}
         }
     }
-    if (error_list.error != NULL) {
+    /*if (error_list.error != NULL) {
         output_errors(&error_list);
-    }
+    }*/
     fclose(filep);
     free(sentence);
 }

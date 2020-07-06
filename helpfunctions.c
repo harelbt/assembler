@@ -790,7 +790,7 @@ int find_semicolon(line* sentence){
     }
     return -1;
 }
-static int read_line(FILE* file, line* sentence){
+int read_line(FILE* file, line* sentence){
     sentence->line = get_line_dynamic(file);
     if (!strcmp(sentence->line, ""))
         return EOF;

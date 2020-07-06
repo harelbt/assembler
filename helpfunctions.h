@@ -185,5 +185,5 @@ short int* comp_of_2 (short int* binary,long length);
 
 int find_first_char(line* sentence);
 int find_semicolon(line* sentence);
-static int read_line(FILE* file, line* sentence);
+int read_line(FILE* file, line* sentence);
 #endif /*HELP_H*/
