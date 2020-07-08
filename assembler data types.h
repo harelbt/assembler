@@ -58,5 +58,15 @@ typedef struct {
     int number_of_dots;
     int number_of_operators;
 }line_marks_counter;
+typedef struct {
+    char operator_name[5];
+    int recognized_opcode;
+    int recognized_function;
+}operator;
 static void create_symbol(symbol* to_initialize, char* name, char* address, char sentence_type, char extern_or_entry);
+void initialize_line_tools(line* sentence, line_marks_counter* counters, line_marks_index* indexes);
+void initialize_operator_variables(operator* op_variables);
+void initialize_counters(line_marks_counter* counters);
+void initialize_indexes(line_marks_index* indexes);
+void initialize_line(line* sentence);
 #endif /*ASSEMBLER_ASSEMBLER_DATA_TYPES_H*/

@@ -1,6 +1,6 @@
-#ifndef ASSEMBLER_PARSER_H
-#define ASSEMBLER_PARSER_H
-#include "errors.h"
+#ifndef ASSEMBLER_LINE_ANALYZER_H
+#define ASSEMBLER_LINE_ANALYZER_H
+#include "assembler data types.h"
 
 #define REGISTER_CONDITION ((i+1) < str_length && *(line+i+1) >= '0' && *(line+i+1) <= '9') &&\
 ((i > 0 && (*(line+i-1) == ' ' || *(line+i-1) == '\t' ))\
@@ -56,27 +56,19 @@ indexes->first_register_index = i;\
 } else if (counters->number_of_registers == 2) {\
 indexes->second_register_index = i;}}\
 }break;
-     /**/
-     typedef struct {
-         char operator_name[5];
-         int number_of_operators;
-         int recognized_opcode;
-         int recognized_function;
-     }operator;
+/**/
 
-void parse_line (line* sentence);
-static void comment_check(line* sentence, line_marks_index indexes);
-static void empty_line_check (line* sentence, line_marks_index indexes);
-static void analize_sentence(line* sentence, line_marks_index* indexes, line_marks_counter* counters);
+void comment_check(line* sentence, line_marks_index indexes);
+void empty_line_check (line* sentence, line_marks_index indexes);
+void analyze_sentence(line* sentence, line_marks_index* indexes, line_marks_counter* counters);
 static int recognize_operator(char* operator, int* opcode, int* function);
 static void define_as_not_instruction(line* sentence);
 static void define_as_instruction(line* sentence, int opcode, int function);
-static void assume_no_signes(line_marks_index* indexes, line_marks_counter* counters);
-void initialize_operator_variables(operator* op_variables, line* sentence, line_marks_index indexes);
+static void assume_no_signs(line_marks_index* indexes, line_marks_counter* counters);
 void check_for_operators(operator* op_variables, line_marks_counter* counters, const char* line_pointer, int i);
 void find_line_components(char* line, line_marks_index* indexes, line_marks_counter* counters, operator* op_variables);
 void define_sentence_type(line* sentence, line_marks_counter counters, line_marks_index indexes, operator op_variables);
 short int is_order(line_marks_counter counters,line_marks_index indexes);
 void define_as_order(line* sentence);
 void define_as_not_order(line* sentence);
-#endif //ASSEMBLER_PARSER_H
+#endif //ASSEMBLER_LINE_ANALYZER_H

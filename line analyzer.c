@@ -1,28 +1,17 @@
 #include <stdlib.h>
 #include <string.h>
-#include "parser.h"
-void parse_line (line* sentence){
-    line_marks_index indexes;
-    line_marks_counter counters;
-    analize_sentence(sentence, &indexes, &counters);
-    empty_line_check(sentence, indexes);
-    if (sentence->flags.is_empty_line == FALSE) {
-        comment_check(sentence, indexes);
-        if (sentence->flags.is_comment == FALSE){
-            //build_sentence();
-        }
-    }
-}
-static void analize_sentence(line* sentence, line_marks_index* indexes, line_marks_counter* counters) {
+#include "line analyzer.h"
+
+void analyze_sentence(line* sentence, line_marks_index* indexes, line_marks_counter* counters) {
     operator op_variables;
     /**/
-    initialize_operator_variables(&op_variables, sentence, *indexes);
-    assume_no_signes(indexes, counters);
+    initialize_operator_variables(&op_variables);
+    assume_no_signs(indexes, counters);
     /**/
     find_line_components(sentence->line, indexes, counters, &op_variables);
     define_sentence_type(sentence, *counters, *indexes, op_variables);
 }
-static void comment_check(line* sentence, line_marks_index indexes){
+void comment_check(line* sentence, line_marks_index indexes){
     if (indexes.semicolon_index == -1){
         sentence->flags.is_comment = FALSE;
         return;
@@ -32,7 +21,7 @@ static void comment_check(line* sentence, line_marks_index indexes){
         return;
     }
 }
-static void empty_line_check (line* sentence, line_marks_index indexes){
+void empty_line_check (line* sentence, line_marks_index indexes){
     if (indexes.first_char_index == -1){
         sentence->flags.is_empty_line = TRUE;
     } else
@@ -67,7 +56,7 @@ static void define_as_instruction(line* sentence, int opcode, int function){
     sentence->code_parts.opcode = opcode;
     sentence->code_parts.function = function;
 }
-void assume_no_signes(line_marks_index* indexes, line_marks_counter* counters){
+void assume_no_signs(line_marks_index* indexes, line_marks_counter* counters){
     indexes->first_hash_mark_index = -1;
     indexes->first_register_index = -1;
     indexes->semicolon_index = -1;
@@ -84,11 +73,6 @@ void assume_no_signes(line_marks_index* indexes, line_marks_counter* counters){
     counters->number_of_dots = 0;
     counters->number_of_quotation_mark = 0;
     counters->number_of_operators = 0;
-}
-void initialize_operator_variables(operator* op_variables, line* sentence, line_marks_index indexes){
-    op_variables->number_of_operators = 0;
-    op_variables->recognized_function = -1;
-    op_variables->recognized_opcode = -1;
 }
 void check_for_operators(operator* op_variables, line_marks_counter* counters, const char* line_pointer, int i){
     int str_length = (int) strlen(line_pointer);
@@ -123,7 +107,7 @@ void find_line_components(char* line, line_marks_index* indexes, line_marks_coun
     char* line_pointer = line;
     /**/
     while (i < str_length) {
-        curr_char = line[i];
+        curr_char = *(line+i);
         if (!first_char_found && curr_char != ' ' && curr_char != '\t') {
             indexes->first_char_index = i;
             first_char_found = 1;

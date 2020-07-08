@@ -9,6 +9,7 @@ int main (int argc, char* argv[]){
     int* data_table = NULL;
     long symbol_tabel_length = 0;
     int i = 1;
+    volatile line sentence;
     if (argc == 1) {
         stop(EXIT_FAILURE, "no assembly code was supplied");
     }
