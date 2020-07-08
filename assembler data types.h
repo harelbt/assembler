@@ -47,8 +47,16 @@ typedef struct {
     int dot_index;
     int first_register_index;
     int second_register_index;
-    int first_quotation_mark;
-    int second_quotation_mark;
+    int first_quotation_mark_index;
+    int second_quotation_mark_index;
 }line_marks_index;
+typedef struct {
+    int number_of_registers;
+    int number_of_hashmarks;
+    int number_of_colons;
+    int number_of_quotation_mark;
+    int number_of_dots;
+    int number_of_operators;
+}line_marks_counter;
 static void create_symbol(symbol* to_initialize, char* name, char* address, char sentence_type, char extern_or_entry);
 #endif /*ASSEMBLER_ASSEMBLER_DATA_TYPES_H*/

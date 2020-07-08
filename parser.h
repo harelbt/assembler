@@ -14,75 +14,64 @@ indexes.semicolon_index > 0 && indexes.first_char_index >= 0
 #define COLON_CASE if (!colon_found) {\
 indexes->colon_index = i;\
 colon_found = 1;}\
+counters->number_of_colons++;\
 break;
 /**/
 #define SEMICOLON_CASE if (!semicolon_found) {\
 indexes->semicolon_index = i;\
+if(i == 0 || (first_char_found == 1 && indexes->first_char_index == i)){return;}\
 semicolon_found = 1;}\
 break;
 /**/
-#define HASHMARK_CASE if (number_of_hash_marks < 2) {\
-if (!number_of_hash_marks) {\
+#define HASHMARK_CASE if (counters->number_of_hashmarks < 2) {\
+if (!counters->number_of_hashmarks) {\
 indexes->first_hash_mark_index = i;\
-number_of_hash_marks++;\
-break;\
-} if (number_of_hash_marks == 1) {\
+} else if (counters->number_of_hashmarks == 1) {\
 indexes->second_hash_mark_index = i;\
-number_of_hash_marks++;\
-break;}} else {\
-report_error(sentence, UNEXPECTED_HASHMARK);\
-break;}
+}}\
+counters->number_of_hashmarks++;\
+break;
 
 #define DOT_CASE  if (!dot_found) {\
 indexes->dot_index = i;\
 dot_found = 1;}\
+counters->number_of_dots++;\
 break;
 /**/
-#define QUOT_MARK_CASE if (number_of_quotation_marks < 2) {\
-if (!number_of_quotation_marks) {\
-indexes->first_quotation_mark = i;\
-number_of_quotation_marks++;\
-break;}\
-if (number_of_quotation_marks == 1) {\
-indexes->second_quotation_mark = i;\
-number_of_quotation_marks++;\
-break;}} else {\
-report_error(sentence, UNEXPECTED_QUOT_MARK);\
-break;}
+#define QUOT_MARK_CASE if (counters->number_of_quotation_mark < 2) {\
+if (!counters->number_of_quotation_mark) {\
+indexes->first_quotation_mark_index = i;}\
+else if (counters->number_of_quotation_mark == 1) {\
+indexes->second_quotation_mark_index = i;\
+}} counters->number_of_quotation_mark++;\
+break;
 
-#define REGISTER_CASE int str_length = (int) strlen(sentence->line);\
-if (number_of_registers < 2) {\
-if (REGISTER_CONDITION) {\
-if (!number_of_registers) {\
+#define REGISTER_CASE if (REGISTER_CONDITION) {counters->number_of_registers++;\
+if (counters->number_of_registers <= 2) {\
+if (counters->number_of_registers == 1) {\
 indexes->first_register_index = i;\
-number_of_registers++;\
-break;}\
-if (number_of_registers == 1) {\
-indexes->second_register_index = i;\
-number_of_registers++;}\
-break;}\
-break;} else {\
-report_error(sentence, UNEXPECTED_REGISTER);\
-break;}
+} else if (counters->number_of_registers == 2) {\
+indexes->second_register_index = i;}}\
+}break;
      /**/
      typedef struct {
-         int str_length;
-         char operator[4];
-         line* sentence;
+         char operator_name[5];
          int number_of_operators;
-         line_marks_index indexes;
-     }operator_variables;
+         int recognized_opcode;
+         int recognized_function;
+     }operator;
 
- void parse_line (line* sentence);
+void parse_line (line* sentence);
 static void comment_check(line* sentence, line_marks_index indexes);
 static void empty_line_check (line* sentence, line_marks_index indexes);
-static void find_signs(line* sentence, line_marks_index* indexes);
+static void analize_sentence(line* sentence, line_marks_index* indexes, line_marks_counter* counters);
 static void extract_operator(line* sentence, line_marks_index indexes);
-static int recognize_operator(char* operator,int* opcode, int* function);
-static void find_and_handle_operators(operator_variables* op_variables);
-static void handle_operators(operator_variables* op_variables, int recognized_opcode, int recognized_function);
+static int recognize_operator(char* operator, int* opcode, int* function);
+static void find_and_handle_operators(operator* op_variables);
+static void handle_operators(operator* op_variables, int recognized_opcode, int recognized_function);
 static void define_as_not_instruction(line* sentence);
-static void assume_no_signes(line_marks_index* indexes);
-void initialize_operator_variables(operator_variables* op_variables, line* sentence, line_marks_index indexes);
-
+static void define_as_instruction(line* sentence, int opcode, int function);
+static void assume_no_signes(line_marks_index* indexes, line_marks_counter* counters);
+void initialize_operator_variables(operator* op_variables, line* sentence, line_marks_index indexes);
+void check_for_operators(operator* op_variables, line_marks_counter* counters, const char* line_pointer, int i);
 #endif //ASSEMBLER_PARSER_H
