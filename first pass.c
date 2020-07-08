@@ -9,7 +9,7 @@ void first_pass(char* file) {
         line_number++;
         if (strcmp(sentence->line, "\n") != 0) {
             parse_line(sentence);
-            errors_inspection();
+            //errors_inspection();
         }
     }
         fclose(filep);

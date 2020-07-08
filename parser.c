@@ -9,64 +9,18 @@ void parse_line (line* sentence){
     if (sentence->flags.is_empty_line == FALSE) {
         comment_check(sentence, indexes);
         if (sentence->flags.is_comment == FALSE){
-            build_sentence();
+            //build_sentence();
         }
     }
 }
 static void analize_sentence(line* sentence, line_marks_index* indexes, line_marks_counter* counters) {
-    int i = 0;
-    int str_length = (int) strlen(sentence->line);
-    /**/
-    short int colon_found = 0;
-    short int semicolon_found = 0;
-    short int dot_found = 0;
-    short int first_char_found = 0;
-    /**/
     operator op_variables;
-    char* line_pointer = sentence->line;
-    char curr_char;
     /**/
     initialize_operator_variables(&op_variables, sentence, *indexes);
     assume_no_signes(indexes, counters);
-    while (i < str_length) {
-        curr_char = sentence->line[i];
-        if (!first_char_found && curr_char != ' ' && curr_char != '\t') {
-            indexes->first_char_index = i;
-            first_char_found = 1;
-        }
-        if (i < str_length - 2){
-            check_for_operators(&op_variables, counters, line_pointer, i);
-        }
-        switch (curr_char) {
-            case ':': {
-                COLON_CASE
-
-            }
-            case ';': {
-                SEMICOLON_CASE
-            }
-            case '.': {
-               DOT_CASE
-            }
-            case '#': {
-                HASHMARK_CASE
-
-            }
-            case 'r': {
-                REGISTER_CASE
-            }
-            case '\"': {
-                QUOT_MARK_CASE
-            }
-        }
-        i++;
-    }
-    if (counters->number_of_operators == 1){
-        define_as_instruction(sentence,recognized_opcode, recognized_function);
-    }
-    if (counters->number_of_operators > 1){
-        define_as_not_instruction(sentence);
-    }
+    /**/
+    find_line_components(sentence->line, indexes, counters, &op_variables);
+    define_sentence_type(sentence, *counters, *indexes, op_variables);
 }
 static void comment_check(line* sentence, line_marks_index indexes){
     if (indexes.semicolon_index == -1){
@@ -84,30 +38,6 @@ static void empty_line_check (line* sentence, line_marks_index indexes){
     } else
         sentence->flags.is_empty_line = FALSE;
 }
-static void extract_operator(line* sentence, line_marks_index indexes){
-    operator op_variables;
-    initialize_operator_variables(&op_variables, sentence, indexes);
-    if (op_variables.str_length < 3){
-        define_as_not_instruction(sentence);
-    }
-    find_and_handle_operators(&op_variables);
-}
-
-static void find_and_handle_operators(operator* op_variables){
-    int i = 0;
-    int recognized_opcode = -1;
-    int recognized_function = -1;
-    /**/
-    while (i < op_variables->str_length - 2){
-        strncpy(op_variables->operator_name, op_variables->sentence->line + i, 3);
-        if (recognize_operator(op_variables->operator_name, &recognized_opcode, &recognized_function) == 1){
-            if (i == 0 || (i > 0 && (op_variables->sentence->line[i-1] == ' ' || op_variables->sentence->line[i-1] == '\t')))
-                op_variables->number_of_operators++;
-        }
-        i++;
-    }
-    handle_operators(op_variables, recognized_opcode, recognized_function);
-}
 static int recognize_operator(char* operator, int* opcode, int* function){
     char** endp = NULL;
     int i = 0;
@@ -124,16 +54,6 @@ static int recognize_operator(char* operator, int* opcode, int* function){
         i++;
     }
     return 0;
-}
-static void handle_operators(operator* op_variables, int recognized_opcode, int recognized_function){
-    if (!(op_variables->number_of_operators)){
-        define_as_not_instruction(op_variables->sentence);
-    }
-    if (op_variables->number_of_operators == 1){
-        op_variables->sentence->code_parts.opcode = recognized_opcode;
-        op_variables->sentence->code_parts.function = recognized_function;
-        op_variables->sentence->flags.is_instruction = 1;
-    }
 }
 static void define_as_not_instruction(line* sentence){
     sentence->flags.is_instruction = FALSE;
@@ -178,8 +98,7 @@ void check_for_operators(operator* op_variables, line_marks_counter* counters, c
     if (i < str_length-3){
         op_variables->operator_name[3] = *(line_pointer+i+3);
         op_variables->operator_name[4] = '\0';
-        if (!strcmp(op_variables->operator_name,"stop") && (i == 0 || line_pointer[i-1] == ' ' || line_pointer[i-1] == '\t')
-        && (i == str_length-1 || line_pointer[i+1] == ' ' || line_pointer[i+1] == '\t')){
+        if (!strcmp(op_variables->operator_name,"stop") && OPERATOR_CONDITION){
             op_variables->recognized_opcode = 15;
             counters->number_of_operators++;
             return;
@@ -187,7 +106,91 @@ void check_for_operators(operator* op_variables, line_marks_counter* counters, c
             op_variables->operator_name[3] = '\0';
         }
     }
-    if (recognize_operator(op_variables->operator_name, &op_variables->recognized_opcode, &op_variables->recognized_function) == 1){
+    if (recognize_operator(op_variables->operator_name, &op_variables->recognized_opcode, &op_variables->recognized_function) == 1
+    && OPERATOR_CONDITION){
         counters->number_of_operators++;
     }
+}
+void find_line_components(char* line, line_marks_index* indexes, line_marks_counter* counters, operator* op_variables){
+    int i = 0;
+    short int colon_found = 0;
+    short int semicolon_found = 0;
+    short int dot_found = 0;
+    short int first_char_found = 0;
+    /**/
+    int str_length = (int)strlen(line);
+    char curr_char;
+    char* line_pointer = line;
+    /**/
+    while (i < str_length) {
+        curr_char = line[i];
+        if (!first_char_found && curr_char != ' ' && curr_char != '\t') {
+            indexes->first_char_index = i;
+            first_char_found = 1;
+        }
+        if (i < str_length - 2){
+            check_for_operators(op_variables, counters, line_pointer, i);
+        }
+        switch (curr_char) {
+            case ':': {
+                COLON_CASE
+
+            }
+            case ';': {
+                SEMICOLON_CASE
+            }
+            case '.': {
+                DOT_CASE
+            }
+            case '#': {
+                HASHMARK_CASE
+
+            }
+            case 'r': {
+                REGISTER_CASE
+            }
+            case '\"': {
+                QUOT_MARK_CASE
+            }
+        }
+        i++;
+    }
+}
+void define_sentence_type(line* sentence, line_marks_counter counters, line_marks_index indexes, operator op_variables){
+    if (counters.number_of_operators == 1){
+        define_as_instruction(sentence,op_variables.recognized_opcode, op_variables.recognized_function);
+    }
+    if (counters.number_of_operators > 1){
+        define_as_not_instruction(sentence);
+    }
+    if (is_order(counters, indexes) == 1){
+        define_as_order(sentence);
+    } else{
+        define_as_not_order(sentence);
+    }
+}
+short int is_order(line_marks_counter counters,line_marks_index indexes){
+    switch (counters.number_of_dots) {
+        case 0:{
+            return 0;
+        }
+        default:{
+            if (counters.number_of_quotation_mark > 1){
+                if (indexes.first_quotation_mark_index < indexes.dot_index &&
+                indexes.second_quotation_mark_index > indexes.dot_index){
+                    return 0;
+                }
+            } else{
+                return 1;
+            }
+        }
+    }
+}
+void define_as_order(line* sentence){
+    sentence->flags.is_order = TRUE;
+}
+void define_as_not_order(line* sentence){
+    sentence->flags.is_order = FALSE;
+    sentence->data_parts.data = NULL;
+    sentence->data_parts.order = NULL;
 }
