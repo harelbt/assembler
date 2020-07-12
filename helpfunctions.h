@@ -186,4 +186,5 @@ short int* comp_of_2 (short int* binary,long length);
 int find_first_char(line* sentence);
 int find_semicolon(line* sentence);
 int read_line(FILE* file, line* sentence);
+void find_data_order(line* sentence, line_marks_index indexes);
 #endif /*HELP_H*/

@@ -1,14 +1,15 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 #include "line analyzer.h"
-
+#include "helpfunctions.h"
 void analyze_sentence(line* sentence, line_marks_index* indexes, line_marks_counter* counters) {
     operator op_variables;
     /**/
     initialize_operator_variables(&op_variables);
     assume_no_signs(indexes, counters);
     /**/
-    find_line_components(sentence->line, indexes, counters, &op_variables);
+    find_line_components(sentence, indexes, counters, &op_variables);
     define_sentence_type(sentence, *counters, *indexes, op_variables);
 }
 void comment_check(line* sentence, line_marks_index indexes){
@@ -44,15 +45,15 @@ static int recognize_operator(char* operator, int* opcode, int* function){
     }
     return 0;
 }
-static void define_as_not_instruction(line* sentence){
-    sentence->flags.is_instruction = FALSE;
+static void define_as_not_code(line* sentence){
+    sentence->flags.is_code = FALSE;
     sentence->code_parts.opcode = -1;
     sentence->code_parts.function = -1;
     sentence->code_parts.first_operand = NULL;
     sentence->code_parts.second_operand = NULL;
 }
-static void define_as_instruction(line* sentence, int opcode, int function){
-    sentence->flags.is_instruction = TRUE;
+static void define_as_code(line* sentence, int opcode, int function){
+    sentence->flags.is_code = TRUE;
     sentence->code_parts.opcode = opcode;
     sentence->code_parts.function = function;
 }
@@ -74,7 +75,7 @@ void assume_no_signs(line_marks_index* indexes, line_marks_counter* counters){
     counters->number_of_quotation_mark = 0;
     counters->number_of_operators = 0;
 }
-void check_for_operators(operator* op_variables, line_marks_counter* counters, const char* line_pointer, int i){
+void check_for_operators(operator* op_variables, line_marks_counter* counters, char * line_pointer, int i){
     int str_length = (int) strlen(line_pointer);
     op_variables->operator_name[0] = *(line_pointer+i);
     op_variables->operator_name[1] = *(line_pointer+i+1);
@@ -85,7 +86,7 @@ void check_for_operators(operator* op_variables, line_marks_counter* counters, c
         if (!strcmp(op_variables->operator_name,"stop") && OPERATOR_CONDITION){
             op_variables->recognized_opcode = 15;
             counters->number_of_operators++;
-            return;
+            return ;
         } else{
             op_variables->operator_name[3] = '\0';
         }
@@ -93,21 +94,22 @@ void check_for_operators(operator* op_variables, line_marks_counter* counters, c
     if (recognize_operator(op_variables->operator_name, &op_variables->recognized_opcode, &op_variables->recognized_function) == 1
     && OPERATOR_CONDITION){
         counters->number_of_operators++;
+        return ;
     }
 }
-void find_line_components(char* line, line_marks_index* indexes, line_marks_counter* counters, operator* op_variables){
+void find_line_components(line* sentence, line_marks_index* indexes, line_marks_counter* counters, operator* op_variables){
     int i = 0;
     short int colon_found = 0;
     short int semicolon_found = 0;
     short int dot_found = 0;
     short int first_char_found = 0;
     /**/
-    int str_length = (int)strlen(line);
+    int str_length = (int)strlen(sentence->line);
     char curr_char;
-    char* line_pointer = line;
+    char* line_pointer = sentence->line;
     /**/
     while (i < str_length) {
-        curr_char = *(line+i);
+        curr_char = *(line_pointer+i);
         if (!first_char_found && curr_char != ' ' && curr_char != '\t') {
             indexes->first_char_index = i;
             first_char_found = 1;
@@ -139,13 +141,14 @@ void find_line_components(char* line, line_marks_index* indexes, line_marks_coun
         }
         i++;
     }
+    find_data_order(sentence, *indexes);
 }
 void define_sentence_type(line* sentence, line_marks_counter counters, line_marks_index indexes, operator op_variables){
-    if (counters.number_of_operators == 1){
-        define_as_instruction(sentence,op_variables.recognized_opcode, op_variables.recognized_function);
+    if (counters.number_of_operators > 0){
+        define_as_code(sentence, op_variables.recognized_opcode, op_variables.recognized_function);
     }
-    if (counters.number_of_operators > 1){
-        define_as_not_instruction(sentence);
+    if (counters.number_of_operators == 0){
+        define_as_not_code(sentence);
     }
     if (is_order(counters, indexes) == 1){
         define_as_order(sentence);
@@ -159,22 +162,23 @@ short int is_order(line_marks_counter counters,line_marks_index indexes){
             return 0;
         }
         default:{
-            if (counters.number_of_quotation_mark > 1){
+            if (counters.number_of_quotation_mark > 1) {
                 if (indexes.first_quotation_mark_index < indexes.dot_index &&
-                indexes.second_quotation_mark_index > indexes.dot_index){
+                    indexes.second_quotation_mark_index > indexes.dot_index) {
                     return 0;
+                } else {
+                    return 1;
                 }
-            } else{
-                return 1;
             }
+            return 1;
         }
     }
 }
 void define_as_order(line* sentence){
-    sentence->flags.is_order = TRUE;
+    sentence->flags.is_data = TRUE;
 }
 void define_as_not_order(line* sentence){
-    sentence->flags.is_order = FALSE;
+    sentence->flags.is_data = FALSE;
     sentence->data_parts.data = NULL;
-    sentence->data_parts.order = NULL;
+    sentence->data_parts.order[0] = '\0';
 }

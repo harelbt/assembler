@@ -789,3 +789,16 @@ int read_line(FILE* file, line* sentence){
         return EOF;
     return 0;
 }
+void find_data_order(line* sentence, line_marks_index indexes){
+    if (indexes.dot_index > 0){
+        int i = indexes.dot_index;
+        int k = 0;
+        char curr_char = sentence->line[i];
+        int str_length = (int)strlen(sentence->line);
+        while (curr_char != ' ' && curr_char != '\t' && i < str_length && k < 7){
+            i++;
+            curr_char = sentence->line[i];
+            sentence->data_parts.order[k] = curr_char;
+        }
+    }
+}

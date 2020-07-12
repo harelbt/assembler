@@ -18,25 +18,23 @@ typedef struct {
     int function;
     char* first_operand;
     char* second_operand;
-}instruction;
+}code;
 typedef struct {
-    char* order;
+    char order[7];
     char* data;
-}order;
+}data;
 typedef struct {
     short int is_comment;
     short int is_empty_line;
-    short int is_instruction;
-    short int is_order;
-    short int is_label;
+    short int is_code;
+    short int is_data;
 }line_flags;
 typedef struct {
     char* line;
     symbol label;
-    instruction code_parts;
-    order data_parts;
+    code code_parts;
+    data data_parts;
     line_flags flags;
-    int line_number;
 }line;
 typedef struct {
     int first_char_index;
@@ -57,6 +55,7 @@ typedef struct {
     int number_of_quotation_mark;
     int number_of_dots;
     int number_of_operators;
+    int line_number;
 }line_marks_counter;
 typedef struct {
     char operator_name[5];

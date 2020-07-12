@@ -2,12 +2,13 @@
 #define ASSEMBLER_LINE_ANALYZER_H
 #include "assembler data types.h"
 
-#define REGISTER_CONDITION ((i+1) < str_length && *(line+i+1) >= '0' && *(line+i+1) <= '9') &&\
-((i > 0 && (*(line+i-1) == ' ' || *(line+i-1) == '\t' ))\
-||(i == 0))
+#define REGISTER_CONDITION ((i+1) < str_length && *(line_pointer+i+1) >= '0' && *(line_pointer+i+1) <= '9') &&\
+((i > 0 && (*(line_pointer+i-1) == ' ' || *(line_pointer+i-1) == '\t' ))\
+||(i == 0) && counters->number_of_quotation_mark == 0)
 /**/
 #define OPERATOR_CONDITION (i == 0 || *(line_pointer+i-1) == ' ' || *(line_pointer+i-1) == '\t')\
-&& (i == str_length-1 || *(line_pointer+i+1) == ' ' || *(line_pointer+i+1) == '\t')
+&& (i == str_length-1 || *(line_pointer+i+3) == ' ' || *(line_pointer+i+3) == '\t'\
+&& counters->number_of_quotation_mark == 0)
 /**/
 #define COMMENT_CONDITION indexes.semicolon_index == indexes.first_char_index && indexes.semicolon_index >= 0
 /**/
@@ -62,11 +63,11 @@ void comment_check(line* sentence, line_marks_index indexes);
 void empty_line_check (line* sentence, line_marks_index indexes);
 void analyze_sentence(line* sentence, line_marks_index* indexes, line_marks_counter* counters);
 static int recognize_operator(char* operator, int* opcode, int* function);
-static void define_as_not_instruction(line* sentence);
-static void define_as_instruction(line* sentence, int opcode, int function);
+static void define_as_not_code(line* sentence);
+static void define_as_code(line* sentence, int opcode, int function);
 static void assume_no_signs(line_marks_index* indexes, line_marks_counter* counters);
-void check_for_operators(operator* op_variables, line_marks_counter* counters, const char* line_pointer, int i);
-void find_line_components(char* line, line_marks_index* indexes, line_marks_counter* counters, operator* op_variables);
+void check_for_operators(operator* op_variables, line_marks_counter* counters, char * line_pointer, int i);
+void find_line_components(line* sentence, line_marks_index* indexes, line_marks_counter* counters, operator* op_variables);
 void define_sentence_type(line* sentence, line_marks_counter counters, line_marks_index indexes, operator op_variables);
 short int is_order(line_marks_counter counters,line_marks_index indexes);
 void define_as_order(line* sentence);
