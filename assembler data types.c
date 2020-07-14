@@ -53,6 +53,7 @@ void initialize_line(line* sentence){
     sentence->code_parts.opcode = -1;
     sentence->code_parts.function = -1;
     sentence->data_parts.data = NULL;
-    sentence->data_parts.order[0] = '\0';
+    *(sentence->data_parts.order) = '\0';
     sentence->label.address = NULL;
+    *(sentence->label.name) = '\0';
 }

@@ -15,7 +15,9 @@ int main (int argc, char* argv[]){
     }
     while (i < argc) {
         first_pass(argv[i], &error_found);
-        /*second_pass();*/
+        if (!error_found) {
+            /*second_pass();*/
+        }
         error_found = 0;
         i++;
     }

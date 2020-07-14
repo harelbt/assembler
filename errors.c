@@ -2,6 +2,9 @@
 #include "helpfunctions.h"
 short int errors_inspection(line sentence, line_marks_index indexes, line_marks_counter counters){
     short int error_found = 0;
+    if (*(sentence.label.name) != '\0'){
+        //inspect_label();
+    }
     if (sentence.flags.is_data == TRUE && sentence.flags.is_code == TRUE){
         report_error(sentence.line, MIXED_SENTENCE, counters);
         error_found = 1;
@@ -179,13 +182,19 @@ static short int detect_string_errors(line sentence, line_marks_index indexes, l
 }
 static short int detect_data_errors(line sentence, line_marks_index indexes, line_marks_counter counters){
     short int error_found = 0;
+    short int is_data_order;
+    if(!strcmp(sentence.data_parts.order,"data")){
+        is_data_order = 1;
+    } else{
+        is_data_order = 0;
+    }
     if (counters.number_of_quotation_marks == 0){
-        if (!(strcmp(sentence.data_parts.order,"data"))){
+        if (is_data_order == 1){
             if (!is_data_values_proper(sentence, indexes, counters)){
                 error_found = 1;
             }
         }
-        if ((strcmp(sentence.data_parts.order,"data")) != 0){
+        if (is_data_order == 0){
             if (is_data_values_proper(sentence, indexes, counters) == 1){
                 report_error(sentence.line, DATA_NO_ORDER, counters);
                 error_found = 1;
@@ -196,63 +205,103 @@ static short int detect_data_errors(line sentence, line_marks_index indexes, lin
 }
 static short int is_data_values_proper(line sentence, line_marks_index indexes, line_marks_counter counters){
     int val_index = find_data_values(sentence.line,indexes.dot_index);
-    short int is_data_proper = 1;
+    short int is_data_values_proper = 1;
+    short int is_data_order;
+    if(!strcmp(sentence.data_parts.order,"data")){
+        is_data_order = 1;
+    } else{
+        is_data_order = 0;
+    }
     if (val_index == -1){
-        if (!strcmp(sentence.data_parts.order,"data")) {
+        if (is_data_order == 1) {
             report_error(sentence.line, ORDER_NO_DATA, counters);
         }
-        is_data_proper = 0;
+        is_data_values_proper = 0;
+    }else {
+        if (inspect_data_values(sentence, val_index, counters) == 1) {
+            is_data_values_proper = 0;
+        }
     }
-    if (inspect_data_values(sentence.line, val_index, counters) == 1){
-        is_data_proper = 0;
-    }
-    return is_data_proper;
+    return is_data_values_proper;
 }
-static short int inspect_data_values(char* line, int index, line_marks_counter counters){
+static short int inspect_data_values(line sentence, int index, line_marks_counter counters) {
     short int error_found = 0;
-    int str_length = (int)strlen(line);
+    int str_length = (int) strlen(sentence.line);
     char last_char = '\0';
-    char curr_char = *(line + index);
+    char curr_char = *(sentence.line + index);
     short int is_after_comma = 0;
     short int did_number_appeared = 0;
-    while (index < str_length){
+    short int is_data_order;
+    if (!strcmp(sentence.data_parts.order, "data")) {
+        is_data_order = 1;
+    } else {
+        is_data_order = 0;
+    }
+    while (index < str_length) {
         /*checks if current char is illegal*/
         if (curr_char != ' ' && curr_char != '\t' && curr_char != ',' && curr_char != '-' && curr_char != '+'
-        && (curr_char < '0' || curr_char > '9')){
-            report_error(line, UNEXPECTED_CHARACTER, counters, curr_char);
+            && (curr_char < '0' || curr_char > '9')) {
+            if (is_data_order == 1) {
+                report_error(sentence.line, UNEXPECTED_CHARACTER, counters, curr_char);
+            }
             error_found = 1;
+            update_loop_variables(sentence, &curr_char, &last_char, &index, str_length);
         } else {/*if current char is legal*/
-            if (curr_char == ',') {
-                is_after_comma = 1;
+            check_number_appearance(&did_number_appeared, curr_char);
+            values_check(sentence, counters, curr_char, last_char, is_after_comma, is_data_order, &error_found,
+                         did_number_appeared);
+            update_all_variables(sentence, &curr_char, &last_char, &is_after_comma, &index, str_length);
+        }
+    }
+        return error_found;
+}
+static void values_check(line sentence, line_marks_counter counters, char curr_char, int last_char, short int is_after_comma,
+                 short int is_data_order, short int *error_found, short int did_number_appeared) {
+        if (is_after_comma == 1 && curr_char == ',') {
+            if (is_data_order == 1) {
+                report_error(sentence.line, NO_NUMBERS_BETWEEN_COMMAS, counters);
             }
-            else if (curr_char != ' ' && curr_char != '\t'){
-                is_after_comma = 0;
+            *error_found = 1;
+        }
+        if (is_after_comma == 1 && did_number_appeared == 0) {
+            if (is_data_order == 1) {
+                report_error(sentence.line, COMMA_NO_NUMBERS, counters);
             }
-            if (did_number_appeared == 0) {
-                if (curr_char > '0' && curr_char < '9') {
-                    did_number_appeared = 1;
+            *error_found = 1;
+        }
+        if (did_number_appeared == 1) {
+            if ((last_char == ' ' || last_char == '\t') && curr_char != ' ' && curr_char != '\t' &&
+                is_after_comma == 0) {
+                if (is_data_order == 1) {
+                    report_error(sentence.line, NO_COMMA_BETWEEN, counters);
                 }
-            }
-            if (is_after_comma == 1 && did_number_appeared == 0){
-                report_error(line, COMMA_NO_NUMBERS, counters);
-                error_found = 1;
-            }
-            if (did_number_appeared == 1) {
-                if ((last_char == ' ' || last_char == '\t') && curr_char != ' ' && curr_char != '\t' &&
-                    is_after_comma == 0) {
-                    report_error(line, NO_COMMA_BETWEEN, counters);
-                    error_found = 1;
-                }
-            }
-            if (is_after_comma == 1 && curr_char == ','){
-                report_error(line, NO_NUMBERS_BETWEEN_COMMAS, counters);
-                error_found = 1;
+                *error_found = 1;
             }
         }
-        index++;
-        last_char = curr_char;
-        curr_char = *(line + index);
     }
-
-    return error_found;
+static void check_number_appearance(short int *did_number_appeared, char curr_char) {
+    if (*did_number_appeared == 0) {
+        if (curr_char > '0' && curr_char < '9') {
+            *did_number_appeared = 1;
+        }
+    }
+}
+static void update_all_variables(line sentence, char* curr_char, char* last_char, short int* is_after_comma, int* index, int str_length){
+    if (*curr_char == ',') {
+        *is_after_comma = 1;
+    } else if (*curr_char != ' ' && *curr_char != '\t') {
+        *is_after_comma = 0;
+    }
+    if (*index < str_length) {
+        (*index)++;
+        *last_char = *curr_char;
+        *curr_char = *(sentence.line + *index);
+    }
+}
+static void update_loop_variables(line sentence, char* curr_char, char* last_char, int* index, int str_length){
+    if (*index < str_length) {
+        (*index)++;
+        *last_char = *curr_char;
+        *curr_char = *(sentence.line + *index);
+    }
 }

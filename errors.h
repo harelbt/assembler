@@ -37,5 +37,9 @@ static short int inspect_code_line(line sentence, line_marks_index indexes, line
 static short int detect_string_errors(line sentence, line_marks_index indexes, line_marks_counter counters);
 static short int detect_data_errors(line sentence, line_marks_index indexes, line_marks_counter counters);
 static short int is_data_values_proper(line sentence, line_marks_index indexes, line_marks_counter counters);
-static short int inspect_data_values(char* line, int index, line_marks_counter counters);
+static short int inspect_data_values(line sentence, int index, line_marks_counter counters);
+static void values_check(line sentence, line_marks_counter counters, char curr_char, int last_char, short int is_after_comma, short int is_data_order, short int* error_found, short int did_number_appeared);
+static void check_number_appearance(short int* did_number_appeared, char curr_char);
+static void update_all_variables(line sentence, char* curr_char, char* last_char, short int* is_after_comma, int* index, int str_length);
+static void update_loop_variables(line sentence, char* curr_char, char* last_char, int* index, int str_length);
 #endif /*ASSEMBLER_ERRORS_H*/
