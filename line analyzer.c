@@ -72,7 +72,7 @@ void assume_no_signs(line_marks_index* indexes, line_marks_counter* counters){
     counters->number_of_registers = 0;
     counters->number_of_colons = 0;
     counters->number_of_dots = 0;
-    counters->number_of_quotation_mark = 0;
+    counters->number_of_quotation_marks = 0;
     counters->number_of_operators = 0;
 }
 void check_for_operators(operator* op_variables, line_marks_counter* counters, char * line_pointer, int i){
@@ -142,6 +142,7 @@ void find_line_components(line* sentence, line_marks_index* indexes, line_marks_
         i++;
     }
     find_data_order(sentence, *indexes);
+//    find_label(sentence, *indexes);
 }
 void define_sentence_type(line* sentence, line_marks_counter counters, line_marks_index indexes, operator op_variables){
     if (counters.number_of_operators > 0){
@@ -162,7 +163,7 @@ short int is_order(line_marks_counter counters,line_marks_index indexes){
             return 0;
         }
         default:{
-            if (counters.number_of_quotation_mark > 1) {
+            if (counters.number_of_quotation_marks > 1) {
                 if (indexes.first_quotation_mark_index < indexes.dot_index &&
                     indexes.second_quotation_mark_index > indexes.dot_index) {
                     return 0;

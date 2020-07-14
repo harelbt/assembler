@@ -52,7 +52,7 @@ typedef struct {
     int number_of_registers;
     int number_of_hashmarks;
     int number_of_colons;
-    int number_of_quotation_mark;
+    int number_of_quotation_marks;
     int number_of_dots;
     int number_of_operators;
     int line_number;

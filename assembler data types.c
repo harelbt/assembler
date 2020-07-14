@@ -26,7 +26,7 @@ void initialize_operator_variables(operator* op_variables){
 }
 void initialize_counters(line_marks_counter* counters){
     counters->number_of_hashmarks = 0;
-    counters->number_of_quotation_mark = 0;
+    counters->number_of_quotation_marks = 0;
     counters->number_of_dots = 0;
     counters->number_of_operators = 0;
     counters->number_of_colons = 0;

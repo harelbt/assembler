@@ -187,4 +187,8 @@ int find_first_char(line* sentence);
 int find_semicolon(line* sentence);
 int read_line(FILE* file, line* sentence);
 void find_data_order(line* sentence, line_marks_index indexes);
+int find_next_word(const char* line, int index);
+/*void find_label(line* sentence, line_marks_index indexes);*/
+int find_next_space(const char* line, int index);
+int find_data_values(const char* line, int index);
 #endif /*HELP_H*/

@@ -790,7 +790,7 @@ int read_line(FILE* file, line* sentence){
     return 0;
 }
 void find_data_order(line* sentence, line_marks_index indexes){
-    if (indexes.dot_index > 0){
+    if (indexes.dot_index >= 0){
         int i = indexes.dot_index;
         int k = 0;
         char curr_char = sentence->line[i];
@@ -798,7 +798,43 @@ void find_data_order(line* sentence, line_marks_index indexes){
         while (curr_char != ' ' && curr_char != '\t' && i < str_length && k < 7){
             i++;
             curr_char = sentence->line[i];
-            sentence->data_parts.order[k] = curr_char;
+            if (curr_char != ' ' && curr_char != '\t') {
+                sentence->data_parts.order[k] = curr_char;
+                k++;
+            }
         }
+        sentence->data_parts.order[k] = '\0';
     }
+}
+int find_next_word(const char* line, int index){
+    int str_length = (int)strlen(line);
+    while (index < str_length && (*(line + index) == ' ' || *(line + index) == '\t')){
+        index++;
+    }
+    if (index == str_length){
+        return - 1;
+    }
+    return index;
+}
+/*void find_label(line* sentence, line_marks_index indexes){
+    if (indexes.colon_index >= 0){
+
+    }
+}*/
+int find_next_space(const char* line, int index){
+    char curr_char = *(line + index);
+    int str_length = (int) strlen(line);
+    while (index < str_length && curr_char != ' ' && curr_char != '\t'){
+        index++;
+        curr_char = *(line + index);
+    }
+    if (index == str_length){
+        return -1;
+    }
+    return index;
+}
+int find_data_values(const char* line, int index){
+    index = find_next_space(line, index);
+    index = find_next_word(line, index);
+    return index;
 }

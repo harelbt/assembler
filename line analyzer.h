@@ -4,11 +4,11 @@
 
 #define REGISTER_CONDITION ((i+1) < str_length && *(line_pointer+i+1) >= '0' && *(line_pointer+i+1) <= '9') &&\
 ((i > 0 && (*(line_pointer+i-1) == ' ' || *(line_pointer+i-1) == '\t' ))\
-||(i == 0) && counters->number_of_quotation_mark == 0)
+||(i == 0) && counters->number_of_quotation_marks == 0)
 /**/
 #define OPERATOR_CONDITION (i == 0 || *(line_pointer+i-1) == ' ' || *(line_pointer+i-1) == '\t')\
 && (i == str_length-1 || *(line_pointer+i+3) == ' ' || *(line_pointer+i+3) == '\t'\
-&& counters->number_of_quotation_mark == 0)
+&& counters->number_of_quotation_marks == 0)
 /**/
 #define COMMENT_CONDITION indexes.semicolon_index == indexes.first_char_index && indexes.semicolon_index >= 0
 /**/
@@ -42,12 +42,12 @@ dot_found = 1;}\
 counters->number_of_dots++;\
 break;
 /**/
-#define QUOT_MARK_CASE if (counters->number_of_quotation_mark < 2) {\
-if (!counters->number_of_quotation_mark) {\
+#define QUOT_MARK_CASE if (counters->number_of_quotation_marks < 2) {\
+if (!counters->number_of_quotation_marks) {\
 indexes->first_quotation_mark_index = i;}\
-else if (counters->number_of_quotation_mark == 1) {\
+else{\
 indexes->second_quotation_mark_index = i;\
-}} counters->number_of_quotation_mark++;\
+}} counters->number_of_quotation_marks++;\
 break;
 
 #define REGISTER_CASE if (REGISTER_CONDITION) {counters->number_of_registers++;\
