@@ -2,7 +2,7 @@
 #include "line analyzer.h"
 #include "helpfunctions.h"
 #include "errors.h"
-void first_pass(char* file) {
+void first_pass(char* file, short int* error_found) {
     FILE *filep = open_file(file, "r");
     line sentence;
     line_marks_index indexes;
@@ -19,7 +19,8 @@ void first_pass(char* file) {
             if (sentence.flags.is_empty_line == FALSE) {
                 comment_check(&sentence, indexes);
                 if (sentence.flags.is_comment == FALSE) {
-                    if(!errors_inspection(sentence, indexes, counters)){
+                    *error_found = errors_inspection(sentence, indexes, counters);
+                    if(!*error_found){
                     //build_sentence();
                     }
                 }

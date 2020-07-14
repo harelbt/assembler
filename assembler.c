@@ -8,13 +8,13 @@ int main (int argc, char* argv[]){
     symbol* symbol_table = NULL;
     int* data_table = NULL;
     long symbol_tabel_length = 0;
+    short int error_found = 0;
     int i = 1;
-    volatile line sentence;
     if (argc == 1) {
         stop(EXIT_FAILURE, "no assembly code was supplied");
     }
     while (i < argc) {
-        first_pass(argv[i]);
+        first_pass(argv[i], &error_found);
         /*second_pass();*/
         i++;
     }

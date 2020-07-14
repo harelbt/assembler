@@ -19,10 +19,10 @@ static void report_error(char* line, short int error_code, line_marks_counter co
     printf("ERROR: ");
     switch (error_code) {
         case UNEXPECTED_CHARACTER:{
-            char unexpected;
+            int unexpected;
             va_list argp;
             va_start(argp, counters);
-            unexpected = va_arg(argp, char);
+            unexpected = va_arg(argp, int);
             printf("%c is an unexpected character in line %d.\n", unexpected, counters.line_number);
             va_end(argp);
             break;
@@ -97,6 +97,14 @@ static void report_error(char* line, short int error_code, line_marks_counter co
         }
         case ORDER_NO_DATA:{
             printf(".data order supplied without data in line %d.\n", counters.line_number);
+            break;
+        }
+        case NO_COMMA_BETWEEN:{
+            printf("No comma is placed between numbers in line %d.\n", counters.line_number);
+            break;
+        }
+        case NO_NUMBERS_BETWEEN_COMMAS:{
+            printf("No numbers between two commas in line %d.\n", counters.line_number);
             break;
         }
         default:
@@ -195,7 +203,9 @@ static short int is_data_values_proper(line sentence, line_marks_index indexes, 
         }
         is_data_proper = 0;
     }
-    if ()
+    if (inspect_data_values(sentence.line, val_index, counters) == 1){
+        is_data_proper = 0;
+    }
     return is_data_proper;
 }
 static short int inspect_data_values(char* line, int index, line_marks_counter counters){
@@ -215,19 +225,28 @@ static short int inspect_data_values(char* line, int index, line_marks_counter c
             if (curr_char == ',') {
                 is_after_comma = 1;
             }
+            else if (curr_char != ' ' && curr_char != '\t'){
+                is_after_comma = 0;
+            }
             if (did_number_appeared == 0) {
                 if (curr_char > '0' && curr_char < '9') {
                     did_number_appeared = 1;
-                    is_after_comma = 0;
                 }
             }
             if (is_after_comma == 1 && did_number_appeared == 0){
                 report_error(line, COMMA_NO_NUMBERS, counters);
+                error_found = 1;
             }
-            if (last_char != '\0') {
-                if (curr_char > '0' && curr_char < '9') {
-                    if (last_char)
+            if (did_number_appeared == 1) {
+                if ((last_char == ' ' || last_char == '\t') && curr_char != ' ' && curr_char != '\t' &&
+                    is_after_comma == 0) {
+                    report_error(line, NO_COMMA_BETWEEN, counters);
+                    error_found = 1;
                 }
+            }
+            if (is_after_comma == 1 && curr_char == ','){
+                report_error(line, NO_NUMBERS_BETWEEN_COMMAS, counters);
+                error_found = 1;
             }
         }
         index++;

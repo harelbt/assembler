@@ -26,6 +26,8 @@
 #define DATA_NO_ORDER 17
 #define ORDER_NO_DATA 18
 #define COMMA_NO_NUMBERS 19
+#define NO_COMMA_BETWEEN 20
+#define NO_NUMBERS_BETWEEN_COMMAS 21
 #include "assembler data types.h"
 
 short int errors_inspection(line sentence, line_marks_index indexes, line_marks_counter counters);
