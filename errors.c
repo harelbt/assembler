@@ -67,7 +67,18 @@ static void report_error(char* line, short int error_code, line_marks_counter co
             break;
         }
         case SINGLE_QUOTMARK:{
+            int unexpected;
+            va_list argp;
+            va_start(argp, counters);
+            unexpected = va_arg(argp, int);
             printf("opening quote mark without closing quote mark in line %d.\n", counters.line_number);
+            puts(line);
+            while (unexpected > 1){
+                putchar('_');
+                unexpected--;
+            }
+            puts("^");
+            va_end(argp);
             break;
         }
         case STRING_NO_ORDER:{
@@ -113,7 +124,6 @@ static void report_error(char* line, short int error_code, line_marks_counter co
         default:
             return;
     }
-    puts(line);
 }
 static short int inspect_order_line(line sentence, line_marks_index indexes, line_marks_counter counters){
     short int error_found = 0;
@@ -143,7 +153,7 @@ static short int detect_string_errors(line sentence, line_marks_index indexes, l
     }
     /**/
     if (counters.number_of_quotation_marks == 1) {
-        report_error(sentence.line, SINGLE_QUOTMARK, counters);
+        report_error(sentence.line, SINGLE_QUOTMARK, counters, indexes.first_quotation_mark_index);
         error_found = 1;
     }
     /**/
