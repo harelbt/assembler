@@ -44,6 +44,7 @@ void initialize_indexes(line_marks_index* indexes){
     indexes->dot_index = -1;
     indexes->colon_index = -1;
     indexes->semicolon_index = -1;
+    indexes->operator_index = -1;
 }
 void initialize_line(line* sentence){
     sentence->flags.is_empty_line = FALSE;

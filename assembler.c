@@ -5,9 +5,6 @@
 int main (int argc, char* argv[]){
     int IC = 100;
     int DC = 0;
-    symbol* symbol_table = NULL;
-    int* data_table = NULL;
-    long symbol_tabel_length = 0;
     short int error_found = 0;
     int i = 1;
     if (argc == 1) {

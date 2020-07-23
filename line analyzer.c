@@ -1,13 +1,10 @@
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 #include "line analyzer.h"
-#include "helpfunctions.h"
 void analyze_sentence(line* sentence, line_marks_index* indexes, line_marks_counter* counters) {
     operator op_variables;
     /**/
     initialize_operator_variables(&op_variables);
-    assume_no_signs(indexes, counters);
     /**/
     find_line_components(sentence, indexes, counters, &op_variables);
     define_sentence_type(sentence, *counters, *indexes, op_variables);
@@ -57,31 +54,13 @@ static void define_as_code(line* sentence, int opcode, int function){
     sentence->code_parts.opcode = opcode;
     sentence->code_parts.function = function;
 }
-void assume_no_signs(line_marks_index* indexes, line_marks_counter* counters){
-    indexes->first_hash_mark_index = -1;
-    indexes->first_register_index = -1;
-    indexes->semicolon_index = -1;
-    indexes->first_char_index = -1;
-    indexes->first_quotation_mark_index = -1;
-    indexes->second_quotation_mark_index = -1;
-    indexes->second_register_index = -1;
-    indexes->second_hash_mark_index = -1;
-    indexes->dot_index = -1;
-    indexes->colon_index = -1;
-    counters->number_of_hashmarks = 0;
-    counters->number_of_registers = 0;
-    counters->number_of_colons = 0;
-    counters->number_of_dots = 0;
-    counters->number_of_quotation_marks = 0;
-    counters->number_of_operators = 0;
-}
-void check_for_operators(operator* op_variables, line_marks_counter* counters, char * line_pointer, int i){
-    int str_length = (int) strlen(line_pointer);
-    op_variables->operator_name[0] = *(line_pointer+i);
-    op_variables->operator_name[1] = *(line_pointer+i+1);
-    op_variables->operator_name[2] = *(line_pointer+i+2);
+void check_for_operators(operator* op_variables, line_marks_counter* counters, line_marks_index* indexes, char * line, int i){
+    int str_length = (int) strlen(line);
+    op_variables->operator_name[0] = *(line + i);
+    op_variables->operator_name[1] = *(line + i + 1);
+    op_variables->operator_name[2] = *(line + i + 2);
     if (i < str_length-3){
-        op_variables->operator_name[3] = *(line_pointer+i+3);
+        op_variables->operator_name[3] = *(line + i + 3);
         op_variables->operator_name[4] = '\0';
         if (!strcmp(op_variables->operator_name,"stop") && OPERATOR_CONDITION){
             op_variables->recognized_opcode = 15;
@@ -94,28 +73,28 @@ void check_for_operators(operator* op_variables, line_marks_counter* counters, c
     if (recognize_operator(op_variables->operator_name, &op_variables->recognized_opcode, &op_variables->recognized_function) == 1
     && OPERATOR_CONDITION){
         counters->number_of_operators++;
+        indexes->operator_index = i;
         return ;
     }
 }
-void find_line_components(line* sentence, line_marks_index* indexes, line_marks_counter* counters, operator* op_variables){
+static void find_line_components(line* sentence, line_marks_index* indexes, line_marks_counter* counters, operator* op_variables){
     int i = 0;
     short int colon_found = 0;
     short int semicolon_found = 0;
     short int dot_found = 0;
     short int first_char_found = 0;
     /**/
-    int str_length = (int)strlen(sentence->line);
-    char curr_char;
-    char* line_pointer = sentence->line;
+    sentence->length = (int)strlen(sentence->line);
+    char curr_char = *(sentence->line+i);
     /**/
-    while (i < str_length) {
-        curr_char = *(line_pointer+i);
+    while (i < sentence->length) {
+        curr_char = *(sentence->line+i);
         if (!first_char_found && curr_char != ' ' && curr_char != '\t') {
             indexes->first_char_index = i;
             first_char_found = 1;
         }
-        if (i < str_length - 2){
-            check_for_operators(op_variables, counters, line_pointer, i);
+        if (i < sentence->length - 2){
+            check_for_operators(op_variables, counters, indexes, sentence->line, i);
         }
         switch (curr_char) {
             case ':': {
@@ -141,10 +120,8 @@ void find_line_components(line* sentence, line_marks_index* indexes, line_marks_
         }
         i++;
     }
-    find_data_order(sentence, *indexes);
-//    find_label(sentence, *indexes);
 }
-void define_sentence_type(line* sentence, line_marks_counter counters, line_marks_index indexes, operator op_variables){
+static void define_sentence_type(line* sentence, line_marks_counter counters, line_marks_index indexes, operator op_variables){
     if (counters.number_of_operators > 0){
         define_as_code(sentence, op_variables.recognized_opcode, op_variables.recognized_function);
     }
@@ -157,7 +134,7 @@ void define_sentence_type(line* sentence, line_marks_counter counters, line_mark
         define_as_not_order(sentence);
     }
 }
-short int is_order(line_marks_counter counters,line_marks_index indexes){
+static short int is_order(line_marks_counter counters,line_marks_index indexes){
     switch (counters.number_of_dots) {
         case 0:{
             return 0;
@@ -175,11 +152,39 @@ short int is_order(line_marks_counter counters,line_marks_index indexes){
         }
     }
 }
-void define_as_order(line* sentence){
+static void define_as_order(line* sentence){
     sentence->flags.is_data = TRUE;
 }
-void define_as_not_order(line* sentence){
+static void define_as_not_order(line* sentence){
     sentence->flags.is_data = FALSE;
     sentence->data_parts.data = NULL;
     sentence->data_parts.order[0] = '\0';
+}
+void find_data_order(line* sentence, int dot_index){
+    if (dot_index >= 0){
+        int i = dot_index;
+        int k = 0;
+        char curr_char = sentence->line[i];
+        int str_length = (int)strlen(sentence->line);
+        while (curr_char != ' ' && curr_char != '\t' && i < str_length && k < 6){
+            i++;
+            curr_char = sentence->line[i];
+            if (curr_char != ' ' && curr_char != '\t') {
+                sentence->data_parts.order[k] = curr_char;
+                k++;
+            }
+        }
+        sentence->data_parts.order[k] = '\0';
+    }
+}
+static void find_label(line* sentence, line_marks_index indexes){
+    if (indexes.first_quotation_mark_index == -1) {/*a label definition can't be in or after a string*/
+        int i = 0;
+        /*LABEL_MAX_LENGTH == 32, so max index is 30 and index 31 is '\0' (LABEL_MAX_LENGTH - 2)*/
+        while ((i + indexes.first_char_index < indexes.colon_index) && i < LABEL_MAX_LENGTH - 1) {
+            *(sentence->label.name + i) = *(sentence->line + (i + indexes.first_char_index));
+            i++;
+        }
+        *(sentence->label.name + i) = '\0';/*end of string*/
+    }
 }

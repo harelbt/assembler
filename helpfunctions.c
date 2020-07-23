@@ -637,22 +637,22 @@ short int* long_to_short_arr(long number){
     invert_short_arr(short_arr, count);
     return short_arr;
 }
-char* get_line_dynamic(FILE* file){
+char* get_line_dynamic(FILE* file, int* length){
     char* str = allocate_arr_memory(2, "char");
     int ch = skip_spaces(file);
-    int length = 1;
+    *length = 1;
     if (ch == EOF)
         return "";
     if (ch == '\n'){
         return "\n";
     }
-    str[0] = (char) ch;
+    *(str) = (char) ch;
     while ((ch = fgetc(file)) != '\n' && ch != EOF){
-        str = realloc_arr_memory(str,length +2, "char");
-        str[length] = (char) ch;
-        length++;
+        str = realloc_arr_memory(str,*length +2, "char");
+        *(str + (*length)) = (char) ch;
+        (*length)++;
     }
-    str[length] = '\0';
+    *(str + (*length)) = '\0';
     return str;
 }
 int get_to_eof(FILE* file){
@@ -784,37 +784,19 @@ int find_semicolon(line* sentence){
     return -1;
 }
 int read_line(FILE* file, line* sentence){
-    sentence->line = get_line_dynamic(file);
+    sentence->line = get_line_dynamic(file, &sentence->length);
     if (!strcmp(sentence->line, ""))
         return EOF;
     return 0;
 }
-void find_data_order(line* sentence, line_marks_index indexes){
-    if (indexes.dot_index >= 0){
-        int i = indexes.dot_index;
-        int k = 0;
-        char curr_char = sentence->line[i];
-        int str_length = (int)strlen(sentence->line);
-        while (curr_char != ' ' && curr_char != '\t' && i < str_length && k < 7){
-            i++;
-            curr_char = sentence->line[i];
-            if (curr_char != ' ' && curr_char != '\t') {
-                sentence->data_parts.order[k] = curr_char;
-                k++;
-            }
-        }
-        sentence->data_parts.order[k] = '\0';
-    }
-}
+
 int find_next_word(const char* line, int index){
     int str_length = (int)strlen(line);
-    while (index < str_length && (*(line + index) == ' ' || *(line + index) == '\t')){
-        index++;
+    int i = index;
+    while (i < str_length && (*(line + i) == ' ' || *(line + i) == '\t')){
+        i++;
     }
-    if (index == str_length){
-        return - 1;
-    }
-    return index;
+    return i;
 }
 /*void find_label(line* sentence, line_marks_index indexes){
     if (indexes.colon_index >= 0){
@@ -824,17 +806,35 @@ int find_next_word(const char* line, int index){
 int find_next_space(const char* line, int index){
     char curr_char = *(line + index);
     int str_length = (int) strlen(line);
-    while (index < str_length && curr_char != ' ' && curr_char != '\t'){
-        index++;
-        curr_char = *(line + index);
+    int i = index;
+    while (i < str_length && curr_char != ' ' && curr_char != '\t'){
+        i++;
+        curr_char = *(line + i);
     }
-    if (index == str_length){
-        return -1;
-    }
-    return index;
+    return i;
 }
-int find_data_values(const char* line, int index){
+int find_data_or_operands(const char* line, int index){
     index = find_next_space(line, index);
     index = find_next_word(line, index);
     return index;
+}
+void print_visual_indication(int index, const char* line) {
+    int i = index;
+    if (i == 1) {
+        puts("_^");
+        return;
+    }
+    while (i > 1) {
+        putchar('_');
+        i--;
+    }
+    puts("^");
+    printf("Starting at the character ' %c '\n", *(line + index));
+}
+void check_number_appearance(short int *did_number_appeared, char curr_char) {
+    if (*did_number_appeared == 0) {
+        if (curr_char > '0' && curr_char < '9') {
+            *did_number_appeared = 1;
+        }
+    }
 }

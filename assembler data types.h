@@ -4,7 +4,9 @@
 #define ENTRY 0
 #define ORDER 1
 #define INSTRUCTION 0
-#define LABEL_MAX_LENGTH 31
+#define LABEL_MAX_LENGTH 32
+#define ORDER_MAX_LENGTH 7
+#define OPERATOR_MAX_LENGTH 5
 #define TRUE 1
 #define FALSE 0
 typedef struct {
@@ -20,7 +22,7 @@ typedef struct {
     char* second_operand;
 }code;
 typedef struct {
-    char order[7];
+    char order[ORDER_MAX_LENGTH];
     char* data;
 }data;
 typedef struct {
@@ -31,6 +33,7 @@ typedef struct {
 }line_flags;
 typedef struct {
     char* line;
+    int length;
     symbol label;
     code code_parts;
     data data_parts;
@@ -47,6 +50,7 @@ typedef struct {
     int second_register_index;
     int first_quotation_mark_index;
     int second_quotation_mark_index;
+    int operator_index;
 }line_marks_index;
 typedef struct {
     int number_of_registers;
@@ -56,9 +60,10 @@ typedef struct {
     int number_of_dots;
     int number_of_operators;
     int line_number;
+    int error_number;
 }line_marks_counter;
 typedef struct {
-    char operator_name[5];
+    char operator_name[OPERATOR_MAX_LENGTH];
     int recognized_opcode;
     int recognized_function;
 }operator;

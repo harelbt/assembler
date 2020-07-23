@@ -1,5 +1,21 @@
 	
-
+longlabelprobablytoomuchihopethatitwillcauseanerror: add r1 r2
+longlabelprobablytoomuchihopetha: add r1 r2
+8labe: add r1 r2
+lab : .data 7,8
+.data 7,5,
+.data ,7,8
+.data 7 8
+.data 7 , 	, 8
+.data 
+.data a, 7
+.data .string 7,4
+.string"a"
+.stringa"3"
+.string "label:"
+.string:
+aj .string
+aj.string
 LABEL1:	mov	#7	r1	
 	mov	# 7	r1	 
 ;שגיאה(רווח)
@@ -15,7 +31,19 @@ LABEL2:	mov	#-9	r2
 ;שגיאה(אוגר יעד)
 LABEL 3:	mov	#-9	# 8	 
 ;שגיאה(רווח, אוגר יעד)
-				
+".string"
+.skak
+"".string
+.string"	
+sti: a .string	
+a .string
+.s .string "afs"
+stt: a .data 7,   6	
+a .data 7,   6	
+stt: a .entry stt	
+a .extern stt
+hello: hello2: .data 8
+: .data 9	
 LABEL 3	mov	# -9	# 8	 
 ;שגיאה(רווח, אוגר יעד,תווית ללא ;)
 	mov	r1	r2	
@@ -281,6 +309,7 @@ lea	r3	r2 r4
 ;שגיאה(יש #)
 .string "khskhbkd"
 .string "jdcbjcn""
+.string "jdcbjcn""s
 .string "dcncdnlc"
 .string "
 .data 6,  7, -7

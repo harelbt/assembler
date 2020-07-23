@@ -153,7 +153,7 @@ long short_arr_length(const short int* array, int last_number);
  * @param file FILE pointer to the file to get the line from
  * @return the line in a dynamic allocated string
  */
-char* get_line_dynamic(FILE* file);
+char* get_line_dynamic(FILE* file, int* length);
 /**
  * jumps to the EOF and returns it
  * IN STDIN ONLY THE USER SENDS EOF AND THIS AUTOMATICALLY TERMINATES THE PROGRAM
@@ -186,9 +186,10 @@ short int* comp_of_2 (short int* binary,long length);
 int find_first_char(line* sentence);
 int find_semicolon(line* sentence);
 int read_line(FILE* file, line* sentence);
-void find_data_order(line* sentence, line_marks_index indexes);
 int find_next_word(const char* line, int index);
 /*void find_label(line* sentence, line_marks_index indexes);*/
 int find_next_space(const char* line, int index);
-int find_data_values(const char* line, int index);
+int find_data_or_operands(const char* line, int index);
+void print_visual_indication(int index, const char* line);
+void check_number_appearance(short int* did_number_appeared, char curr_char);
 #endif /*HELP_H*/
