@@ -59,10 +59,10 @@ print_visual_indication(unexpected, line);}\
 puts("________________________________________________________________________________________________________");
 
 /*~~general functions~~*/
-short int errors_inspection(line sentence, line_marks_index indexes, line_marks_counter* counters);
+short int errors_inspection(line* sentence, line_marks_index indexes, line_marks_counter* counters);
 static void report_error(char* line, short int error_code, line_marks_counter* counters, ...);
 /*~~order inspection section~~*/
-static short int inspect_order_line(line sentence, line_marks_index indexes, line_marks_counter* counters);
+static short int inspect_order_line(line* sentence, line_marks_index indexes, line_marks_counter* counters);
 static short int is_order_proper(line sentence);
 static void detect_string_errors(line sentence, line_marks_index indexes, line_marks_counter* counters, short int* error_found);
 static void detect_two_quotes_errors(line sentence, line_marks_counter* counters, line_marks_index indexes, short int is_string_order, short int* error_found);
@@ -72,14 +72,14 @@ static short int inspect_data_values(line sentence, int index, line_marks_counte
 static void values_check(line sentence, line_marks_counter *counters, char curr_char, int last_char, short int is_after_comma,
              short int is_data_order, short int *error_found, short int did_number_appeared, int index);
 static void check_if_after_comma(const char *curr_char, short int *is_after_comma);
-static void update_loop_data_inspection_variables(line sentence, char* curr_char, char* last_char, int* index, int str_length);
-static void detect_extern_entry_errors(line sentence, line_marks_index indexes, line_marks_counter* counters, short int* error_found);
+static void update_loop_data_inspection_variables(line sentence, char* curr_char, char* last_char, int* index);
+static void detect_extern_entry_errors(line* sentence, line_marks_index indexes, line_marks_counter* counters, short int* error_found);
 static void check_pre_order_chars(line sentence, line_marks_index indexes, line_marks_counter* counters, short int* error_found);
 /*~~code inspection section~~*/
 static void inspect_code_line(line sentence, line_marks_index indexes, line_marks_counter* counters, short int* error_found);
 /*~~label inspection section~~*/
-static void inspect_label(line sentence, line_marks_index indexes, line_marks_counter* counters, int start_index, short int* error_found);
-static void check_label_length(line sentence, line_marks_index indexes, line_marks_counter* counters, int start_index, short int* error_found);
+static void inspect_label(line* sentence, line_marks_index indexes, line_marks_counter* counters, int start_index, short int* error_found);
+static void check_label_length(line* sentence, line_marks_index indexes, line_marks_counter* counters, int start_index, short int* error_found);
 static void check_label_syntax(line sentence, line_marks_index indexes, line_marks_counter* counters, int start_index, short int* error_found);
 static void check_pre_label_chars(char* sentence, line_marks_index indexes, line_marks_counter* counters, int start_index, short int* error_found);
 #endif /*ASSEMBLER_ERRORS_H*/

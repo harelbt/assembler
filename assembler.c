@@ -11,7 +11,7 @@ int main (int argc, char* argv[]){
         stop(EXIT_FAILURE, "no assembly code was supplied");
     }
     while (i < argc) {
-        first_pass(argv[i], &error_found);
+        first_pass(*(argv+i), &error_found);
         if (!error_found) {
             /*second_pass();*/
         }

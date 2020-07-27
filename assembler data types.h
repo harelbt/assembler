@@ -16,10 +16,14 @@ typedef struct {
     char extern_or_entry;
 } symbol;
 typedef struct {
+    char operator_name[OPERATOR_MAX_LENGTH];
     int opcode;
     int function;
+}operator;
+typedef struct {
     char* first_operand;
     char* second_operand;
+    operator operator_parts;
 }code;
 typedef struct {
     char order[ORDER_MAX_LENGTH];
@@ -51,6 +55,9 @@ typedef struct {
     int first_quotation_mark_index;
     int second_quotation_mark_index;
     int operator_index;
+    int first_label_operator_index;
+    int second_label_operator_index;
+    int data_index;
 }line_marks_index;
 typedef struct {
     int number_of_registers;
@@ -61,15 +68,10 @@ typedef struct {
     int number_of_operators;
     int line_number;
     int error_number;
+    int number_of_operands;
 }line_marks_counter;
-typedef struct {
-    char operator_name[OPERATOR_MAX_LENGTH];
-    int recognized_opcode;
-    int recognized_function;
-}operator;
 static void create_symbol(symbol* to_initialize, char* name, char* address, char sentence_type, char extern_or_entry);
 void initialize_line_tools(line* sentence, line_marks_counter* counters, line_marks_index* indexes);
-void initialize_operator_variables(operator* op_variables);
 void initialize_counters(line_marks_counter* counters);
 void initialize_indexes(line_marks_index* indexes);
 void initialize_line(line* sentence);

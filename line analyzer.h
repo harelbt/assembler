@@ -6,8 +6,8 @@
 ((i > 0 && (*(sentence->line+i-1) == ' ' || *(sentence->line+i-1) == '\t' ))\
 ||(i == 0) && counters->number_of_quotation_marks == 0)
 /**/
-#define OPERATOR_CONDITION (i == 0 || *(line+i-1) == ' ' || *(line+i-1) == '\t')\
-&& (i == str_length-1 || *(line+i+3) == ' ' || *(line+i+3) == '\t'\
+#define OPERATOR_CONDITION (i == 0 || *(sentence->line+i-1) == ' ' || *(sentence->line+i-1) == '\t')\
+&& (i == sentence->length-1 || *(sentence->line+i+3) == ' ' || *(sentence->line+i+3) == '\t'\
 && counters->number_of_quotation_marks == 0)
 /**/
 #define COMMENT_CONDITION indexes.semicolon_index == indexes.first_char_index && indexes.semicolon_index >= 0
@@ -59,18 +59,13 @@ indexes->second_register_index = i;}}\
 }break;
 /**/
 
-void comment_check(line* sentence, line_marks_index indexes);
-void empty_line_check (line* sentence, line_marks_index indexes);
+void empty_or_comment_line_check (line* sentence, line_marks_index indexes);
 void analyze_sentence(line* sentence, line_marks_index* indexes, line_marks_counter* counters);
 static int recognize_operator(char* operator, int* opcode, int* function);
-static void define_as_not_code(line* sentence);
-static void define_as_code(line* sentence, int opcode, int function);
-static void check_for_operators(operator* op_variables, line_marks_counter* counters, line_marks_index* indexes, char * line, int i);
-static void find_line_components(line* sentence, line_marks_index* indexes, line_marks_counter* counters, operator* op_variables);
+static void check_for_operators(line_marks_counter* counters, line_marks_index* indexes, line* sentence, int i);
+static void find_line_components(line* sentence, line_marks_index* indexes, line_marks_counter* counters);
 void find_data_order(line* sentence, int dot_index);
-static void define_sentence_type(line* sentence, line_marks_counter counters, line_marks_index indexes, operator op_variables);
+static void define_sentence_type(line* sentence, line_marks_counter counters, line_marks_index indexes);
 static short int is_order(line_marks_counter counters,line_marks_index indexes);
-static void define_as_order(line* sentence);
-static void define_as_not_order(line* sentence);
 static void find_label(line* sentence, line_marks_index indexes);
 #endif //ASSEMBLER_LINE_ANALYZER_H

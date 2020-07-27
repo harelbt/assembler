@@ -1,26 +1,26 @@
 #include "errors.h"
 #include "helpfunctions.h"
 /*~~general functions~~*/
-short int errors_inspection(line sentence, line_marks_index indexes, line_marks_counter* counters){
+short int errors_inspection(line* sentence, line_marks_index indexes, line_marks_counter* counters){
     short int error_found = 0;
-    if (*(sentence.label.name) != '\0'){
+    if (*(sentence->label.name) != '\0'){
         inspect_label(sentence, indexes, counters, indexes.first_char_index, &error_found);
     }
-    if (*(sentence.label.name) == '\0' && indexes.colon_index != -1 &&
+    if (*(sentence->label.name) == '\0' && indexes.colon_index != -1 &&
             ((indexes.first_quotation_mark_index != -1 && indexes.colon_index < indexes.first_quotation_mark_index) ||
             indexes.first_quotation_mark_index == -1)){
-        report_error(sentence.line, MISSING_LABEL, counters, indexes.colon_index);
+        report_error(sentence->line, MISSING_LABEL, counters, indexes.colon_index);
         error_found = 1;
     }
-    if (sentence.flags.is_data == TRUE && sentence.flags.is_code == TRUE){
-        report_error(sentence.line, MIXED_SENTENCE, counters);
+    if (sentence->flags.is_data == TRUE && sentence->flags.is_code == TRUE){
+        report_error(sentence->line, MIXED_SENTENCE, counters);
         error_found = 1;
-    } else if (sentence.flags.is_data == TRUE){
+    } else if (sentence->flags.is_data == TRUE){
         error_found = inspect_order_line(sentence, indexes, counters);
-    } else if(sentence.flags.is_code == TRUE){
-        inspect_code_line(sentence, indexes, counters, &error_found);
-    } if (sentence.flags.is_data == FALSE && sentence.flags.is_code == FALSE){
-        report_error(sentence.line, NO_SENTENCE_TYPE, counters);
+    } else if(sentence->flags.is_code == TRUE){
+        inspect_code_line(*sentence, indexes, counters, &error_found);
+    } if (sentence->flags.is_data == FALSE && sentence->flags.is_code == FALSE){
+        report_error(sentence->line, NO_SENTENCE_TYPE, counters);
         error_found = 1;
     }
     return error_found;
@@ -29,6 +29,10 @@ static void report_error(char* line, short int error_code, line_marks_counter* c
     int unexpected;
     short int print_char_indication = 0;
     counters->error_number++;
+    if (counters->error_number == 1){
+        printf("*************************************************************************************\n"
+               "ERRORS LIST:\n\n");
+    }
     printf("%d) ", counters->error_number);
     printf("ERROR: ");
     switch (error_code) {
@@ -46,15 +50,15 @@ static void report_error(char* line, short int error_code, line_marks_counter* c
             return;
         }
         case UNEXPECTED_REGISTER:{
-            printf("unexpected register in line %d.\n", counters->line_number);
+            printf("Unexpected register in line %d.\n", counters->line_number);
             break;
         }
         case REGISTER_NO_OPERATOR:{
-            printf("register is written but no operator found in line %d.\n", counters->line_number);
+            printf("Register is written but no operator found in line %d.\n", counters->line_number);
             break;
         }
         case HASHMARK_NO_OPERATOR:{
-            printf("hash mark is written but no operator found in line %d.\n", counters->line_number);
+            printf("Hash mark is written but no operator found in line %d.\n", counters->line_number);
             break;
         }
         case EXTRA_OPERATORS:{
@@ -71,16 +75,16 @@ static void report_error(char* line, short int error_code, line_marks_counter* c
         }
         case SINGLE_QUOTMARK:{
             print_char_indication = 1;
-            printf("opening quote mark without closing quote mark in line %d.\n", counters->line_number);
+            printf("Opening quote mark without closing quote mark in line %d.\n", counters->line_number);
             break;
         }
         case STRING_NO_ORDER:{
-            printf("string without a .string order before in line %d.\n", counters->line_number);
+            printf("String without a .string order before in line %d.\n", counters->line_number);
             break;
         }
         case CODE_AFTER_QUOTE:{
             print_char_indication = 1;
-            printf("code was found after a string in line %d.\n", counters->line_number);
+            printf("Code was found after a string in line %d.\n", counters->line_number);
             break;
         }
         case ORDER_NO_STRING:{
@@ -97,10 +101,6 @@ static void report_error(char* line, short int error_code, line_marks_counter* c
             printf("A string needs to be written after a space or spaces. line %d.\n", counters->line_number);
             break;
         }
-        case CHARS_BETWEEN_LABEL_STRINGORDER:{
-            printf("Unexpected code between the label and the .string order in line %d.\n", counters->line_number);
-            break;
-        }
         case CHARS_BEFORE_STRING_ORDER:{
             print_char_indication = 1;
             printf("Unexpected code before the .string order in line %d.\n", counters->line_number);
@@ -111,7 +111,7 @@ static void report_error(char* line, short int error_code, line_marks_counter* c
             break;
         }
         case ORDER_NO_DATA:{
-            printf(".data order supplied without data in line %d.\n", counters->line_number);
+            printf(".Data order supplied without data in line %d.\n", counters->line_number);
             break;
         }
         case CHARS_BEFORE_DATA_ORDER:{
@@ -126,7 +126,7 @@ static void report_error(char* line, short int error_code, line_marks_counter* c
         }
         case COMMA_NO_NUMBERS:{
             print_char_indication = 1;
-            printf("Data can't begin with ','. line %d.\n", counters->line_number);
+            printf("Data can't begin with ',' without a number before. line %d.\n", counters->line_number);
             break;
         }
         case COMMA_NO_FOLLOWING_NUMBER:{
@@ -200,15 +200,15 @@ static void report_error(char* line, short int error_code, line_marks_counter* c
     PRINT_ERROR_DESCRIPTION
 }
 /*~~order inspection section~~*/
-static short int inspect_order_line(line sentence, line_marks_index indexes, line_marks_counter* counters){
+static short int inspect_order_line(line* sentence, line_marks_index indexes, line_marks_counter* counters){
     short int error_found = 0;
-    if (!is_order_proper(sentence)) {
-        report_error(sentence.line, NO_SUCH_ORDER, counters, indexes.dot_index);
+    if (!is_order_proper(*sentence)) {
+        report_error(sentence->line, NO_SUCH_ORDER, counters, indexes.dot_index);
         error_found = 1;
         return error_found;
     }
-    detect_string_errors(sentence, indexes, counters, &error_found);
-    detect_data_errors(sentence, indexes, counters, &error_found);
+    detect_string_errors(*sentence, indexes, counters, &error_found);
+    detect_data_errors(*sentence, indexes, counters, &error_found);
     detect_extern_entry_errors(sentence, indexes, counters, &error_found);
     return error_found;
 }
@@ -301,7 +301,6 @@ static void detect_data_errors(line sentence, line_marks_index indexes, line_mar
     }
 }
 static short int is_data_values_proper(line sentence, line_marks_index indexes, line_marks_counter* counters){
-    int val_index = find_data_or_operands(sentence.line, indexes.dot_index);
     short int is_data_values_proper = 1;
     short int is_data_order;
     if(!strcmp(sentence.data_parts.order,"data")){
@@ -309,13 +308,13 @@ static short int is_data_values_proper(line sentence, line_marks_index indexes, 
     } else{
         is_data_order = 0;
     }
-    if (val_index == sentence.length){/*no data was found*/
+    if (indexes.data_index == -1){/*no data was found*/
         if (is_data_order == 1) {
             report_error(sentence.line, ORDER_NO_DATA, counters);
         }
         is_data_values_proper = 0;
     }else {
-        if (inspect_data_values(sentence, val_index, counters) == 1) {
+        if (inspect_data_values(sentence, indexes.data_index, counters) == 1) {
             is_data_values_proper = 0;
         }
     }
@@ -323,7 +322,6 @@ static short int is_data_values_proper(line sentence, line_marks_index indexes, 
 }
 static short int inspect_data_values(line sentence, int index, line_marks_counter* counters) {
     short int error_found = 0;
-    int str_length = (int) strlen(sentence.line);
     char last_char = '\0';
     char curr_char = *(sentence.line + index);
     short int is_after_comma = 0;
@@ -334,21 +332,22 @@ static short int inspect_data_values(line sentence, int index, line_marks_counte
     } else {
         is_data_order = 0;
     }
-    while (index < str_length) {
+    while (index < sentence.length) {
         /*checks if current char is illegal*/
-        if (curr_char != ' ' && curr_char != '\t' && curr_char != ',' && curr_char != '-' && curr_char != '+'
+        if (curr_char != ' ' && curr_char != '\t' &&
+        curr_char != ',' && curr_char != '-' && curr_char != '+'
             && (curr_char < '0' || curr_char > '9')) {
             if (is_data_order == 1) {
                 report_error(sentence.line, UNEXPECTED_CHARACTER, counters, curr_char, index);
             }
             error_found = 1;/*indicates that in general, the values are not proper*/
-            update_loop_data_inspection_variables(sentence, &curr_char, &last_char, &index, str_length);
+            update_loop_data_inspection_variables(sentence, &curr_char, &last_char, &index);
         } else {/*if current char is legal*/
             values_check(sentence, counters, curr_char, last_char, is_after_comma, is_data_order, &error_found,
                          did_number_appeared, index);
             check_if_after_comma(&curr_char, &is_after_comma);
             check_number_appearance(&did_number_appeared, curr_char);
-            update_loop_data_inspection_variables(sentence, &curr_char, &last_char, &index, str_length);
+            update_loop_data_inspection_variables(sentence, &curr_char, &last_char, &index);
         }
     }
         return error_found;
@@ -362,7 +361,7 @@ values_check(line sentence, line_marks_counter *counters, char curr_char, int la
             }
             *error_found = 1;
         }
-        if (is_after_comma == 1 && did_number_appeared == 0 && curr_char < '0' && curr_char > '9') {
+        if (curr_char == ',' == 1 && did_number_appeared == 0) {
             if (is_data_order == 1) {
                 report_error(sentence.line, COMMA_NO_NUMBERS, counters, index-1);
             }
@@ -376,7 +375,7 @@ values_check(line sentence, line_marks_counter *counters, char curr_char, int la
                 }
                 *error_found = 1;
             }
-            if (index == strlen(sentence.line)-1 && curr_char == ','){
+            if (index == sentence.length-1 && curr_char == ','){
                 report_error(sentence.line, COMMA_NO_FOLLOWING_NUMBER, counters, index);
                 *error_found = 1;
             }
@@ -390,34 +389,34 @@ static void check_if_after_comma(const char *curr_char, short int *is_after_comm
         *is_after_comma = 0;
     }
 }
-static void update_loop_data_inspection_variables(line sentence, char* curr_char, char* last_char, int* index, int str_length){
-    if (*index < str_length) {
+static void update_loop_data_inspection_variables(line sentence, char* curr_char, char* last_char, int* index){
+    if (*index < sentence.length) {
         (*index)++;
         *last_char = *curr_char;
-        *curr_char = *(sentence.line + *index);
+        *curr_char = *(sentence.line + (*index));
     }
 }
-static void detect_extern_entry_errors(line sentence, line_marks_index indexes, line_marks_counter* counters, short int* error_found) {
-    if (!strcmp(sentence.data_parts.order, "entry") || !strcmp(sentence.data_parts.order, "extern")) {
-        int order_end_index = indexes.dot_index + (int) strlen(sentence.data_parts.order);
-        int label_index = find_next_word(sentence.line, order_end_index+1);
-        int label_end_index = find_next_space(sentence.line, label_index);
-        char curr_char;
-        if (label_index == sentence.length) {/*label wasn't found*/
-            report_error(sentence.line, EXTERN_ENTRY_NO_LABEL, counters, order_end_index);
+static void detect_extern_entry_errors(line* sentence, line_marks_index indexes, line_marks_counter* counters, short int* error_found) {
+    if (!strcmp(sentence->data_parts.order, "entry") || !strcmp(sentence->data_parts.order, "extern")) {
+        int order_end_index = indexes.dot_index + (int) strlen(sentence->data_parts.order);
+        char* i = sentence->line + indexes.data_index;
+        short int data_ended = 0;
+        if (indexes.data_index == -1) {/*label wasn't found*/
+            report_error(sentence->line, EXTERN_ENTRY_NO_LABEL, counters, order_end_index);
             *error_found = 1;
         } else {
-            inspect_label(sentence, indexes, counters, label_index, error_found);
+            inspect_label(sentence, indexes, counters, indexes.data_index, error_found);
         }
-        if (label_end_index < sentence.length) {/*if a white char was found after the label*/
-            curr_char = *(sentence.line + label_end_index);
-            while (curr_char) {
-                if (curr_char != ' ' && curr_char != '\t') {
-                    report_error(sentence.line,UNEXPECTED_CHARACTER, counters, curr_char, label_end_index);
-                }
-                label_end_index++;
-                curr_char = *(sentence.line + label_end_index);
+        check_pre_order_chars(*sentence, indexes, counters, error_found);
+        while (*i) {
+            if (!data_ended && (*i == ' ' || *i == '\t')){
+                data_ended = 1;
             }
+            if (data_ended == 1 && *i != ' ' && *i != '\t') {
+                report_error(sentence->line, UNEXPECTED_CHARACTER, counters, *i, i - sentence->line);
+                *error_found = 1;
+            }
+            i++;
         }
     }
 }
@@ -449,37 +448,33 @@ static void check_pre_order_chars(line sentence, line_marks_index indexes, line_
 static void inspect_code_line(line sentence, line_marks_index indexes, line_marks_counter* counters, short int* error_found){
 
 }
-static int count_operands(line sentence, line_marks_index indexes, line_marks_counter counters, int* operands_count, int* non_operands_counts){
-    int i = find_data_or_operands(sentence.line, indexes.operator_index);
-    unsigned int str_length = strlen(sentence.line);
-    char curr_char = *(sentence.line + i);
-    while (i < str_length){
-        if (curr_char != ' ' && curr_char != '\t'){
-
-        }
-        i++;
-    }
-}
 /*~~label inspection section~~*/
-static void inspect_label(line sentence, line_marks_index indexes, line_marks_counter* counters, int start_index, short int* error_found){
+static void inspect_label(line* sentence, line_marks_index indexes, line_marks_counter* counters, int start_index, short int* error_found){
     check_label_length(sentence, indexes, counters, start_index, error_found);
-    check_label_syntax(sentence, indexes, counters, start_index, error_found);
+    check_label_syntax(*sentence, indexes, counters, start_index, error_found);
 }
-static void check_label_length(line sentence, line_marks_index indexes, line_marks_counter* counters, int start_index, short int* error_found){
+static void check_label_length(line* sentence, line_marks_index indexes, line_marks_counter* counters, int start_index, short int* error_found){
     int label_length;
-    if (*(sentence.label.name) != '\0' && start_index < indexes.colon_index) {/*if that's a label definition*/
+    int label_index;
+    if (*(sentence->label.name) != '\0' && start_index < indexes.colon_index) {/*if that's a label definition*/
         label_length = indexes.colon_index - indexes.first_char_index;
+        label_index = indexes.first_char_index;
     } else{
-        label_length = find_next_space(sentence.line, start_index) - start_index;
+        char* i = sentence->line + indexes.data_index;
+        while (*i != ' ' && *i != '\t' && *i){
+            i++;
+        }
+        label_length = i - sentence->line - indexes.data_index;
+        label_index = indexes.data_index;
     }
     if (label_length > 31){
-        report_error(sentence.line, LABEL_TOO_LONG, counters, indexes.first_char_index);
+        report_error(sentence->line, LABEL_TOO_LONG, counters, label_index);
         *error_found = 1;
     }
 }
 static void check_label_syntax(line sentence, line_marks_index indexes, line_marks_counter* counters, int start_index, short int* error_found){
     char curr_char = *(sentence.line + start_index);
-    if (curr_char > '0' && curr_char < '9'){
+    if (curr_char >= '0' && curr_char <= '9'){
         report_error(sentence.line, LABEL_STARTS_WITH_NUMBER, counters, start_index);
         *error_found = 1;
     }else if (curr_char < 'A' || (curr_char > 'Z' && curr_char < 'a') || curr_char > 'z'){

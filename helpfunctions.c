@@ -833,7 +833,7 @@ void print_visual_indication(int index, const char* line) {
 }
 void check_number_appearance(short int *did_number_appeared, char curr_char) {
     if (*did_number_appeared == 0) {
-        if (curr_char > '0' && curr_char < '9') {
+        if (curr_char >= '0' && curr_char <= '9') {
             *did_number_appeared = 1;
         }
     }

@@ -14,16 +14,13 @@ void first_pass(char* file, short int* error_found) {
         line_number++;
         if (strcmp(sentence.line, "\n") != 0) {
             analyze_sentence(&sentence, &indexes, &counters);
-            empty_line_check(&sentence, indexes);
-            if (sentence.flags.is_empty_line == FALSE) {
-                comment_check(&sentence, indexes);
-                if (sentence.flags.is_comment == FALSE) {
-                    *error_found = errors_inspection(sentence, indexes, &counters);
+            empty_or_comment_line_check(&sentence, indexes);
+                if (sentence.flags.is_comment == FALSE && sentence.flags.is_empty_line == FALSE) {
+                    *error_found = errors_inspection(&sentence, indexes, &counters);
                     if(!*error_found){
                     //build_sentence();
                     }
                 }
-            }
         }
     }
     if (*error_found == 1) {
@@ -34,7 +31,8 @@ void first_pass(char* file, short int* error_found) {
 static void print_errors_summary(char* file_name, int errors_count){
     printf("\nFILE: %s\n", file_name);
     printf("%d ERRORS WAS FOUND\n", errors_count);
-    puts("NO OUTPUT FILES WERE GENERATED");
+    puts("NO OUTPUT FILES WERE GENERATED"
+         "\n*************************************************************************************");
 }
 static void free_first_pass(FILE* filep, line* sentence){
     fclose(filep);

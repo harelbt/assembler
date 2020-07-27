@@ -1,6 +1,7 @@
 	
 longlabelprobablytoomuchihopethatitwillcauseanerror: add r1 r2
 longlabelprobablytoomuchihopetha: add r1 r2
+.string "al:"
 8labe: add r1 r2
 lab : .data 7,8
 .data 7,5,
@@ -16,6 +17,9 @@ lab : .data 7,8
 .string:
 aj .string
 aj.string
+.extern jkj nk
+add .data r2 r1
+.string 7,3,2
 LABEL1:	mov	#7	r1	
 	mov	# 7	r1	 
 ;שגיאה(רווח)

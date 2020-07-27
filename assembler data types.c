@@ -20,10 +20,6 @@ void initialize_line_tools(line* sentence, line_marks_counter* counters, line_ma
     initialize_indexes(indexes);
     initialize_line(sentence);
 }
-void initialize_operator_variables(operator* op_variables){
-    op_variables->recognized_function = -1;
-    op_variables->recognized_opcode = -1;
-}
 void initialize_counters(line_marks_counter* counters){
     counters->number_of_hashmarks = 0;
     counters->number_of_quotation_marks = 0;
@@ -32,6 +28,7 @@ void initialize_counters(line_marks_counter* counters){
     counters->number_of_colons = 0;
     counters->number_of_registers = 0;
     counters->line_number = 0;
+    counters->number_of_operands = 0;
 }
 void initialize_indexes(line_marks_index* indexes){
     indexes->first_hash_mark_index = -1;
@@ -45,16 +42,21 @@ void initialize_indexes(line_marks_index* indexes){
     indexes->colon_index = -1;
     indexes->semicolon_index = -1;
     indexes->operator_index = -1;
+    indexes->first_label_operator_index = -1;
+    indexes->second_label_operator_index = -1;
+    indexes->data_index = -1;
 }
 void initialize_line(line* sentence){
     sentence->flags.is_empty_line = FALSE;
     sentence->flags.is_data = FALSE;
     sentence->flags.is_code = FALSE;
     sentence->flags.is_comment = FALSE;
-    sentence->code_parts.opcode = -1;
-    sentence->code_parts.function = -1;
+    sentence->code_parts.operator_parts.opcode = -1;
+    sentence->code_parts.operator_parts.function = -1;
     sentence->data_parts.data = NULL;
     *(sentence->data_parts.order) = '\0';
     sentence->label.address = NULL;
     *(sentence->label.name) = '\0';
+    sentence->code_parts.first_operand = NULL;
+    sentence->code_parts.second_operand = NULL;
 }
