@@ -43,14 +43,6 @@ static void free_first_pass(FILE* filep, line* sentence){
 static void free_line(line* sentence){
     free(sentence->line);
     sentence->line = NULL;
-    if (sentence->code_parts.first_operand != NULL) {
-        free(sentence->code_parts.first_operand);
-        sentence->code_parts.first_operand = NULL;
-    }
-    if (sentence->code_parts.second_operand != NULL) {
-        free(sentence->code_parts.second_operand);
-        sentence->code_parts.second_operand = NULL;
-    }
     if (sentence->data_parts.data != NULL){
         free(sentence->data_parts.data);
         sentence->data_parts.data = NULL;

@@ -21,8 +21,6 @@ typedef struct {
     int function;
 }operator;
 typedef struct {
-    char* first_operand;
-    char* second_operand;
     operator operator_parts;
 }code;
 typedef struct {
@@ -55,8 +53,8 @@ typedef struct {
     int first_quotation_mark_index;
     int second_quotation_mark_index;
     int operator_index;
-    int first_label_operator_index;
-    int second_label_operator_index;
+    int first_operand_index;
+    int second_operand_index;
     int data_index;
 }line_marks_index;
 typedef struct {

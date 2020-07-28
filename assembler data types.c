@@ -42,8 +42,8 @@ void initialize_indexes(line_marks_index* indexes){
     indexes->colon_index = -1;
     indexes->semicolon_index = -1;
     indexes->operator_index = -1;
-    indexes->first_label_operator_index = -1;
-    indexes->second_label_operator_index = -1;
+    indexes->first_operand_index = -1;
+    indexes->second_operand_index = -1;
     indexes->data_index = -1;
 }
 void initialize_line(line* sentence){
@@ -57,6 +57,4 @@ void initialize_line(line* sentence){
     *(sentence->data_parts.order) = '\0';
     sentence->label.address = NULL;
     *(sentence->label.name) = '\0';
-    sentence->code_parts.first_operand = NULL;
-    sentence->code_parts.second_operand = NULL;
 }

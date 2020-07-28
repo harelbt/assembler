@@ -2,7 +2,7 @@
 #define ASSEMBLER_LINE_ANALYZER_H
 #include "assembler data types.h"
 
-#define REGISTER_CONDITION ((i+1) < sentence->length && *(sentence->line+i+1) >= '0' && *(sentence->line+i+1) <= '9') &&\
+#define REGISTER_CONDITION ((i+1) < sentence->length && *(sentence->line+i+1) >= '0' && *(sentence->line+i+1) <= '7') &&\
 ((i > 0 && (*(sentence->line+i-1) == ' ' || *(sentence->line+i-1) == '\t' ))\
 ||(i == 0) && counters->number_of_quotation_marks == 0)
 /**/
@@ -61,7 +61,7 @@ indexes->first_register_index = i;\
 indexes->second_register_index = i;}}\
 }break;
 /**/
-
+#define NUMBER_OF_OPERATORS 15
 void empty_or_comment_line_check (line* sentence, line_marks_index indexes);
 void analyze_sentence(line* sentence, line_marks_index* indexes, line_marks_counter* counters);
 static int recognize_operator(char* operator, int* opcode, int* function);

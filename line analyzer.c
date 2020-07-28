@@ -19,11 +19,11 @@ void empty_or_comment_line_check (line* sentence, line_marks_index indexes){
 static int recognize_operator(char* operator, int* opcode, int* function){
     char** endp = NULL;
     int i = 0;
-    char* operators_table[15][3] = {{"mov", "0", ""},{"cmp", "1", ""},{"add", "2", "1"},{"sub", "2", "2"},{"lea", "4", ""},
+    char* operators_table[NUMBER_OF_OPERATORS][3] = {{"mov", "0", ""},{"cmp", "1", ""},{"add", "2", "1"},{"sub", "2", "2"},{"lea", "4", ""},
                                     {"clr", "5", "1"},{"not", "5", "2"},{"inc", "5", "3"},{"dec", "5", "4"},{"jmp", "9", "1"},
-                                    {"bne","9", "2"},{"jsr", "9", "3"},{"red", "12", ""},{"prn", "13", ""},{"rts", "14", ""},
+                                    {"bne","9", "2"},{"jsr", "9", "3"},{"red", "12", ""},{"prn", "13", ""},{"rts", "14", ""}
                                     };
-    while (i < 15){
+    while (i < NUMBER_OF_OPERATORS){
         if (!strcmp(operator, operators_table[i][0])){
             *opcode = strtod(operators_table[i][1],endp);
             *function = strtod(operators_table[i][2],endp);
@@ -83,10 +83,10 @@ static void find_line_components(line* sentence, line_marks_index* indexes, line
             if (curr_char != ' ' && curr_char != '\t' && operand_ended == 1){
                 counters->number_of_operands++;
                 if (counters->number_of_operands == 1) {
-                    indexes->first_label_operator_index = i;
+                    indexes->first_operand_index = i;
                 }
-                if (counters->number_of_operators == 2){
-                    indexes->second_label_operator_index = i;
+                if (counters->number_of_operands == 2){
+                    indexes->second_operand_index = i;
                 }
                 operand_ended = 0;
             }
@@ -121,6 +121,10 @@ static void find_line_components(line* sentence, line_marks_index* indexes, line
             }
         }
         i++;
+    }
+    if (indexes->first_operand_index != -1 && indexes->second_operand_index == -1){
+        indexes->second_operand_index = indexes->first_operand_index;
+        indexes->first_operand_index = -1;
     }
 }
 static void define_sentence_type(line* sentence, line_marks_counter counters, line_marks_index indexes) {
