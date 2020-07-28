@@ -378,7 +378,7 @@ LABEL1:	prn	str
 ;שגיאה(הגדרה חוזרת של תווית)	
 				
 	rts			
-	.stop			
+	stop			
 DATA:	.data	-6		
 stri: .string "certy"
 str:	.string	"abcdef"		

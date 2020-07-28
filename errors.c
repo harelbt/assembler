@@ -65,6 +65,14 @@ static void report_error(char* line, short int error_code, line_marks_counter* c
             printf("Extra operator in line %d.\n", counters->line_number);
             break;
         }
+        case ZERO_OPERANDS:{
+            printf("No operands found in line %d.\n", counters->line_number);
+            break;
+        }
+        case EXTRA_OPERANDS:{
+            printf("Too many operands found in line %d.\n", counters->line_number);
+            break;
+        }
         case MIXED_SENTENCE:{
             printf("Mixed code and data order in line %d.\n", counters->line_number);
             break;
@@ -446,6 +454,20 @@ static void check_pre_order_chars(line sentence, line_marks_index indexes, line_
 }
 /*~~code inspection section~~*/
 static void inspect_code_line(line sentence, line_marks_index indexes, line_marks_counter* counters, short int* error_found){
+
+}
+static void check_operands_count(line sentence, line_marks_counter* counters){
+    if (counters->number_of_operands == 0 && strcmp(sentence.code_parts.operator_parts.operator_name,"stop") != 0
+        && strcmp(sentence.code_parts.operator_parts.operator_name,"rts") != 0){
+        report_error(sentence.line, ZERO_OPERANDS, counters);
+        *error_found = 1;
+        return;
+    }
+    if (counters->number_of_operands > 2){
+        report_error(sentence.line, EXTRA_OPERANDS, counters);
+        *error_found = 1;
+        return;
+    }
 
 }
 /*~~label inspection section~~*/

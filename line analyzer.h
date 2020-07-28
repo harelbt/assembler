@@ -9,6 +9,9 @@
 #define OPERATOR_CONDITION (i == 0 || *(sentence->line+i-1) == ' ' || *(sentence->line+i-1) == '\t')\
 && (i == sentence->length-1 || *(sentence->line+i+3) == ' ' || *(sentence->line+i+3) == '\t'\
 && counters->number_of_quotation_marks == 0)
+#define STOP_OPERATOR_CONDITION (i == 0 || *(sentence->line+i-1) == ' ' || *(sentence->line+i-1) == '\t')\
+&& (i == sentence->length-1 || *(sentence->line+i+4) == ' ' || *(sentence->line+i+4) == '\t'\
+&& counters->number_of_quotation_marks == 0)
 /**/
 #define COMMENT_CONDITION indexes.semicolon_index == indexes.first_char_index && indexes.semicolon_index >= 0
 /**/

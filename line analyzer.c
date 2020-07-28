@@ -40,7 +40,7 @@ void check_for_operators(line_marks_counter* counters, line_marks_index* indexes
     if (i < sentence->length-3){
         *(sentence->code_parts.operator_parts.operator_name+3) = *(sentence->line + i + 3);
         *(sentence->code_parts.operator_parts.operator_name+4) = '\0';
-        if (!strcmp(sentence->code_parts.operator_parts.operator_name,"stop") && OPERATOR_CONDITION){
+        if (!strcmp(sentence->code_parts.operator_parts.operator_name,"stop") && STOP_OPERATOR_CONDITION){
             sentence->code_parts.operator_parts.opcode = 15;
             counters->number_of_operators++;
             return ;
