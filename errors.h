@@ -66,7 +66,7 @@ va_list argp;\
 va_start(argp, counters);\
 unexpected = va_arg(argp, int);\
 va_end(argp);\
-print_visual_indication(unexpected, line);}\
+printf("Starting at the character ' %c '\n", *(line + unexpected));}\
 puts("________________________________________________________________________________________________________");
 /*conditions*/
 #define ILLEGAL_SRC_OPERAND_FIRST_CHAR_CONDITION *(sentence.line + indexes.first_operand_index) != '&' &&\
@@ -127,7 +127,7 @@ static void inspect_label(line* sentence, line_marks_index indexes, line_marks_c
 static void check_label_length(line* sentence, line_marks_index indexes, line_marks_counter* counters, int start_index, short int* error_found);
 static void check_label_syntax(line sentence, line_marks_index indexes, line_marks_counter* counters, int start_index, short int* error_found);
 static void check_if_label_reserved_word(char* label ,line sentence, line_marks_counter* counters, short int* error_found);
-static void check_label_def_white_chars(line sentence, line_marks_counter* counters, char curr_char, int i, short int* error_found);
+static void check_label_def_white_chars(line sentence, line_marks_counter* counters, char curr_char, int index, short int* error_found);
 static void check_label_first_char(line sentence, line_marks_counter* counters, char curr_char, int index, short int* error_found);
 static char* check_label_body(line sentence, line_marks_counter* counters, char curr_char, int* i, short int* error_found);
 #endif /*ASSEMBLER_ERRORS_H*/

@@ -9,6 +9,7 @@
 #define OPERATOR_MAX_LENGTH 5
 #define TRUE 1
 #define FALSE 0
+#define NOT_FOUND -1
 typedef struct {
     char name[LABEL_MAX_LENGTH];
     char* address;

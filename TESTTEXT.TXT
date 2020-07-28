@@ -1,4 +1,5 @@
 	
+.string "a" 
 .data 9-,8
 longlabelprobablytoomuchihopethatitwillcauseanerror: add r1 r2
 longlabelprobablytoomuchihopetha: add r1 r2
