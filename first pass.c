@@ -23,7 +23,7 @@ void first_pass(char* file, short int* error_found) {
                 }
         }
     }
-    if (*error_found == 1) {
+    if (*error_found == TRUE) {
         print_errors_summary(file, counters.error_number);
     }
     free_first_pass(filep, &sentence);

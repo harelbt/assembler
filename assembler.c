@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <time.h>
 #include "assembler data types.h"
 #include "helpfunctions.h"
 #include "first pass.h"

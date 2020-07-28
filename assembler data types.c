@@ -31,28 +31,28 @@ void initialize_counters(line_marks_counter* counters){
     counters->number_of_operands = 0;
 }
 void initialize_indexes(line_marks_index* indexes){
-    indexes->first_hash_mark_index = -1;
-    indexes->first_char_index = -1;
-    indexes->first_register_index = -1;
-    indexes->first_quotation_mark_index = -1;
-    indexes->second_quotation_mark_index = -1;
-    indexes->second_hash_mark_index = -1;
-    indexes->second_register_index = -1;
-    indexes->dot_index = -1;
-    indexes->colon_index = -1;
-    indexes->semicolon_index = -1;
-    indexes->operator_index = -1;
-    indexes->first_operand_index = -1;
-    indexes->second_operand_index = -1;
-    indexes->data_index = -1;
+    indexes->first_hash_mark_index = NOT_FOUND;
+    indexes->first_char_index = NOT_FOUND;
+    indexes->first_register_index = NOT_FOUND;
+    indexes->first_quotation_mark_index = NOT_FOUND;
+    indexes->second_quotation_mark_index = NOT_FOUND;
+    indexes->second_hash_mark_index = NOT_FOUND;
+    indexes->second_register_index = NOT_FOUND;
+    indexes->dot_index = NOT_FOUND;
+    indexes->colon_index = NOT_FOUND;
+    indexes->semicolon_index = NOT_FOUND;
+    indexes->operator_index = NOT_FOUND;
+    indexes->first_operand_index = NOT_FOUND;
+    indexes->second_operand_index = NOT_FOUND;
+    indexes->data_index = NOT_FOUND;
 }
 void initialize_line(line* sentence){
     sentence->flags.is_empty_line = FALSE;
     sentence->flags.is_data = FALSE;
     sentence->flags.is_code = FALSE;
     sentence->flags.is_comment = FALSE;
-    sentence->code_parts.operator_parts.opcode = -1;
-    sentence->code_parts.operator_parts.function = -1;
+    sentence->code_parts.operator_parts.opcode = NOT_FOUND;
+    sentence->code_parts.operator_parts.function = NOT_FOUND;
     sentence->data_parts.data = NULL;
     *(sentence->data_parts.order) = '\0';
     sentence->label.address = NULL;

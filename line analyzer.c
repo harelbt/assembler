@@ -7,7 +7,7 @@ void analyze_sentence(line* sentence, line_marks_index* indexes, line_marks_coun
 }
 void empty_or_comment_line_check (line* sentence, line_marks_index indexes){
     /*empty line check*/
-    if (indexes.first_char_index == -1) {
+    if (indexes.first_char_index == NOT_FOUND) {
         sentence->flags.is_empty_line = TRUE;
     }
     /*comment check*/
@@ -27,11 +27,11 @@ static int recognize_operator(char* operator, int* opcode, int* function){
         if (!strcmp(operator, operators_table[i][0])){
             *opcode = strtod(operators_table[i][1],endp);
             *function = strtod(operators_table[i][2],endp);
-            return 1;
+            return TRUE;
         }
         i++;
     }
-    return 0;
+    return FALSE;
 }
 void check_for_operators(line_marks_counter* counters, line_marks_index* indexes, line* sentence, int i){
     *sentence->code_parts.operator_parts.operator_name = *(sentence->line + i);
@@ -45,10 +45,10 @@ void check_for_operators(line_marks_counter* counters, line_marks_index* indexes
             counters->number_of_operators++;
             return ;
         } else{
-            sentence->code_parts.operator_parts.operator_name[3] = '\0';
+            *(sentence->code_parts.operator_parts.operator_name+3) = '\0';
         }
     }
-    if (recognize_operator(sentence->code_parts.operator_parts.operator_name, &sentence->code_parts.operator_parts.opcode, &sentence->code_parts.operator_parts.function) == 1
+    if (recognize_operator(sentence->code_parts.operator_parts.operator_name, &sentence->code_parts.operator_parts.opcode, &sentence->code_parts.operator_parts.function) == TRUE
     && OPERATOR_CONDITION){
         counters->number_of_operators++;
         indexes->operator_index = i;
@@ -57,13 +57,13 @@ void check_for_operators(line_marks_counter* counters, line_marks_index* indexes
 }
 static void find_line_components(line* sentence, line_marks_index* indexes, line_marks_counter* counters){
     int i = 0;
-    short int colon_found = 0;
-    short int semicolon_found = 0;
-    short int dot_found = 0;
-    short int first_char_found = 0;
-    short int operand_ended = 0;
-    short int order_ended = 0;
-    int data_found = 0;
+    short int colon_found = FALSE;
+    short int semicolon_found = FALSE;
+    short int dot_found = FALSE;
+    short int first_char_found = FALSE;
+    short int operand_ended = FALSE;
+    short int order_ended = FALSE;
+    int data_found = FALSE;
     /**/
     char curr_char;
     /**/
@@ -71,16 +71,16 @@ static void find_line_components(line* sentence, line_marks_index* indexes, line
         curr_char = *(sentence->line+i);
         if (!first_char_found && curr_char != ' ' && curr_char != '\t') {
             indexes->first_char_index = i;
-            first_char_found = 1;
+            first_char_found = TRUE;
         }
         if (i < sentence->length - 2){
             check_for_operators(counters, indexes, sentence, i);
         }
-        if (sentence->code_parts.operator_parts.opcode != -1) {
+        if (sentence->code_parts.operator_parts.opcode != NOT_FOUND) {
             if (curr_char == ' ' || curr_char == '\t') {
-                operand_ended = 1;
+                operand_ended = TRUE;
             }
-            if (curr_char != ' ' && curr_char != '\t' && operand_ended == 1){
+            if (curr_char != ' ' && curr_char != '\t' && operand_ended == TRUE){
                 counters->number_of_operands++;
                 if (counters->number_of_operands == 1) {
                     indexes->first_operand_index = i;
@@ -88,15 +88,15 @@ static void find_line_components(line* sentence, line_marks_index* indexes, line
                 if (counters->number_of_operands == 2){
                     indexes->second_operand_index = i;
                 }
-                operand_ended = 0;
+                operand_ended = FALSE;
             }
         }
-        if (!order_ended && dot_found == 1 && (curr_char == ' ' || curr_char == '\t')){
-            order_ended = 1;
+        if (!order_ended && dot_found == TRUE && (curr_char == ' ' || curr_char == '\t')){
+            order_ended = TRUE;
         }
-        if (order_ended == 1 && dot_found == 1 && !data_found && curr_char != ' ' && curr_char != '\t'){
+        if (order_ended == TRUE && dot_found == TRUE && !data_found && curr_char != ' ' && curr_char != '\t'){
             indexes->data_index = i;
-            data_found = 1;
+            data_found = TRUE;
         }
         switch (curr_char) {
             case ':': {
@@ -122,34 +122,34 @@ static void find_line_components(line* sentence, line_marks_index* indexes, line
         }
         i++;
     }
-    if (indexes->first_operand_index != -1 && indexes->second_operand_index == -1){
+    if (indexes->first_operand_index != NOT_FOUND && indexes->second_operand_index == NOT_FOUND){
         indexes->second_operand_index = indexes->first_operand_index;
-        indexes->first_operand_index = -1;
+        indexes->first_operand_index = NOT_FOUND;
     }
 }
 static void define_sentence_type(line* sentence, line_marks_counter counters, line_marks_index indexes) {
     if (counters.number_of_operators > 0) {
         sentence->flags.is_code = TRUE;
     }
-    if (is_order(counters, indexes) == 1) {
+    if (is_order(counters, indexes) == TRUE) {
         sentence->flags.is_data = TRUE;
     }
 }
 static short int is_order(line_marks_counter counters,line_marks_index indexes){
     switch (counters.number_of_dots) {
         case 0:{
-            return 0;
+            return FALSE;
         }
         default:{
             if (counters.number_of_quotation_marks > 1) {
                 if (indexes.first_quotation_mark_index < indexes.dot_index &&
                 indexes.second_quotation_mark_index > indexes.dot_index) {
-                    return 0;
+                    return FALSE;
                 } else {
-                    return 1;
+                    return TRUE;
                 }
             }
-            return 1;
+            return TRUE;
         }
     }
 }
@@ -166,7 +166,7 @@ void find_data_order(line* sentence, int dot_index){
     }
 }
 static void find_label(line* sentence, line_marks_index indexes){
-    if (indexes.first_quotation_mark_index == -1) {/*a label definition can't be in or after a string*/
+    if (indexes.first_quotation_mark_index == NOT_FOUND) {/*a label definition can't be in or after a string*/
         int i = 0;
         /*LABEL_MAX_LENGTH == 32, so max index is 30 and index 31 is '\0' (LABEL_MAX_LENGTH - 2)*/
         while ((i + indexes.first_char_index < indexes.colon_index) && i < LABEL_MAX_LENGTH - 1) {
