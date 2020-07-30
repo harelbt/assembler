@@ -1,36 +1,39 @@
 #ifndef ASSEMBLER_ASSEMBLER_DATA_TYPES_H
 #define ASSEMBLER_ASSEMBLER_DATA_TYPES_H
+/*LENGTHS*/
 #define LABEL_MAX_LENGTH 32
 #define ORDER_MAX_LENGTH 7
 #define OPERATOR_MAX_LENGTH 5
+/*FLAGS*/
 #define TRUE 1
 #define FALSE 0
 #define NOT_FOUND -1
-typedef struct {
+/*STRUCTS*/
+typedef struct __attribute__((packed)){
     char name[LABEL_MAX_LENGTH];
     char* address;
     char sentence_type;
     char extern_or_entry;
 } symbol;
-typedef struct {
+typedef struct{
     char operator_name[OPERATOR_MAX_LENGTH];
     int opcode;
     int function;
 }operator;
-typedef struct {
+typedef struct{
     operator operator_parts;
 }code;
-typedef struct {
+typedef struct __attribute__((packed)){
     char order[ORDER_MAX_LENGTH];
     char* data;
 }data;
-typedef struct {
+typedef struct __attribute__((packed)){
     short int is_comment;
     short int is_empty_line;
     short int is_code;
     short int is_data;
 }line_flags;
-typedef struct {
+typedef struct{
     char* line;
     int length;
     symbol label;
@@ -38,7 +41,7 @@ typedef struct {
     data data_parts;
     line_flags flags;
 }line;
-typedef struct {
+typedef struct __attribute__((packed)){
     int first_char_index;
     int colon_index;
     int semicolon_index;
@@ -54,7 +57,7 @@ typedef struct {
     int second_operand_index;
     int data_index;
 }line_marks_index;
-typedef struct {
+typedef struct __attribute__((packed)){
     int number_of_registers;
     int number_of_hashmarks;
     int number_of_colons;
@@ -65,9 +68,11 @@ typedef struct {
     int error_number;
     int number_of_operands;
 }line_marks_counter;
+/*FUNCTIONS DECLARATION*/
 static void create_symbol(symbol* to_initialize, char* name, char* address, char sentence_type, char extern_or_entry);
 void initialize_line_tools(line* sentence, line_marks_counter* counters, line_marks_index* indexes);
 void initialize_counters(line_marks_counter* counters);
 void initialize_indexes(line_marks_index* indexes);
 void initialize_line(line* sentence);
+/**/
 #endif /*ASSEMBLER_ASSEMBLER_DATA_TYPES_H*/

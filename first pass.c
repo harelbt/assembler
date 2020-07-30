@@ -1,23 +1,32 @@
 #include "first pass.h"
 #include "line analyzer.h"
 #include "errors.h"
-void first_pass(char* file, short int* error_found) {
-    FILE *filep = open_file(file, "r");
+void first_pass(char* file, char* error_found) {
+    /*opening file*/
+    FILE *filep = open_file(file, "r");/*this custom function can handle malloc failure*/
+    /*structs*/
     line sentence;
     line_marks_index indexes;
     line_marks_counter counters;
-    counters.error_number = 0;
+    /**/
     int line_number = 1;
-    while (!read_line(filep, &sentence)) {
+    /**/
+    counters.error_number = 0;
+    while (!read_line(filep, &sentence)) {/*"read_line" returns 0 at EOF*/
+        /*resets the variables for each line*/
         initialize_line_tools(&sentence, &counters, &indexes);
+        /**/
         counters.line_number = line_number;
         line_number++;
+        /**/
+        /*enter is a line we want to count but not to read("read_line" can't skip '\n' because it needs to stop at the end of the line)*/
         if (strcmp(sentence.line, "\n") != 0) {
-            analyze_sentence(&sentence, &indexes, &counters);
+            analyze_sentence(&sentence, &indexes, &counters);/*parsing*/
             empty_or_comment_line_check(&sentence, indexes);
+            /*continues if not a comment/empty line*/
                 if (sentence.flags.is_comment == FALSE && sentence.flags.is_empty_line == FALSE) {
                     *error_found = errors_inspection(&sentence, indexes, &counters);
-                    if(!*error_found){
+                    if(!*error_found){/*if no errors found*/
                     //build_sentence();
                     }
                 }
@@ -28,12 +37,7 @@ void first_pass(char* file, short int* error_found) {
     }
     free_first_pass(filep, &sentence);
 }
-static void print_errors_summary(char* file_name, int errors_count){
-    printf("\nFILE: %s\n", file_name);
-    printf("%d ERRORS WAS FOUND\n", errors_count);
-    puts("NO OUTPUT FILES WERE GENERATED"
-         "\n*************************************************************************************");
-}
+
 static void free_first_pass(FILE* filep, line* sentence){
     fclose(filep);
     free(filep);

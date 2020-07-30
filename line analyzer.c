@@ -2,8 +2,8 @@
 #include <string.h>
 #include "line analyzer.h"
 void analyze_sentence(line* sentence, line_marks_index* indexes, line_marks_counter* counters) {
-    find_line_components(sentence, indexes, counters);
-    define_sentence_type(sentence, *counters, *indexes);
+    find_line_components(sentence, indexes, counters);/*fills sentence, indexes and counters*/
+    define_sentence_type(sentence, *counters, *indexes);/*code or order*/
 }
 void empty_or_comment_line_check (line* sentence, line_marks_index indexes){
     /*empty line check*/
@@ -17,21 +17,21 @@ void empty_or_comment_line_check (line* sentence, line_marks_index indexes){
     }
 }
 static int recognize_operator(char* operator, int* opcode, int* function){
-    char** endp = NULL;
+    char** endp = NULL;/*for "strtod"*/
     int i = 0;
     char* operators_table[NUMBER_OF_OPERATORS][3] = {{"mov", "0", ""},{"cmp", "1", ""},{"add", "2", "1"},{"sub", "2", "2"},{"lea", "4", ""},
                                     {"clr", "5", "1"},{"not", "5", "2"},{"inc", "5", "3"},{"dec", "5", "4"},{"jmp", "9", "1"},
                                     {"bne","9", "2"},{"jsr", "9", "3"},{"red", "12", ""},{"prn", "13", ""},{"rts", "14", ""}
                                     };
     while (i < NUMBER_OF_OPERATORS){
-        if (!strcmp(operator, operators_table[i][0])){
+        if (!strcmp(operator, operators_table[i][0])){/*if operator was found gets the opcode and the function*/
             *opcode = strtod(operators_table[i][1],endp);
             *function = strtod(operators_table[i][2],endp);
             return TRUE;
         }
         i++;
     }
-    return FALSE;
+    return FALSE;/*operator wasn't found*/
 }
 void check_for_operators(line_marks_counter* counters, line_marks_index* indexes, line* sentence, int i){
     *sentence->code_parts.operator_parts.operator_name = *(sentence->line + i);
@@ -55,76 +55,95 @@ void check_for_operators(line_marks_counter* counters, line_marks_index* indexes
         return ;
     }
 }
-static void find_line_components(line* sentence, line_marks_index* indexes, line_marks_counter* counters){
-    int i = 0;
-    short int colon_found = FALSE;
-    short int semicolon_found = FALSE;
-    short int dot_found = FALSE;
-    short int first_char_found = FALSE;
-    short int operand_ended = FALSE;
-    short int order_ended = FALSE;
-    int data_found = FALSE;
+static void find_line_components(line* sentence, line_marks_index* indexes, line_marks_counter* counters) {
+    char colon_found = FALSE;
+    char semicolon_found = FALSE;
+    char dot_found = FALSE;
+    char first_char_found = FALSE;
+    char operand_ended = FALSE;
+    char order_ended = FALSE;
+    char data_found = FALSE;
     /**/
+    int i = 0;
     char curr_char;
     /**/
     while (i < sentence->length) {
-        curr_char = *(sentence->line+i);
-        if (!first_char_found && curr_char != ' ' && curr_char != '\t') {
-            indexes->first_char_index = i;
-            first_char_found = TRUE;
-        }
-        if (i < sentence->length - 2){
-            check_for_operators(counters, indexes, sentence, i);
-        }
-        if (sentence->code_parts.operator_parts.opcode != NOT_FOUND) {
-            if (curr_char == ' ' || curr_char == '\t') {
-                operand_ended = TRUE;
-            }
-            if (curr_char != ' ' && curr_char != '\t' && operand_ended == TRUE){
-                counters->number_of_operands++;
-                if (counters->number_of_operands == 1) {
-                    indexes->first_operand_index = i;
-                }
-                if (counters->number_of_operands == 2){
-                    indexes->second_operand_index = i;
-                }
-                operand_ended = FALSE;
-            }
-        }
-        if (!order_ended && dot_found == TRUE && (curr_char == ' ' || curr_char == '\t')){
-            order_ended = TRUE;
-        }
-        if (order_ended == TRUE && dot_found == TRUE && !data_found && curr_char != ' ' && curr_char != '\t'){
-            indexes->data_index = i;
-            data_found = TRUE;
-        }
-        switch (curr_char) {
-            case ':': {
-                COLON_CASE
-
-            }
-            case ';': {
-                SEMICOLON_CASE
-            }
-            case '.': {
-                DOT_CASE
-            }
-            case '#': {
-                HASHMARK_CASE
-
-            }
-            case 'r': {
-                REGISTER_CASE
-            }
-            case '\"': {
-                QUOT_MARK_CASE
-            }
-        }
+        curr_char = *(sentence->line + i);
+        first_char_check(indexes, &first_char_found, curr_char, i);
+        operator_check(sentence, counters, indexes, i);
+        operands_check(sentence, counters, indexes, &operand_ended, curr_char, i);
+        data_check(indexes, &order_ended, &data_found, dot_found, curr_char, i);
+        signs_check(sentence, counters, indexes, curr_char, &colon_found, &semicolon_found, &dot_found,
+                    first_char_found, i);
+        /*comment line condition, no reason to continue*/
+        if (curr_char == ';' && indexes->first_char_index == i) { return; }
         i++;
     }
-    if (indexes->first_operand_index != NOT_FOUND && indexes->second_operand_index == NOT_FOUND){
-        indexes->second_operand_index = indexes->first_operand_index;
-        indexes->first_operand_index = NOT_FOUND;
+        /*if only one operand found, set it as the second operand (destination operand)*/
+        if (indexes->first_operand_index != NOT_FOUND && indexes->second_operand_index == NOT_FOUND) {
+            indexes->second_operand_index = indexes->first_operand_index;
+            indexes->first_operand_index = NOT_FOUND;
+        }
+}
+static void signs_check(line* sentence, line_marks_counter* counters,line_marks_index* indexes, char curr_char, char* colon_found,
+        char* semicolon_found, char* dot_found, char first_char_found, int index){
+    switch (curr_char) {
+        case ':': {
+            COLON_CASE
+        }
+        case ';': {
+            SEMICOLON_CASE
+        }
+        case '.': {
+            DOT_CASE
+        }
+        case '#': {
+            HASHMARK_CASE
+
+        }
+        case 'r': {
+            REGISTER_CASE
+        }
+        case '\"': {
+            QUOT_MARK_CASE
+        }
+    }
+}
+static void operator_check(line* sentence, line_marks_counter* counters, line_marks_index* indexes, int index){
+    if (index < sentence->length - 2){
+        check_for_operators(counters, indexes, sentence, index);
+    }
+}
+static void data_check(line_marks_index* indexes, char* order_ended, char* data_found, char dot_found, char curr_char, int index){
+    if (!(*order_ended) && dot_found == TRUE && (curr_char == ' ' || curr_char == '\t')){
+        *order_ended = TRUE;
+    }
+    if (*order_ended == TRUE && dot_found == TRUE && !(*data_found) && curr_char != ' ' && curr_char != '\t'){
+        indexes->data_index = index;
+        *data_found = TRUE;
+    }
+}
+static void operands_check(line* sentence, line_marks_counter* counters, line_marks_index* indexes, char* operand_ended, char curr_char, int index){
+    if (sentence->code_parts.operator_parts.opcode != NOT_FOUND) {
+        if (curr_char == ' ' || curr_char == '\t') {
+            *operand_ended = TRUE;
+        }
+        if (curr_char != ' ' && curr_char != '\t' && *operand_ended == TRUE){
+            counters->number_of_operands++;
+            if (counters->number_of_operands == 1) {
+                indexes->first_operand_index = index;
+            }
+            if (counters->number_of_operands == 2){
+                indexes->second_operand_index = index;
+            }
+            *operand_ended = FALSE;
+        }
+    }
+}
+static void first_char_check(line_marks_index* indexes, char* first_char_found, char curr_char, int index){
+    if (!(*first_char_found) && curr_char != ' ' && curr_char != '\t') {
+        indexes->first_char_index = index;
+        *first_char_found = TRUE;
     }
 }
 static void define_sentence_type(line* sentence, line_marks_counter counters, line_marks_index indexes) {
