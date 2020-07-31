@@ -64,6 +64,7 @@ void analyze_sentence(line* sentence, line_marks_index* indexes, line_marks_coun
 static int recognize_operator(char* operator, int* opcode, int* function);
 static void check_for_operators(line_marks_counter* counters, line_marks_index* indexes, line* sentence, int i);
 static void find_line_components(line* sentence, line_marks_index* indexes, line_marks_counter* counters);
+void prepare_label(line* sentence, int data_index);
 static void signs_check(line* sentence, line_marks_counter* counters,line_marks_index* indexes, char curr_char, char* colon_found,
                         char* semicolon_found, char* dot_found, char first_char_found, int index);
 static void data_check(line_marks_index* indexes, char* order_ended, char* data_found, char dot_found, char curr_char, int index);

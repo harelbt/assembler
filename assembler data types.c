@@ -9,10 +9,10 @@ void insert_symbol(symbol to_enter, symbol* symbol_table, int *symbol_tabel_leng
         symbol_table = realloc_arr_memory(symbol_table, *symbol_tabel_length, "symbol");
     symbol_table[*symbol_tabel_length-1] = to_enter;
 }
-static void create_symbol(symbol* to_initialize, char* name, char* address, char sentence_type, char extern_or_entry){
+static void create_symbol(symbol* to_initialize, char* name, char* address, char sentence_type, char is_extern){
     strcpy(to_initialize->name, name);
     strcpy(to_initialize->address, address);
-    to_initialize->extern_or_entry = extern_or_entry;
+    to_initialize->is_extern = is_extern;
     to_initialize->sentence_type = sentence_type;
 }*/
 void initialize_line_tools(line* sentence, line_marks_counter* counters, line_marks_index* indexes){
@@ -27,8 +27,8 @@ void initialize_counters(line_marks_counter* counters){
     counters->number_of_operators = 0;
     counters->number_of_colons = 0;
     counters->number_of_registers = 0;
-    counters->line_number = 0;
     counters->number_of_operands = 0;
+    counters->number_of_commas = 0;
 }
 void initialize_indexes(line_marks_index* indexes){
     indexes->first_hash_mark_index = NOT_FOUND;
@@ -55,6 +55,6 @@ void initialize_line(line* sentence){
     sentence->code_parts.operator_parts.function = NOT_FOUND;
     sentence->data_parts.data = NULL;
     *(sentence->data_parts.order) = '\0';
-    sentence->label.address = NULL;
+    sentence->label.address = 0;
     *(sentence->label.name) = '\0';
 }

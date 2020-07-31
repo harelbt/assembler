@@ -2,10 +2,9 @@
 #include "helpfunctions.h"
 #include "first pass.h"
 int main (int argc, char* argv[]){
-    int IC = 100;
-    int DC = 0;
     char error_found = FALSE;
     int i = 1;
+    symbol* symbol_table;
     /*checks if operators supplied*/
     if (argc == 1) {
         /*prints this error to stderr with exit code 1*/
@@ -13,8 +12,8 @@ int main (int argc, char* argv[]){
     }
     /*assembles each supplied file*/
     while (i < argc) {
-        first_pass(*(argv+i), &error_found);
-        if (!error_found) {
+        symbol_table = first_pass(*(argv+i), &error_found);
+        if (error_found == TRUE) {
             /*second_pass();*/
         }
         error_found = FALSE;/*resets error flag for the next file*/

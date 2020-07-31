@@ -1,4 +1,27 @@
 #include "words.h"
+void calculate_number_of_words(line* sentence, line_marks_index indexes, line_marks_counter* counters){
+    if (sentence->flags.is_code == TRUE){
+        calculate_instruction_word(sentence, indexes, counters);
+    }else{
+        calculate_order_word(sentence, indexes, counters);
+    }
+}
+void calculate_instruction_word(line* sentence, line_marks_index indexes, line_marks_counter* counters){
+    if (*sentence->label.name != '0'){
+        sentence->label.address = counters->IC;
+    }
+    /*every operand costs a word, unless it's a register*/
+    counters->IC += counters->number_of_operands - counters->number_of_registers + ONE_WORD;/*one word for the assembly line*/
+}
+void calculate_order_word(line* sentence, line_marks_index indexes, line_marks_counter* counters){
+    if (*sentence->label.name != '0'){
+        sentence->label.address = counters->DC;
+    }
+    counters->DC += counters->number_of_quotation_marks == 2 ?
+            indexes.second_quotation_mark_index - indexes.first_quotation_mark_index -1:
+            counters->number_of_commas +1;
+}
+/*
 char* word_to_hex(word to_convert){
     char* hex = allocate_arr_memory(7, "char");
     char sub_word[5];
@@ -47,4 +70,4 @@ void fill_word(const char *str, word *to_fill, short int negative) {
             to_fill->binary[i] = '1';
             i--;
         }
-}
+}*/

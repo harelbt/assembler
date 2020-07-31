@@ -8,12 +8,19 @@
 #define TRUE 1
 #define FALSE 0
 #define NOT_FOUND -1
+#define INSERTION_FAILED -1
+#define INSERTION_SUCCEED 1
+#define INSTRUCTION 1
+#define ORDER 2
+#define EXTERN 1
+#define ENTRY 2
 /*STRUCTS*/
-typedef struct __attribute__((packed)){
+typedef struct __attribute__((packed)) symbol_table{
     char name[LABEL_MAX_LENGTH];
-    char* address;
+    int address;
     char sentence_type;
     char extern_or_entry;
+    struct symbol_table* next;
 } symbol;
 typedef struct{
     char operator_name[OPERATOR_MAX_LENGTH];
@@ -28,10 +35,10 @@ typedef struct __attribute__((packed)){
     char* data;
 }data;
 typedef struct __attribute__((packed)){
-    short int is_comment;
-    short int is_empty_line;
-    short int is_code;
-    short int is_data;
+    char is_comment;
+    char is_empty_line;
+    char is_code;
+    char is_data;
 }line_flags;
 typedef struct{
     char* line;
@@ -58,6 +65,8 @@ typedef struct __attribute__((packed)){
     int data_index;
 }line_marks_index;
 typedef struct __attribute__((packed)){
+    int IC;
+    int DC;
     int number_of_registers;
     int number_of_hashmarks;
     int number_of_colons;
@@ -67,9 +76,9 @@ typedef struct __attribute__((packed)){
     int line_number;
     int error_number;
     int number_of_operands;
+    int number_of_commas;
 }line_marks_counter;
 /*FUNCTIONS DECLARATION*/
-static void create_symbol(symbol* to_initialize, char* name, char* address, char sentence_type, char extern_or_entry);
 void initialize_line_tools(line* sentence, line_marks_counter* counters, line_marks_index* indexes);
 void initialize_counters(line_marks_counter* counters);
 void initialize_indexes(line_marks_index* indexes);

@@ -4,6 +4,7 @@
 void analyze_sentence(line* sentence, line_marks_index* indexes, line_marks_counter* counters) {
     find_line_components(sentence, indexes, counters);/*fills sentence, indexes and counters*/
     define_sentence_type(sentence, *counters, *indexes);/*code or order*/
+    prepare_label(sentence, indexes->data_index);
 }
 void empty_or_comment_line_check (line* sentence, line_marks_index indexes){
     /*empty line check*/
@@ -79,11 +80,28 @@ static void find_line_components(line* sentence, line_marks_index* indexes, line
         if (curr_char == ';' && indexes->first_char_index == i) { return; }
         i++;
     }
-        /*if only one operand found, set it as the second operand (destination operand)*/
+        /*if only one operand was found, set it as the second operand (destination operand)*/
         if (indexes->first_operand_index != NOT_FOUND && indexes->second_operand_index == NOT_FOUND) {
             indexes->second_operand_index = indexes->first_operand_index;
             indexes->first_operand_index = NOT_FOUND;
         }
+}
+void prepare_label(line* sentence, int data_index){
+    /*prepares sentence type*/
+    if (sentence->flags.is_code == TRUE) {
+        sentence->label.sentence_type = INSTRUCTION;
+        sentence->label.extern_or_entry = FALSE;
+    } else{
+        sentence->label.sentence_type = ORDER;
+        if (!strcmp(sentence->data_parts.order, "extern")){
+            sentence->label.extern_or_entry = EXTERN;
+            strncpy(sentence->label.name, sentence->line + data_index, LABEL_MAX_LENGTH);
+        }
+        if (!strcmp(sentence->data_parts.order, "entry")){
+            sentence->label.extern_or_entry = ENTRY;
+            strncpy(sentence->label.name, sentence->line + data_index, LABEL_MAX_LENGTH);
+        }
+    }
 }
 static void signs_check(line* sentence, line_marks_counter* counters,line_marks_index* indexes, char curr_char, char* colon_found,
         char* semicolon_found, char* dot_found, char first_char_found, int index){
@@ -106,6 +124,9 @@ static void signs_check(line* sentence, line_marks_counter* counters,line_marks_
         }
         case '\"': {
             QUOT_MARK_CASE
+        }
+        case ',':{
+            counters->number_of_commas++;
         }
     }
 }

@@ -1,0 +1,6 @@
+LABEL: add r1 r2
+.entry B
+.entry B
+.extern A
+.extern A
+add LABEL r2

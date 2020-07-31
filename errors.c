@@ -3,7 +3,7 @@
 /*~~general functions~~*/
 char errors_inspection(line* sentence, line_marks_index indexes, line_marks_counter* counters){
     char error_found = FALSE;
-    if (*(sentence->label.name) != '\0'){
+    if (*(sentence->label.name) != '\0' && sentence->label.extern_or_entry == FALSE){
         inspect_label(sentence, indexes, counters, indexes.first_char_index, &error_found);
     }
     if (*(sentence->label.name) == '\0' && indexes.colon_index != NOT_FOUND &&
@@ -25,7 +25,7 @@ char errors_inspection(line* sentence, line_marks_index indexes, line_marks_coun
     }
     return error_found;
 }
-static void report_error(char* line, char error_code, line_marks_counter* counters, ...){
+void report_error(char* line, char error_code, line_marks_counter* counters, ...){
     int unexpected;
     short int print_char_indication = FALSE;
     counters->error_number++;
@@ -241,6 +241,10 @@ static void report_error(char* line, char error_code, line_marks_counter* counte
         }
         case LABEL_IS_RESERVED:{
             printf("Labels can't be a reserved word. line %d.\n", counters->line_number);
+            break;
+        }
+        case SECOND_LABEL_DEFINITION:{
+            printf("Labels can't be defined more than once. line %d.\n", counters->line_number);
             break;
         }
         default:
