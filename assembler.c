@@ -19,5 +19,9 @@ int main (int argc, char* argv[]){
         error_found = FALSE;/*resets error flag for the next file*/
         i++;
     }
+    while (symbol_table){
+        printf("%s ", symbol_table->name);
+        symbol_table = symbol_table->next;
+    }
     return 0;
 }

@@ -97,10 +97,6 @@ void prepare_label(line* sentence, int data_index){
             sentence->label.extern_or_entry = EXTERN;
             strncpy(sentence->label.name, sentence->line + data_index, LABEL_MAX_LENGTH);
         }
-        if (!strcmp(sentence->data_parts.order, "entry")){
-            sentence->label.extern_or_entry = ENTRY;
-            strncpy(sentence->label.name, sentence->line + data_index, LABEL_MAX_LENGTH);
-        }
     }
 }
 static void signs_check(line* sentence, line_marks_counter* counters,line_marks_index* indexes, char curr_char, char* colon_found,
