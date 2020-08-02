@@ -4,6 +4,7 @@
 #define INT_MAX_VAL 8388607
 #define INT_MIN_VAL -8388607
 #define ONE_WORD 1
+#define ABSOLUTE
 typedef struct __attribute__((packed)){
     unsigned int ARE: 3;
     unsigned int FUNCTION: 5;

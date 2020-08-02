@@ -3,7 +3,8 @@
 #include "errors.h"
 #include "words.h"
 #include "symbol table.h"
-symbol* first_pass(char* file, char* error_found) {
+#include "translator.h"
+symbol* first_pass(char* file,  FILE* machine_code, symbol* symbol_indexes_table, char* error_found) {
     /*opening file*/
     FILE *filep = open_file(file, "r");/*this custom function can handle malloc failure*/
     /*structs*/
@@ -38,9 +39,9 @@ symbol* first_pass(char* file, char* error_found) {
                         calculate_number_of_words(&sentence, indexes, &counters);
                         update_symbol_address(&sentence, counters);
                         if (*sentence.label.name != '\0') {
-                            symbol_table  = insert_symbol(&sentence.label, symbol_table, &is_first_symbol, &counters, error_found);
+                            symbol_table = insert_symbol(&sentence.label, symbol_table, &is_first_symbol, &counters, error_found);
                         }
-
+                        first_pass_translation(&sentence, &indexes, &counters);
                     }
                 }
         }

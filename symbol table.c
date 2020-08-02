@@ -54,6 +54,9 @@ void update_symbol_address(line* sentence, line_marks_counter counters){
         }
     }
 }
+symbol* get_symbol(symbol* symbol_table, char* symbol_name, symbol* symbol_table_indexes){
+
+}
 static void symbol_copy(symbol* dest, symbol* source){
     strcpy(dest->name, source->name);
     dest->address = source->address;
