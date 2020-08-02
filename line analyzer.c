@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "line analyzer.h"
+#include "words.h"
 void analyze_sentence(line* sentence, line_marks_index* indexes, line_marks_counter* counters) {
     find_line_components(sentence, indexes, counters);/*fills sentence, indexes and counters*/
     define_sentence_type(sentence, *counters, *indexes);/*code or order*/
@@ -93,7 +94,7 @@ void prepare_label(line* sentence, int data_index){
         sentence->label.extern_or_entry = FALSE;
     } else{
         sentence->label.sentence_type = ORDER;
-        if (!strcmp(sentence->data_parts.order, "extern")){
+        if (!strcmp(sentence->data_parts.order, "extern")) {
             sentence->label.extern_or_entry = EXTERN;
             strncpy(sentence->label.name, sentence->line + data_index, LABEL_MAX_LENGTH);
         }

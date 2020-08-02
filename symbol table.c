@@ -39,6 +39,21 @@ symbol* insert_symbol(symbol* to_insert, symbol* symbol_table, char* is_first_sy
     }
     return symbol_table;
 }
+void update_symbol_address(line* sentence, line_marks_counter counters){
+    if (sentence->flags.is_code == TRUE){
+        if (*sentence->label.name != '\0'){
+            sentence->label.address = counters.IC - (counters.IC - counters.last_instruction_address);
+        }
+    } else{
+        if (*sentence->label.name != '\0'){
+            if (strcmp(sentence->data_parts.order, "extern") != 0) {
+                sentence->label.address = counters.DC - (counters.DC - counters.last_data_address);
+            } else{
+                sentence->label.address = 1;
+            }
+        }
+    }
+}
 static void symbol_copy(symbol* dest, symbol* source){
     strcpy(dest->name, source->name);
     dest->address = source->address;

@@ -1,5 +1,8 @@
 LABEL: add r1 r2
 .entry B
 .entry B
+DATA: .data 6,7
+DATA1: .data 6,7
 .extern A
 add LABEL r2
+LABEL1: add r1 r2

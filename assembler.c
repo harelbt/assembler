@@ -20,7 +20,7 @@ int main (int argc, char* argv[]){
         i++;
     }
     while (symbol_table){
-        printf("%s ", symbol_table->name);
+        printf("%s %d\n", symbol_table->name, symbol_table->address);
         symbol_table = symbol_table->next;
     }
     return 0;

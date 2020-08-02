@@ -7,19 +7,17 @@ void calculate_number_of_words(line* sentence, line_marks_index indexes, line_ma
     }
 }
 void calculate_instruction_word(line* sentence, line_marks_index indexes, line_marks_counter* counters){
-    if (*sentence->label.name != '0'){
-        sentence->label.address = counters->IC;
-    }
     /*every operand costs a word, unless it's a register*/
+    counters->last_instruction_address = counters->IC;
     counters->IC += counters->number_of_operands - counters->number_of_registers + ONE_WORD;/*one word for the assembly line*/
 }
 void calculate_order_word(line* sentence, line_marks_index indexes, line_marks_counter* counters){
-    if (*sentence->label.name != '0'){
-        sentence->label.address = counters->DC;
+    if (strcmp(sentence->data_parts.order, "extern") != 0 && strcmp(sentence->data_parts.order, "entry") != 0) {
+        counters->last_data_address = counters->DC;
+        counters->DC += counters->number_of_quotation_marks == 2 ?
+                        indexes.second_quotation_mark_index - indexes.first_quotation_mark_index - 1 :
+                        counters->number_of_commas + 1;
     }
-    counters->DC += counters->number_of_quotation_marks == 2 ?
-            indexes.second_quotation_mark_index - indexes.first_quotation_mark_index -1:
-            counters->number_of_commas +1;
 }
 /*
 char* word_to_hex(word to_convert){

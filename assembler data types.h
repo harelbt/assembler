@@ -66,7 +66,9 @@ typedef struct __attribute__((packed)){
 }line_marks_index;
 typedef struct __attribute__((packed)){
     int IC;
+    int last_instruction_address;
     int DC;
+    int last_data_address;
     int number_of_registers;
     int number_of_hashmarks;
     int number_of_colons;

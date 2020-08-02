@@ -15,7 +15,9 @@ symbol* first_pass(char* file, char* error_found) {
     counters.line_number = 0;
     counters.error_number = 0;
     counters.IC = 100;
+    counters.last_instruction_address = 100;
     counters.DC = 0;
+    counters.last_data_address = 0;
     /**/
     char is_first_symbol = TRUE;
     /**/
@@ -34,9 +36,11 @@ symbol* first_pass(char* file, char* error_found) {
                     *error_found = errors_inspection(&sentence, indexes, &counters);
                     if(*error_found == FALSE){/*if no errors found*/
                         calculate_number_of_words(&sentence, indexes, &counters);
+                        update_symbol_address(&sentence, counters);
                         if (*sentence.label.name != '\0') {
                             symbol_table  = insert_symbol(&sentence.label, symbol_table, &is_first_symbol, &counters, error_found);
                         }
+
                     }
                 }
         }
