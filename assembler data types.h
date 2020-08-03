@@ -26,9 +26,6 @@ typedef struct{
     char operator_name[OPERATOR_MAX_LENGTH];
     int opcode;
     int function;
-}operator;
-typedef struct{
-    operator operator_parts;
 }code;
 typedef struct __attribute__((packed)){
     char order[ORDER_MAX_LENGTH];
@@ -63,7 +60,7 @@ typedef struct __attribute__((packed)){
     int first_operand_index;
     int second_operand_index;
     int data_index;
-}line_marks_index;
+}line_indexes;
 typedef struct __attribute__((packed)){
     int IC;
     int last_instruction_address;
@@ -79,11 +76,11 @@ typedef struct __attribute__((packed)){
     int error_number;
     int number_of_operands;
     int number_of_commas;
-}line_marks_counter;
+}line_counters;
 /*FUNCTIONS DECLARATION*/
-void initialize_line_tools(line* sentence, line_marks_counter* counters, line_marks_index* indexes);
-void initialize_counters(line_marks_counter* counters);
-void initialize_indexes(line_marks_index* indexes);
+void initialize_line_tools(line* sentence, line_counters* counters, line_indexes* indexes);
+void initialize_counters(line_counters* counters);
+void initialize_indexes(line_indexes* indexes);
 void initialize_line(line* sentence);
 /**/
 #endif /*ASSEMBLER_ASSEMBLER_DATA_TYPES_H*/

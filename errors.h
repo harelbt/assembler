@@ -70,17 +70,17 @@ va_end(argp);\
 printf("Starting at the character ' %c '\n", *(line + unexpected));}\
 puts("________________________________________________________________________________________________________");
 /*conditions*/
-#define ILLEGAL_SRC_OPERAND_FIRST_CHAR_CONDITION *(sentence.line + indexes.first_operand_index) != '&' &&\
-*(sentence.line + indexes.first_operand_index) != '#' &&\
-(*(sentence.line + indexes.first_operand_index) < 'A' ||\
-(*(sentence.line + indexes.first_operand_index) > 'Z' && *(sentence.line + indexes.first_operand_index) < 'a')||\
-*(sentence.line + indexes.first_operand_index) > 'z')
+#define ILLEGAL_SRC_OPERAND_FIRST_CHAR_CONDITION *(sentence->line + indexes->first_operand_index) != '&' &&\
+*(sentence->line + indexes->first_operand_index) != '#' &&\
+(*(sentence->line + indexes->first_operand_index) < 'A' ||\
+(*(sentence->line + indexes->first_operand_index) > 'Z' && *(sentence->line + indexes->first_operand_index) < 'a')||\
+*(sentence->line + indexes->first_operand_index) > 'z')
 
-#define ILLEGAL_DEST_OPERAND_FIRST_CHAR_CONDITION *(sentence.line + indexes.second_operand_index) != '&' && \
-*(sentence.line + indexes.second_operand_index) != '#' && \
-(*(sentence.line + indexes.second_operand_index) < 'A' || \
-(*(sentence.line + indexes.second_operand_index) > 'Z' && *(sentence.line + indexes.second_operand_index) < 'a') || \
-*(sentence.line + indexes.second_operand_index) > 'z')
+#define ILLEGAL_DEST_OPERAND_FIRST_CHAR_CONDITION *(sentence->line + indexes->second_operand_index) != '&' && \
+*(sentence->line + indexes->second_operand_index) != '#' && \
+(*(sentence->line + indexes->second_operand_index) < 'A' || \
+(*(sentence->line + indexes->second_operand_index) > 'Z' && *(sentence->line + indexes->second_operand_index) < 'a') || \
+*(sentence->line + indexes->second_operand_index) > 'z')
 
 #define ILLEGAL_DATA_CHAR_CONDITION curr_char != ' ' && curr_char != '\t' &&\
 curr_char != ',' && curr_char != '-' && curr_char != '+'\
@@ -94,42 +94,42 @@ curr_char != ',' && curr_char != '-' && curr_char != '+'\
 
 #define NUMBER_OF_RESERVED_WORDS 27
 /*~~general functions~~*/
-char errors_inspection(line* sentence, line_marks_index indexes, line_marks_counter* counters);
-void report_error(char* line, char error_code, line_marks_counter* counters, ...);
+char errors_inspection(line* sentence, line_indexes* indexes, line_counters* counters);
+void report_error(char* line, char error_code, line_counters* counters, ...);
 /*~~order inspection section~~*/
-static char inspect_order_line(line* sentence, line_marks_index indexes, line_marks_counter* counters);
-static short int is_order_proper(line sentence);
-static void detect_string_errors(line sentence, line_marks_index indexes, line_marks_counter* counters, char* error_found);
-static void detect_two_quotes_errors(line sentence, line_marks_counter* counters, line_marks_index indexes, short int is_string_order, char* error_found);
-static void detect_data_errors(line sentence, line_marks_index indexes, line_marks_counter* counters, char* error_found);
-static short int is_data_values_proper(line sentence, line_marks_index indexes, line_marks_counter* counters);
-static short int inspect_data_values(line sentence, int index, line_marks_counter* counters);
-static void values_check(line sentence, line_marks_counter *counters, char curr_char, int last_char, short int is_after_comma,
-             short int is_data_order, char* error_found, short int did_number_appeared, int index);
+static char inspect_order_line(line* sentence, line_indexes* indexes, line_counters* counters);
+static short int is_order_proper(line* sentence);
+static void detect_string_errors(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found);
+static void detect_two_quotes_errors(line* sentence, line_counters* counters, line_indexes* indexes, short int is_string_order, char* error_found);
+static void detect_data_errors(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found);
+static short int is_data_values_proper(line* sentence, line_indexes* indexes, line_counters* counters);
+static short int inspect_data_values(line* sentence, int index, line_counters* counters);
+static void values_check(line* sentence, line_counters *counters, char curr_char, int last_char, short int is_after_comma,
+                         short int is_data_order, char* error_found, short int did_number_appeared, int index);
 static void check_if_after_comma(const char *curr_char, short int *is_after_comma);
-static void update_loop_data_inspection_variables(line sentence, char* curr_char, char* last_char, int* index);
-static void detect_extern_entry_errors(line* sentence, line_marks_index indexes, line_marks_counter* counters, char* error_found);
-static void check_pre_order_chars(line sentence, line_marks_index indexes, line_marks_counter* counters, char* error_found);
-static void check_after_data_chars(line* sentence, line_marks_counter* counters, line_marks_index indexes, char* error_found);
-static void inspect_data_label(line* sentence, line_marks_index indexes, line_marks_counter* counters, char* error_found);
+static void update_loop_data_inspection_variables(line* sentence, char* curr_char, char* last_char, int* index);
+static void detect_extern_entry_errors(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found);
+static void check_pre_order_chars(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found);
+static void check_after_data_chars(line* sentence, line_counters* counters, line_indexes* indexes, char* error_found);
+static void inspect_data_label(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found);
 /*~~code inspection section~~*/
-static void inspect_code_line(line sentence, line_marks_index indexes, line_marks_counter* counters, char* error_found);
-static short int check_operands_count(line sentence, line_marks_index indexes, line_marks_counter* counters, char* error_found);
-static short int check_operators_count(line sentence, line_marks_index indexes, line_marks_counter* counters, char* error_found);
-static void check_operands_syntax(line sentence, line_marks_index indexes, line_marks_counter* counters, char* error_found);
-static void check_source_operand_syntax(line sentence, line_marks_index indexes, line_marks_counter* counters, char* error_found);
-static void check_dest_operand_syntax(line sentence, line_marks_index indexes, line_marks_counter* counters, char* error_found);
-static short int is_operand_proper(line sentence, line_marks_index indexes, short int source_or_dest);
-static void check_pre_operator_chars(line sentence, line_marks_index indexes, line_marks_counter* counters, char* error_found);
+static void inspect_code_line(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found);
+static short int check_operands_count(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found);
+static short int check_operators_count(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found);
+static void check_operands_syntax(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found);
+static void check_source_operand_syntax(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found);
+static void check_dest_operand_syntax(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found);
+static short int is_operand_proper(line* sentence, line_indexes* indexes, short int source_or_dest);
+static void check_pre_operator_chars(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found);
 static void check_operand_body_syntax(char* i, short int* is_propper);
-static char* check_operand_first_char_syntax(line sentence, line_marks_index indexes, short int* is_propper,short int source_or_dest);
+static char* check_operand_first_char_syntax(line* sentence, line_indexes* indexes, short int* is_propper, short int source_or_dest);
 /*~~label inspection section~~*/
-static void inspect_label(line* sentence, line_marks_index indexes, line_marks_counter* counters, int start_index, char* error_found);
-static void check_label_length(line* sentence, line_marks_index indexes, line_marks_counter* counters, int start_index, char* error_found);
-static void check_label_syntax(line sentence, line_marks_index indexes, line_marks_counter* counters, int start_index, char* error_found);
-static void check_if_label_reserved_word(char* label ,line sentence, line_marks_counter* counters, char* error_found);
-static void check_label_def_white_chars(line sentence, line_marks_counter* counters, char curr_char, int index, char* error_found);
-static void check_label_first_char(line sentence, line_marks_counter* counters, char curr_char, int index, char* error_found);
-static char* check_label_body(line sentence, line_marks_counter* counters, char curr_char, int* i, char* error_found);
+static void inspect_label(line* sentence, line_indexes* indexes, line_counters* counters, int start_index, char* error_found);
+static void check_label_length(line* sentence, line_indexes* indexes, line_counters* counters, int start_index, char* error_found);
+static void check_label_syntax(line* sentence, line_indexes* indexes, line_counters* counters, int start_index, char* error_found);
+static void check_if_label_reserved_word(char* label, line_counters* counters, char* error_found);
+static void check_label_def_white_chars(line* sentence, line_counters* counters, char curr_char, int index, char* error_found);
+static void check_label_first_char(line* sentence, line_counters* counters, char curr_char, int index, char* error_found);
+static char* check_label_body(line* sentence, line_counters* counters, char curr_char, int* i, char* error_found);
 void print_errors_summary(char* file_name, int errors_count);
 #endif /*ASSEMBLER_ERRORS_H*/

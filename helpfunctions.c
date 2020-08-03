@@ -71,130 +71,15 @@ FILE* open_file(const char* file_name, const char* open_type){
 }
 /*allocates memory for array of any type safely and exits program in case of failure with a proper massage to stderr
  * returns the address*/
-void* allocate_arr_memory (int size, const char* type){
+void* allocate_arr_memory (int size, char type){
     /*allocation*/
-    if (!strcmp(type,"line")) {
-        line* p = (line*) malloc(sizeof(line) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type,"symbol")) {
+    if (type == SYMBOL) {
         symbol* p = (symbol*) malloc(sizeof(symbol) * size);
         POINTER_CHECK
         return p;
     }
-    if (!strcmp(type,"char")) {
+    if (type == CHAR) {
         char* p = (char*) malloc(sizeof(char) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "unsigned char")) {
-        unsigned char* p = (unsigned char *) malloc(sizeof( char) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "signed char")) {
-        signed char* p = (signed char *) malloc(sizeof(char) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "short")) {
-        short* p = (short*) malloc(sizeof(short) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "short int")) {
-        short int* p = (short int*) malloc(sizeof(short int) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "signed short")) {
-        signed short* p = (signed short*) malloc(sizeof(signed short) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "signed short int")) {
-        signed short int* p = (signed short int*) malloc(sizeof(signed short int) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "unsigned short")) {
-        unsigned short* p = (unsigned short*) malloc(sizeof(unsigned short) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "unsigned short int")) {
-        unsigned short int* p = (unsigned short int*) malloc(sizeof(unsigned short int) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "int")) {
-        int* p = (int*) malloc(sizeof(int) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "signed")) {
-        signed * p = (signed*) malloc(sizeof(signed) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "signed int")) {
-        signed int* p = (signed int*) malloc(sizeof(signed int) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "unsigned")) {
-        unsigned * p = (unsigned*) malloc(sizeof(unsigned) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "unsigned int")) {
-        unsigned int* p = (unsigned int*) malloc(sizeof(unsigned int) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "long")) {
-        long* p = (long*) malloc(sizeof(long) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "long int")) {
-        long int* p = (long int*) malloc(sizeof(long int) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "signed long")) {
-        signed long* p = (signed long*) malloc(sizeof(signed long) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "signed long int")) {
-        signed long int* p = (signed long int*) malloc(sizeof(signed long int) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "unsigned long")) {
-        unsigned long* p = (unsigned long*) malloc(sizeof(unsigned long) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "unsigned long int")) {
-        unsigned long int* p = (unsigned long int*) malloc(sizeof(unsigned long int) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "float")) {
-        float* p = (float*) malloc(sizeof(float) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "double")) {
-        double* p = (double*) malloc(sizeof(double) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "long double")) {
-        long double* p = (long double*) malloc(sizeof(long double) * size);
         POINTER_CHECK
         return p;
     }
@@ -204,125 +89,15 @@ void* allocate_arr_memory (int size, const char* type){
 
 /*reallocates memory for array of any type safely and exits program in case of failure with a proper massage to stderr
  * returns the address*/
-void* realloc_arr_memory (void* ptr, int size, const char* type){
+void* realloc_arr_memory (void* ptr, int size, char type){
     /*reallocation*/
-    if (!strcmp(type,"symbol")) {
+    if (type == SYMBOL) {
         symbol * p = (symbol *) realloc(ptr, sizeof(symbol) * size);
         POINTER_CHECK
         return p;
     }
-    if (!strcmp(type,"char")) {
+    if (type == CHAR) {
         char* p = (char *) realloc(ptr, sizeof(char) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "unsigned char")) {
-        unsigned char* p = (unsigned char *) realloc(ptr, sizeof( char) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "signed char")) {
-        signed char* p = (signed char *) realloc(ptr, sizeof(char) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "short")) {
-        short* p = (short*) realloc(ptr, sizeof(short) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "short int")) {
-        short int* p = (short int*) realloc(ptr, sizeof(short int) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "signed short")) {
-        signed short* p = (signed short*) realloc(ptr, sizeof(signed short) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "signed short int")) {
-        signed short int* p = (signed short int*) realloc(ptr, sizeof(signed short int) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "unsigned short")) {
-        unsigned short* p = (unsigned short*) realloc(ptr, sizeof(unsigned short) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "unsigned short int")) {
-        unsigned short int* p = (unsigned short int*) realloc(ptr, sizeof(unsigned short int) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "int")) {
-        int* p = (int*) realloc(ptr, sizeof(int) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "signed")) {
-        signed * p = (signed*) realloc(ptr, sizeof(signed) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "signed int")) {
-        signed int* p = (signed int*) realloc(ptr, sizeof(signed int) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "unsigned")) {
-        unsigned * p = (unsigned*) realloc(ptr, sizeof(unsigned) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "unsigned int")) {
-        unsigned int* p = (unsigned int*) realloc(ptr, sizeof(unsigned int) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "long")) {
-        long* p = (long*) realloc(ptr, sizeof(long) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "long int")) {
-        long int* p = (long int*) realloc(ptr, sizeof(long int) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "signed long")) {
-        signed long* p = (signed long*) realloc(ptr, sizeof(signed long) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "signed long int")) {
-        signed long int* p = (signed long int*) realloc(ptr, sizeof(signed long int) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "unsigned long")) {
-        unsigned long* p = (unsigned long*) realloc(ptr, sizeof(unsigned long) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "unsigned long int")) {
-        unsigned long int* p = (unsigned long int*) realloc(ptr, sizeof(unsigned long int) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "float")) {
-        float* p = (float*) realloc(ptr, sizeof(float) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "double")) {
-        double* p = (double*) realloc(ptr, sizeof(double) * size);
-        POINTER_CHECK
-        return p;
-    }
-    if (!strcmp(type, "long double")) {
-        long double *p = (long double *) realloc(ptr, sizeof(long double) * size);
         POINTER_CHECK
         return p;
     }
@@ -638,7 +413,7 @@ short int* long_to_short_arr(long number){
     return short_arr;
 }
 char* get_line_dynamic(FILE* file, int* length){
-    char* str = allocate_arr_memory(2, "char");
+    char* str = allocate_arr_memory(2, CHAR);
     int ch = skip_spaces(file);
     *length = 1;
     if (ch == EOF)
@@ -648,7 +423,7 @@ char* get_line_dynamic(FILE* file, int* length){
     }
     *(str) = (char) ch;
     while ((ch = fgetc(file)) != '\n' && ch != EOF){
-        str = realloc_arr_memory(str,*length +2, "char");
+        str = realloc_arr_memory(str,*length +2, CHAR);
         *(str + (*length)) = (char) ch;
         (*length)++;
     }

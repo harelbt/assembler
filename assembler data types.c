@@ -15,12 +15,12 @@ static void create_symbol(symbol* to_initialize, char* name, char* address, char
     to_initialize->is_extern = is_extern;
     to_initialize->sentence_type = sentence_type;
 }*/
-void initialize_line_tools(line* sentence, line_marks_counter* counters, line_marks_index* indexes){
+void initialize_line_tools(line* sentence, line_counters* counters, line_indexes* indexes){
     initialize_counters(counters);
     initialize_indexes(indexes);
     initialize_line(sentence);
 }
-void initialize_counters(line_marks_counter* counters){
+void initialize_counters(line_counters* counters){
     counters->number_of_hashmarks = 0;
     counters->number_of_quotation_marks = 0;
     counters->number_of_dots = 0;
@@ -30,7 +30,7 @@ void initialize_counters(line_marks_counter* counters){
     counters->number_of_operands = 0;
     counters->number_of_commas = 0;
 }
-void initialize_indexes(line_marks_index* indexes){
+void initialize_indexes(line_indexes* indexes){
     indexes->first_hash_mark_index = NOT_FOUND;
     indexes->first_char_index = NOT_FOUND;
     indexes->first_register_index = NOT_FOUND;
@@ -51,8 +51,8 @@ void initialize_line(line* sentence){
     sentence->flags.is_data = FALSE;
     sentence->flags.is_code = FALSE;
     sentence->flags.is_comment = FALSE;
-    sentence->code_parts.operator_parts.opcode = NOT_FOUND;
-    sentence->code_parts.operator_parts.function = NOT_FOUND;
+    sentence->code_parts.opcode = NOT_FOUND;
+    sentence->code_parts.function = NOT_FOUND;
     sentence->data_parts.data = NULL;
     *(sentence->data_parts.order) = '\0';
     sentence->label.address = 0;

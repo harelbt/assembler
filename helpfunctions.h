@@ -16,6 +16,8 @@
 #define ON 1
 #define OFF 0
 
+#define CHAR 1
+#define SYMBOL 2
 /**
  *  returns the first character after the white characters
  *  if starts at a non white character, returns the next character
@@ -55,7 +57,7 @@ FILE* open_file(const char* file_name, const char* mode);
  * @param arr_type
  * @return a pointer to the new array
  */
-void* allocate_arr_memory (int size, const char* arr_type);
+void* allocate_arr_memory (int size, char arr_type);
 /**
  * like realloc, but in case of a failure, gives a proper massage and exit the program, and does the casting
  * and all the hard work, and works with all of the data types
@@ -64,7 +66,7 @@ void* allocate_arr_memory (int size, const char* arr_type);
  * @param arr_type
  * @return a pointer to reallocated new array
  */
-void* realloc_arr_memory (void* ptr, int size, const char* arr_type);
+void* realloc_arr_memory (void* ptr, int size, char arr_type);
 /**
  * returns a string until a white character.
  * if starts in a white character, returns empty string

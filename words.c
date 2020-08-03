@@ -1,17 +1,17 @@
 #include "words.h"
-void calculate_number_of_words(line* sentence, line_marks_index indexes, line_marks_counter* counters){
+void calculate_number_of_words(line* sentence, line_indexes indexes, line_counters* counters){
     if (sentence->flags.is_code == TRUE){
         calculate_instruction_word(sentence, indexes, counters);
     }else{
         calculate_order_word(sentence, indexes, counters);
     }
 }
-void calculate_instruction_word(line* sentence, line_marks_index indexes, line_marks_counter* counters){
+void calculate_instruction_word(line* sentence, line_indexes indexes, line_counters* counters){
     /*every operand costs a word, unless it's a register*/
     counters->last_instruction_address = counters->IC;
     counters->IC += counters->number_of_operands - counters->number_of_registers + ONE_WORD;/*one word for the assembly line*/
 }
-void calculate_order_word(line* sentence, line_marks_index indexes, line_marks_counter* counters){
+void calculate_order_word(line* sentence, line_indexes indexes, line_counters* counters){
     if (strcmp(sentence->data_parts.order, "extern") != 0 && strcmp(sentence->data_parts.order, "entry") != 0) {
         counters->last_data_address = counters->DC;
         counters->DC += counters->number_of_quotation_marks == 2 ?

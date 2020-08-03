@@ -13,7 +13,7 @@
 && (i == sentence->length-1 || *(sentence->line+i+4) == ' ' || *(sentence->line+i+4) == '\t'\
 && counters->number_of_quotation_marks == 0)
 /**/
-#define COMMENT_CONDITION indexes.semicolon_index == indexes.first_char_index && indexes.semicolon_index >= 0
+#define COMMENT_CONDITION indexes->semicolon_index == indexes->first_char_index && indexes->semicolon_index >= 0
 /**/
 #define COLON_CASE if (!(*colon_found)) {\
 indexes->colon_index = index;\
@@ -59,20 +59,20 @@ indexes->second_register_index = index;}}\
 }break;
 /**/
 #define NUMBER_OF_OPERATORS 15
-void empty_or_comment_line_check (line* sentence, line_marks_index indexes);
-void analyze_sentence(line* sentence, line_marks_index* indexes, line_marks_counter* counters);
+void empty_or_comment_line_check (line* sentence, line_indexes* indexes);
+void analyze_sentence(line* sentence, line_indexes* indexes, line_counters* counters);
 static int recognize_operator(char* operator, int* opcode, int* function);
-static void check_for_operators(line_marks_counter* counters, line_marks_index* indexes, line* sentence, int i);
-static void find_line_components(line* sentence, line_marks_index* indexes, line_marks_counter* counters);
+static void check_for_operators(line_counters* counters, line_indexes* indexes, line* sentence, int i);
+static void find_line_components(line* sentence, line_indexes* indexes, line_counters* counters);
 void prepare_label(line* sentence, int data_index);
-static void signs_check(line* sentence, line_marks_counter* counters,line_marks_index* indexes, char curr_char, char* colon_found,
+static void signs_check(line* sentence, line_counters* counters, line_indexes* indexes, char curr_char, char* colon_found,
                         char* semicolon_found, char* dot_found, char first_char_found, int index);
-static void data_check(line_marks_index* indexes, char* order_ended, char* data_found, char dot_found, char curr_char, int index);
-static void operands_check(line* sentence, line_marks_counter* counters, line_marks_index* indexes, char* operand_ended, char curr_char, int index);
-static void operator_check(line* sentence, line_marks_counter* counters, line_marks_index* indexes, int index);
-static void first_char_check(line_marks_index* indexes, char* first_char_found, char curr_char, int index);
+static void data_check(line_indexes* indexes, char* order_ended, char* data_found, char dot_found, char curr_char, int index);
+static void operands_check(line* sentence, line_counters* counters, line_indexes* indexes, char* operand_ended, char curr_char, int index);
+static void operator_check(line* sentence, line_counters* counters, line_indexes* indexes, int index);
+static void first_char_check(line_indexes* indexes, char* first_char_found, char curr_char, int index);
 void find_data_order(line* sentence, int dot_index);
-static void define_sentence_type(line* sentence, line_marks_counter counters, line_marks_index indexes);
-static short int is_order(line_marks_counter counters,line_marks_index indexes);
-static void find_label(line* sentence, line_marks_index indexes);
+static void define_sentence_type(line* sentence, line_counters counters, line_indexes indexes);
+static short int is_order(line_counters counters, line_indexes indexes);
+static void find_label(line* sentence, line_indexes indexes);
 #endif //ASSEMBLER_LINE_ANALYZER_H

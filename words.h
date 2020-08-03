@@ -14,9 +14,9 @@ typedef struct __attribute__((packed)){
     unsigned int SOURCE_ADDRESSING: 2;
     unsigned int OPCODE: 6;
 }word;
-void calculate_number_of_words(line* sentence, line_marks_index indexes, line_marks_counter* counters);
-void calculate_instruction_word(line* sentence, line_marks_index indexes, line_marks_counter* counters);
-void calculate_order_word(line* sentence, line_marks_index indexes, line_marks_counter* counters);
+void calculate_number_of_words(line* sentence, line_indexes indexes, line_counters* counters);
+void calculate_instruction_word(line* sentence, line_indexes indexes, line_counters* counters);
+void calculate_order_word(line* sentence, line_indexes indexes, line_counters* counters);
 /**
  * turns a word into hex
  * @param to_convert the word to convert

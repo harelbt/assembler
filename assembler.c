@@ -1,10 +1,14 @@
+#include <time.h>
 #include "assembler.h"
 int main (int argc, char* argv[]){
     char error_found = FALSE;
     int i = 1;
     symbol* symbol_table;
-    symbol symbol_indexes_table[NUM_OF_ENGLISH_CHARS];
+    symbol* symbol_addresses_table[NUM_OF_ENGLISH_CHARS];
     FILE* machine_code;
+    clock_t start = clock();
+    clock_t end;
+    double runtime;
     /*checks if operators supplied*/
     if (argc == 1) {
         /*prints this error to stderr with exit code 1*/
@@ -13,7 +17,7 @@ int main (int argc, char* argv[]){
     /*assembles each supplied file*/
     while (i < argc) {
         machine_code = open_machine_code(machine_code, *(argv+i));
-        symbol_table = first_pass(*(argv+i), machine_code, symbol_indexes_table, &error_found);
+        symbol_table = first_pass(*(argv+i), machine_code, symbol_addresses_table, &error_found);
         if (error_found == TRUE) {
             /*second_pass();*/
         }
@@ -25,6 +29,9 @@ int main (int argc, char* argv[]){
         printf("%s %d\n", symbol_table->name, symbol_table->address);
         symbol_table = symbol_table->next;
     }
+    end = clock();
+    runtime = (double)(end - start)/CLOCKS_PER_SEC;
+    printf("%f", runtime);
     return 0;
 }
 FILE * open_machine_code(FILE* machine_code, char* file_name){
