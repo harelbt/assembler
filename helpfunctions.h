@@ -73,7 +73,8 @@ void* realloc_arr_memory (void* ptr, int size, char arr_type);
  * @param file to read from
  * @return a string until a white space
  */
-char* get_until_white_char(FILE* file);
+char* get_until_white_char(const char* line, int index);
+int current_word_length(const char* line, int index);
 /**
  * returns a line and deletes the spaces
  * @param file to read from

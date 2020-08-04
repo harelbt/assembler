@@ -106,22 +106,31 @@ void* realloc_arr_memory (void* ptr, int size, char type){
 }
 /*returns a string from the file pointer until a white char(dynamic memory allocation)
  * if the file pointer points at a white char, returns "" (empty string)*/
-char* get_until_white_char(FILE* file) {
-    char* string = allocate_arr_memory(1, "char");/*initial allocation*/
-    char* p = string;
-    int i = 0;
-    int ch;
+char* get_until_white_char(const char* line, int index) {
+    char* string = allocate_arr_memory(1, CHAR);/*initial allocation*/
+    int i = index;
     /*_____________________________________________________________*/
-    while ((ch = fgetc(file)) != '\n' && ch != ' ' && ch != EOF){/*gets characters*/
-        *(p+i) = (char) ch;
+    while (*(line+i) != ' ' && *(line+i) != '\t' && *(line+i)){
+        *(string+i) = *(line+i);
         i++;
-        string = realloc_arr_memory(string,(i + 1),"char");/*expanding string*/
+        string = realloc_arr_memory(string,(i + 1),CHAR);/*expanding string*/
     }
+    *(string+i) = '\0';
     /*_____________________________________________________________*/
     return string;
 }
+int current_word_length(const char* line, int index){
+    char* string = allocate_arr_memory(1, CHAR);/*initial allocation*/
+    int i = index;
+    /*_____________________________________________________________*/
+    while (*(line+i) != ' ' && *(line+i) != '\t' && *(line+i) != ',' && *(line+i)){
+        i++;
+    }
+    /*_____________________________________________________________*/
+    return i - index;
+}
 char* get_line_no_spaces(FILE* file){
-    char* string = allocate_arr_memory(1, "char");/*initial allocation*/
+    char* string = allocate_arr_memory(1, CHAR);/*initial allocation*/
     char* p = string;
     int i = 0;
     int ch;
@@ -612,4 +621,5 @@ void check_number_appearance(short int *did_number_appeared, char curr_char) {
             *did_number_appeared = 1;
         }
     }
+}
 }

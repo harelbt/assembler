@@ -34,14 +34,16 @@ symbol* first_pass(char* file,  FILE* machine_code, symbol** symbol_addresses_ta
             empty_or_comment_line_check(&sentence, &indexes);
             /*continues if not a comment/empty line*/
                 if (sentence.flags.is_comment == FALSE && sentence.flags.is_empty_line == FALSE) {
-                    *error_found = errors_inspection(&sentence, &indexes, &counters);
+                    if (errors_inspection(&sentence, &indexes, &counters) == TRUE){
+                        *error_found = TRUE;
+                    }
                     if(*error_found == FALSE){/*if no errors found*/
                         calculate_number_of_words(&sentence, indexes, &counters);
                         update_symbol_address(&sentence, counters);
                         if (*sentence.label.name != '\0') {
-                            symbol_table = insert_symbol(&sentence.label, symbol_table, &is_first_symbol, &counters, error_found);
+                            symbol_table = insert_symbol(&sentence.label, symbol_addresses_table, symbol_table, &is_first_symbol, &counters, error_found);
                         }
-                        first_pass_translation(&sentence, &indexes, &counters);
+                        first_pass_translation(machine_code, &sentence, &indexes, &counters);
                     }
                 }
         }

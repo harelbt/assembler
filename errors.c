@@ -247,6 +247,11 @@ void report_error(char* line, char error_code, line_counters* counters, ...){
             printf("Labels can't be defined more than once. line %d.\n", counters->line_number);
             break;
         }
+        case NUMBER_TOO_LARGE:{
+            print_char_indication = 1;
+            printf("Number too large. line %d.\n", counters->line_number);
+            break;
+        }
         default:
             return;
     }
@@ -608,6 +613,9 @@ static void check_operands_syntax(line* sentence, line_indexes* indexes, line_co
 }
 static void check_source_operand_syntax(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found){
     if (is_operand_proper(sentence, indexes, SOURCE_OPERAND) == TRUE) {
+        if (*(sentence->line + indexes->first_operand_index) == '#'){
+            check_number_size(sentence->line, indexes->first_operand_index, counters, error_found);
+        }
         /*"jump to label" is not allowed as a source operand*/
         if (*(sentence->line+indexes->first_operand_index) == '&'){
             report_error(sentence->line, NO_SOURCE_JUMP_LABEL_ALLOWED, counters, indexes->first_operand_index);
@@ -630,8 +638,21 @@ static void check_source_operand_syntax(line* sentence, line_indexes* indexes, l
         *error_found = TRUE;
     }
 }
+static void check_number_size(char* line, int index, line_counters* counters, char* error_found){
+    if (*(line + index) == '-' || *(line + index) == '+'){
+        index++;
+    }
+    long number = strtod(line + index, NULL);
+    if (number > NUMBER_MAX_VAL){
+        report_error(line, NUMBER_TOO_LARGE, counters, index);
+        *error_found = TRUE;
+    }
+}
 static void check_dest_operand_syntax(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found){
     if (is_operand_proper(sentence, indexes, DEST_OPERAND) == TRUE){
+        if (*(sentence->line + indexes->second_operand_index) == '#'){
+            check_number_size(sentence->line, indexes->second_operand_index, counters, error_found);
+        }
         /*opcodes 1,3: can have any operand except jump to label, which is taken care of next*/
         /*opcodes 0,2-5,12: can't be a number*/
         if (sentence->code_parts.opcode == 0 ||
@@ -769,7 +790,7 @@ static char* check_label_body(line* sentence, line_counters* counters, char curr
             *error_found = TRUE;
         }
         if (!(*(sentence->label.name)) && *i < LABEL_MAX_LENGTH){
-            label_copy = realloc_arr_memory(label_copy, label_length+1, "char");
+            label_copy = realloc_arr_memory(label_copy, label_length+1, CHAR);
             *(label_copy + label_length) = curr_char;
         }
         (*i)++;

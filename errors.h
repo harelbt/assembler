@@ -44,6 +44,7 @@
 #define CHARS_BEFORE_DATA_ORDER 29
 #define COMMA_NO_FOLLOWING_NUMBER 30
 #define ARITHMETIC_SIGN_NOT_IN_PLACE 31
+#define NUMBER_TOO_LARGE 44
 /*EXTERN AND ENTRY*/
 #define CHARS_BEFORE_EXTERN_OR_ENTRY 32
 #define EXTERN_ENTRY_NO_LABEL 33
@@ -93,6 +94,9 @@ curr_char != ',' && curr_char != '-' && curr_char != '+'\
 #define ILLEGAL_LABEL_FIRST_CHAR_CONDITION curr_char < 'A' || (curr_char > 'Z' && curr_char < 'a') || curr_char > 'z'
 
 #define NUMBER_OF_RESERVED_WORDS 27
+#define NUMBER_MAX_VAL 8388607
+#define NUMBER_MIN_VAL -8388607
+#define NUMBER_MAX_LENGTH 7
 /*~~general functions~~*/
 char errors_inspection(line* sentence, line_indexes* indexes, line_counters* counters);
 void report_error(char* line, char error_code, line_counters* counters, ...);
@@ -117,6 +121,7 @@ static void inspect_code_line(line* sentence, line_indexes* indexes, line_counte
 static short int check_operands_count(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found);
 static short int check_operators_count(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found);
 static void check_operands_syntax(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found);
+static void check_number_size(char* line, int index, line_counters* counters, char* error_found);
 static void check_source_operand_syntax(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found);
 static void check_dest_operand_syntax(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found);
 static short int is_operand_proper(line* sentence, line_indexes* indexes, short int source_or_dest);
