@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "translator.h"
+#include "first pass.h"
 void first_pass_translation(FILE* machine_code, line* sentence, line_indexes* indexes, line_counters* counters){
     if (sentence->flags.is_code == TRUE){
         code_translation(machine_code, sentence, indexes, counters);
@@ -16,7 +17,15 @@ static void code_translation(FILE* machine_code, line* sentence, line_indexes* i
 
 }
 static void data_translation(line* sentence, line_indexes* indexes, line_counters* counters){
-
+    struct data_binary_node *node  = NULL;
+    node = (struct data_binary_node*)malloc(sizeof(struct data_binary_node));
+    node->dc = counters->DC;
+    node->next=NULL;/*the next node in the list*/
+    node->translated = (int)sentence->data_parts.data;
+    if(sentence->data_parts.data<0){
+        negate_to_binary(node->translated);
+    }
+    node->next=NULL;
 }
 static void prepare_instruction_word(instruction_word* to_prepare, line* sentence, line_indexes* indexes){
     to_prepare->ARE = 0b100;

@@ -77,6 +77,12 @@ typedef struct __attribute__((packed)){
     int number_of_operands;
     int number_of_commas;
 }line_counters;
+typedef  struct data_binary_node {
+    int dc;
+    unsigned int translated : 24;
+    struct data_binary_node * next;
+}
+binary_data;
 /*FUNCTIONS DECLARATION*/
 void initialize_line_tools(line* sentence, line_counters* counters, line_indexes* indexes);
 void initialize_counters(line_counters* counters);
