@@ -16,16 +16,101 @@ static void code_translation(FILE* machine_code, line* sentence, line_indexes* i
     prepare_instruction_word(&instruction_word, sentence, indexes);
 
 }
-static void data_translation(line* sentence, line_indexes* indexes, line_counters* counters){
-    struct data_binary_node *node  = NULL;
-    node = (struct data_binary_node*)malloc(sizeof(struct data_binary_node));
-    node->dc = counters->DC;
-    node->next=NULL;/*the next node in the list*/
-    node->translated = (int)sentence->data_parts.data;
-    if(sentence->data_parts.data<0){
-        negate_to_binary(node->translated);
+/*This function resets a string to a string that contains only \0 characters*/
+void resetString(char str[100]){
+    int i;
+    for (i = 0; i <100; ++i)
+        str[i]='\0';
+}
+int isWhitespace(char letter){
+    if(letter == ' ' || letter =='\t')
+        return 1;
+    else
+        return 0;
+}
+static struct data_binary_node * data_translation(line* sentence, line_indexes* indexes, line_counters* counters) {
+    char *data = sentence->data_parts.data;
+    char temp[100];
+    int j = 0;
+    long num;
+    char *eptr;
+    int dc = counters->last_data_address;
+    static struct data_binary_node *ptr = NULL;
+    static struct data_binary_node *head = NULL;
+    resetString(temp);
+    while (isWhitespace(*data))
+        data++;
+    while (*data != '\n') {
+        if (indexes->first_quotation_mark_index != NOT_FOUND) {/*the data is a string*/
+            if (*data == '"') {
+                data++;
+                unsigned int ascii_letter = *data;
+                if (ptr == NULL) {/*its the first node*/
+                    head = (struct data_binary_node *) malloc(sizeof(struct data_binary_node));
+                    head->translated = ascii_letter;
+                    head->dc = dc;
+                    head->next = NULL;
+                    ptr = head;
+                    data++;
+                    dc++;
+                }
+                /*adding the other nodes to the list*/
+                while (*data != '"') {
+                    struct data_binary_node *node_string = NULL;
+                    node_string = (struct data_binary_node *) malloc(sizeof(struct data_binary_node));
+                    ascii_letter = *data;
+                    node_string->translated = ascii_letter;
+                    node_string->dc = dc;
+                    while (ptr->next != NULL)
+                        ptr = ptr->next;
+                    ptr->next = node_string;
+                    node_string->translated = ascii_letter;
+                    ptr->next = node_string;
+                    node_string->next = NULL;
+                    data++;
+                    dc++;
+                }
+            }
+        } else {/*the data is integers*/
+            while(*data == '-'||(*data <= '9' && *data >= '0')) {
+                temp[j] = *data;
+                j++;
+                data++;
+            }
+            /*finished getting the number*/
+
+            num = (unsigned int)strtol(temp, &eptr, 2);
+            unsigned int num2 = (unsigned int) num;
+            if (num2 < 0) {
+                negate_to_binary(num2);
+            }
+            /*finished translating the number to binary*/
+            resetString(temp);
+            j = 0;
+            if (ptr == NULL) {//its the first node
+                static struct data_binary_node *head;
+                head = (struct data_binary_node *) malloc(sizeof(struct data_binary_node));
+                head->translated = num2;
+                head->dc = dc;
+                head->next = NULL;
+                ptr = head;
+                dc++;
+            }
+            else {/*adding the node to the list*/
+                struct data_binary_node *node_num = NULL;
+                node_num = (struct data_binary_node *) malloc(sizeof(struct data_binary_node));
+                while (ptr->next != NULL)
+                    ptr = ptr->next;
+                node_num->translated = num2;
+                node_num->dc = dc;
+                ptr->next = node_num;
+                node_num->next = NULL;
+                dc++;
+            }
+            data++;
+        }
     }
-    node->next=NULL;
+    return head;
 }
 static void prepare_instruction_word(instruction_word* to_prepare, line* sentence, line_indexes* indexes){
     to_prepare->ARE = 0b100;
