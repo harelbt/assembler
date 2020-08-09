@@ -76,3 +76,8 @@ static void free_line(line* sentence){
         sentence->data_parts.data = NULL;
     }
 }
+static void convert_command_to_binary(line command){
+    command.
+
+
+}
