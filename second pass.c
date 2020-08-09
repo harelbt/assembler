@@ -7,10 +7,9 @@ void second_pass(FILE* machine_code,FILE* source, symbol* symbol_table){
 }
 static void code_symbols(FILE* machine_code, symbol* symbol_table){
     char* symbol_to_code[LABEL_MAX_LENGTH];
-    char
+    int curr_char;
     fseek(machine_code, 0, SEEK_SET);
-    while (fgetc(machine_code) != EOF){
-        if ()
+    while ((curr_char = fgetc(machine_code)) != EOF){
     }
 }
 static void add_entries(){}
