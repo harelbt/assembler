@@ -8,8 +8,6 @@
 #define TRUE 1
 #define FALSE 0
 #define NOT_FOUND -1
-#define INSERTION_FAILED -1
-#define INSERTION_SUCCEED 1
 #define INSTRUCTION 1
 #define ORDER 2
 #define EXTERN 1

@@ -4,9 +4,7 @@
 #include "words.h"
 #include "symbol table.h"
 #include "translator.h"
-symbol* first_pass(char* file,  FILE* machine_code, symbol** symbol_addresses_table, char* error_found) {
-    /*opening file*/
-    FILE *filep = open_file(file, "r");/*this custom function can handle malloc failure*/
+symbol* first_pass(FILE* source, FILE* machine_code, symbol** symbol_addresses_table, char* error_found) {
     /*structs*/
     line sentence;
     line_indexes indexes;
@@ -25,7 +23,7 @@ symbol* first_pass(char* file,  FILE* machine_code, symbol** symbol_addresses_ta
     /**/
     char is_first_symbol = TRUE;
     /**/
-    while (!read_line(filep, &sentence)) {/*"read_line" returns 0 at EOF*/
+    while (!read_line(source, &sentence)) {/*"read_line" returns 0 at EOF*/
         /*resets the variables for each line*/
         initialize_line_tools(&sentence, &counters, &indexes);
         /**/
@@ -60,7 +58,7 @@ symbol* first_pass(char* file,  FILE* machine_code, symbol** symbol_addresses_ta
     if (*error_found == TRUE) {
         print_errors_summary(file, counters.error_number);
     }
-    free_first_pass(filep, &sentence);
+    free_first_pass(source, &sentence);
     return symbol_table;
 }
 
