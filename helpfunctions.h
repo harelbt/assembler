@@ -18,6 +18,7 @@
 
 #define CHAR 1
 #define SYMBOL 2
+#define DATA_IMAGE 3
 /**
  *  returns the first character after the white characters
  *  if starts at a non white character, returns the next character

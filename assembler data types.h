@@ -77,6 +77,18 @@ typedef struct __attribute__((packed)){
     int number_of_operands;
     int number_of_commas;
 }line_counters;
+typedef struct __attribute__((packed)){
+    unsigned int word: 24;
+    char is_jump;
+    char is_label;
+    int label_index;
+}word;
+typedef  struct __attribute__((packed)) data_binary_node{
+    int DC;
+    word word;
+    char is_head_filled;
+    struct data_binary_node * next;
+}data_image;
 /*FUNCTIONS DECLARATION*/
 void initialize_line_tools(line* sentence, line_counters* counters, line_indexes* indexes);
 void initialize_counters(line_counters* counters);

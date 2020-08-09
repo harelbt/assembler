@@ -184,6 +184,11 @@ void report_error(char* line, char error_code, line_counters* counters, ...){
             printf("Arithmetic sign can only be after ',' or spaces. line %d.\n", counters->line_number);
             break;
         }
+        case SIGN_NOT_NY_NUM:{
+            print_char_indication = TRUE;
+            printf("Arithmetic sign is not by a number. line %d.\n", counters->line_number);
+            break;
+        }
         case NO_SUCH_ORDER:{
             print_char_indication = TRUE;
             printf("Illegal order in line %d.\n", counters->line_number);
@@ -421,6 +426,11 @@ static void values_check(line* sentence, line_counters* counters, char curr_char
             if (is_data_order == TRUE) {
                 report_error(sentence->line, COMMA_NO_NUMBERS, counters, index-1);
             }
+            *error_found = TRUE;
+        }
+        if ((curr_char == '-' || curr_char == '+') && index + 1 != sentence->length && *(sentence->line + index) < '0'
+        && *(sentence->line + index) > '9'){
+            report_error(sentence->line, SIGN_NOT_NY_NUM, counters, index);
             *error_found = TRUE;
         }
         if (did_number_appeared == TRUE) {

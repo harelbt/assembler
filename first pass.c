@@ -12,6 +12,7 @@ symbol* first_pass(char* file,  FILE* machine_code, symbol** symbol_addresses_ta
     line_indexes indexes;
     line_counters counters;
     symbol* symbol_table = allocate_arr_memory(1, SYMBOL);
+    data_image* data = allocate_arr_memory(1, DATA_IMAGE);
     /**/
     counters.line_number = 0;
     counters.error_number = 0;
@@ -19,6 +20,8 @@ symbol* first_pass(char* file,  FILE* machine_code, symbol** symbol_addresses_ta
     counters.last_instruction_address = 100;
     counters.DC = 0;
     counters.last_data_address = 0;
+    data->next = NULL;
+    data->is_head_filled = FALSE;
     /**/
     char is_first_symbol = TRUE;
     /**/
@@ -43,11 +46,17 @@ symbol* first_pass(char* file,  FILE* machine_code, symbol** symbol_addresses_ta
                         if (*sentence.label.name != '\0') {
                             symbol_table = insert_symbol(&sentence.label, symbol_addresses_table, symbol_table, &is_first_symbol, &counters, error_found);
                         }
-                        first_pass_translation(machine_code, &sentence, &indexes, &counters);
+                        first_pass_translation(machine_code, &sentence, &indexes, &counters, data);
                     }
                 }
         }
     }
+    while (data->next != NULL){
+        unsigned int a =  data->word.word;
+        printf("%d %x\n", data->DC,a);
+        data = data->next;
+    }
+    printf("%d %x\n", data->DC, data->word.word);
     if (*error_found == TRUE) {
         print_errors_summary(file, counters.error_number);
     }

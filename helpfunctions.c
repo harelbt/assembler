@@ -83,6 +83,11 @@ void* allocate_arr_memory (int size, char type){
         POINTER_CHECK
         return p;
     }
+    if (type == DATA_IMAGE) {
+        char* p = (char*) malloc(sizeof(data_image) * size);
+        POINTER_CHECK
+        return p;
+    }
     /*_____________________________________________________________*/
     return NULL;
 }
@@ -109,13 +114,15 @@ void* realloc_arr_memory (void* ptr, int size, char type){
 char* get_until_white_char(const char* line, int index) {
     char* string = allocate_arr_memory(1, CHAR);/*initial allocation*/
     int i = index;
+    int k = 0;
     /*_____________________________________________________________*/
-    while (*(line+i) != ' ' && *(line+i) != '\t' && *(line+i)){
-        *(string+i) = *(line+i);
+    while (*(line + i) != ' ' && *(line + i) != '\t' && *(line + i)){
+        *(string+k) = *(line+i);
         i++;
-        string = realloc_arr_memory(string,(i + 1),CHAR);/*expanding string*/
+        k++;
+        string = realloc_arr_memory(string, (k + 1), CHAR);/*expanding string*/
     }
-    *(string+i) = '\0';
+    *(string+k) = '\0';
     /*_____________________________________________________________*/
     return string;
 }
@@ -139,14 +146,14 @@ char* get_line_no_spaces(FILE* file){
         if (ch != ' ') {
             *(p + i) = (char) ch;
             i++;
-            string = realloc_arr_memory(string, (i + 1), "char");/*expanding string*/
+            string = realloc_arr_memory(string, (i + 1), CHAR);/*expanding string*/
         }
     }
     /*_____________________________________________________________*/
     return string;
 }
 char* get_next_word(FILE* file){
-    char* string = allocate_arr_memory(2, "char");/*initial allocation*/
+    char* string = allocate_arr_memory(2, CHAR);/*initial allocation*/
     int ch = skip_white_chars(file);/*gets first char after white characters*/
     int i =0;
     /*_____________________________________________________________*/
@@ -155,51 +162,15 @@ char* get_next_word(FILE* file){
     }
     string[0] = (char) ch;/*enters first non white character*/
     i++;/*gets ready for the next character*/
-    string = realloc_arr_memory(string,(i + 2),"char");/*expanding string*/
+    string = realloc_arr_memory(string,(i + 2),CHAR);/*expanding string*/
     while ((ch = fgetc(file)) != '\n' && ch != ' ' && ch != EOF && ch != '\t'){/*gets characters*/
         string[i] = (char) ch;
         i++;
-        string = realloc_arr_memory(string,(i + 1),"char");/*expanding string*/
+        string = realloc_arr_memory(string,(i + 1),CHAR);/*expanding string*/
     }
     string[i] = '\0';
     /*_____________________________________________________________*/
     return string;
-}
-/*translates strings to binary base
- * returns the result in a long array
- * every char's translation is stored in a different cell ("12" = |1|10|)
- * */
-long* str_to_binary(const char* str) {
-        long *translation = allocate_arr_memory(1, "long");/*minimum required size*/
-        /*gets value from the arguments*/
-        long binary = 0;
-        long reminder;
-        long i = 1;
-        long j = 0;
-        /*_____________________________________________________________*/
-        while (str[j] != '\0') {
-            /*copying char*/
-            translation[j] = (long) str[j];
-            /*translating char*/
-            while (translation[j] != 0) {
-                reminder = translation[j] % 2;
-                translation[j] /= 2;
-                binary += reminder * i;
-                i *= 10;
-            }
-            /*copying translation to the array*/
-            translation[j] = binary;
-            /*recalibrate variables*/
-            binary = 0;
-            i = 1;
-            j++;
-            /*redetermines size according to the index*/
-            translation = realloc_arr_memory(translation, j + 1, "long");
-        }
-        /*puts -1 in the end*/
-        translation[j] = -1;
-        /*_____________________________________________________________*/
-        return translation;
 }
 /*returns an int as a string (char*)*/
 char* decimal_to_str(long number) {
@@ -221,11 +192,11 @@ char* decimal_to_str(long number) {
     /*allocating the necessary memory*/
     if (negative == 1) {
         /*saves place for a '-'*/
-        str = allocate_arr_memory(count + 2, "char");
+        str = allocate_arr_memory(count + 2, CHAR);
         str[count+1] = '\0';
         count++;/*starts ahead to save place for '-'*/
     } else {
-        str = allocate_arr_memory(count + 1, "char");
+        str = allocate_arr_memory(count + 1, CHAR);
         str[count] = '\0';
     }
     /*enters values to the string*/
@@ -262,7 +233,7 @@ static void invert_short_arr(short int* array, int length){
     }
 }
 char* strUnconst(const char* original_array){
-    char* char_array = allocate_arr_memory((int)strlen(original_array),"char");
+    char* char_array = allocate_arr_memory((int)strlen(original_array),CHAR);
     /*_____________________________________________________________*/
     strcpy(char_array, original_array);
     /*_____________________________________________________________*/
@@ -270,7 +241,7 @@ char* strUnconst(const char* original_array){
 }
 /**/
 char* short_arr_to_str(short int* short_array, long length_or_end_number, int space_mode, int end_number_mode){
-    char* str = allocate_arr_memory(1,"char");
+    char* str = allocate_arr_memory(1,CHAR);
     char* one_number;
     long i = 0;
     int length = 0;
@@ -278,13 +249,13 @@ char* short_arr_to_str(short int* short_array, long length_or_end_number, int sp
     while ((end_number_mode == OFF && i < length_or_end_number) || (end_number_mode == ON && short_array[i] != length_or_end_number)){
         one_number = decimal_to_str(short_array[i]);
         length = (int)(strlen(str)+strlen(one_number)+1);
-        str = realloc_arr_memory(str,length, "char");
+        str = realloc_arr_memory(str,length, CHAR);
         strcat(str,one_number);
         free(one_number);
         i++;
         if (space_mode == ON){
             length =  (int)(strlen(str))+2;
-            str = realloc_arr_memory(str,length, "char");
+            str = realloc_arr_memory(str,length, CHAR);
             str[length-2] = ' ';
             str[length-1] = '\0';
         }
@@ -355,7 +326,7 @@ char* binary_to_str(const char* to_translate){
     char* character;
     long long_character;
     short int* short_character_arr;
-    char* str = allocate_arr_memory(1, "char");
+    char* str = allocate_arr_memory(1, CHAR);
     char* endp = NULL;
     long str_length = 1;
     int ascii = 0;
@@ -366,7 +337,7 @@ char* binary_to_str(const char* to_translate){
             k++;
         }
         k++;
-        character = allocate_arr_memory(count + 1, "char");
+        character = allocate_arr_memory(count + 1, CHAR);
         while (to_translate[i] != ' ' && to_translate[i] != '\0') {
             character[j] = to_translate[i];
             if (character[j] != '0' && character[j] != '1'){
@@ -621,5 +592,4 @@ void check_number_appearance(short int *did_number_appeared, char curr_char) {
             *did_number_appeared = 1;
         }
     }
-}
 }
