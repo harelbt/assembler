@@ -6,7 +6,6 @@ int main (int argc, char* argv[]){
     symbol* symbol_table;
     symbol* symbol_addresses_table[NUM_OF_ENGLISH_CHARS];
     FILE* machine_code;
-    FILE *filep;
     clock_t start = clock();
     clock_t end;
     double runtime;
@@ -17,16 +16,27 @@ int main (int argc, char* argv[]){
     }
     /*assembles each supplied file*/
     while (i < argc) {
-        /*opening file*/
-        filep = open_file(*(argv+i), "r");/*this custom function can handle malloc failure*/
         machine_code = open_machine_code(machine_code, *(argv+i));
-        symbol_table = first_pass(filep, machine_code, symbol_addresses_table, &error_found);
-
+        symbol_table = first_pass(*(argv+i), machine_code, symbol_addresses_table, &error_found);
         if (error_found == TRUE) {
+            /*second_pass();*/
         }
         fclose(machine_code);
         error_found = FALSE;/*resets error flag for the next file*/
         i++;
+    }
+    while (symbol_table){
+        printf("%s %d\n", symbol_table->name, symbol_table->address);
+        symbol_table = symbol_table->next;
+    }
+    int a = NUM_OF_ENGLISH_CHARS;
+    symbol* s;
+    while (a!=-1){
+        s = *(symbol_addresses_table + a);
+        if (a == 'D' - 65){
+            printf("~~~~~%s\n", s->name);
+        }
+        a--;
     }
     end = clock();
     runtime = (double)(end - start)/CLOCKS_PER_SEC;

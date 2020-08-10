@@ -3,14 +3,80 @@
 #include "helpfunctions.h"
 #include "first pass.h"
 #include "second_pass.h"
-second_pass(FILE * first_pass_file,symbol * symbol_table,FILE * input_file){
-    char[STRING_LEN] string;
-int i,distance;
-    label_address labelAddress1;
-    symbol label1,label2;
-    FILE * externs,entries;
-fopen(first_pass_file,"a+");
-fopen(input_file,"r");
+#include "second pass.h"
+#include "errors.h"
+#include "assembler data types.h"
+#include "symbol table.h"
+#include "stdlib.h"
+#include "string.h"
+#include "first pass.h"
+#include "assembler.h"
+void second_pass(FILE* machine_code,FILE* source, symbol* symbol_table){
+    code_symbols(machine_code, symbol_table);
+    add_entries();
+    prepare_output_files();
+}
+static void code_symbols(FILE* machine_code, symbol* symbol_table){
+    char symbol_to_code[LABEL_MAX_LENGTH];
+    char current_address_label[LABEL_MAX_LENGTH];
+    int curr_char;
+    signed int label_address :24;
+    void * symbolPtr;
+    int distance;
+    symbol* sym;
+    fseek(machine_code, 0, SEEK_SET);
+    FILE * start_line = machine_code;
+    while ((curr_char = fgetc(machine_code)) != EOF){
+        if(fgetc(machine_code)=='\n'){
+            start_line = machine_code;
+            fscanf(start_line,"%s",current_address_label);
+        }
+        if(curr_char == '?'){
+            if(fgetc(machine_code) == '&'){//need to put the distance of label
+                fscanf(machine_code,"%s",symbol_to_code);
+                symbolPtr = get_symbol(symbol_table,symbol_to_code,&symbol_table);
+                sym = (struct symbol_table*)symbolPtr;
+                if(strcmp(sym->name,symbol_to_code)){
+                    distance = atoi(current_address_label) - sym->address;
+                    if(distance<0){
+                        distance = abs(distance);
+                        label_address = negate_to_binary(distance);
+                        (label_address << 3)|A;//turn on the A bit
+
+                    }
+                    else
+                        label_address = ((distance << 3)|A);
+                    writeHexa(label_address,machine_code);/*write in hexa the address*/
+
+
+                }
+                else{
+                    fprintf(stderr,"The label %s does not exist in the file",symbol_to_code); /*throw an error that there is no label*/
+                }
+
+                }
+            else{//need to put in  address of the label
+                fscanf(machine_code,"%s",symbol_to_code);
+                symbolPtr = get_symbol(symbol_table,symbol_to_code,&symbol_table);
+                if(strcmp(sym->name,symbol_to_code)){
+                    label_address = sym->address;
+                    writeHexa(label_address,machine_code);/*write in hexa the label address*/
+                }
+                else{
+                    fprintf(stderr,"The label %s does not exist in the file",symbol_to_code);/* throw an error that there is no label with such name*/
+                }
+            }
+
+        }
+    }
+}
+void writeHexa(unsigned int label,FILE * file){
+
+}
+static void add_entries(){}
+static void prepare_output_files(){}
+
+/***** Ignore this *******/
 
 /*while(*input_file!=EOF){
     resetString(string);
@@ -36,9 +102,9 @@ fopen(input_file,"r");
             /*if the distance is positive so put into labelAddress1 the distance*/
             /*if its negative make the number negative by using the complement 2 method(make a function of complement 2)*/
             /*put the ARE bits in its right position*/
-}
 
-}
+
+
 void resetString(char str[STRING_LEN]){
     int i;
     for (i = 0; i <STRING_LEN; ++i)
