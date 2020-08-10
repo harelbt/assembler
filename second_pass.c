@@ -20,7 +20,7 @@ static void code_symbols(FILE* machine_code, symbol* symbol_table){
     char symbol_to_code[LABEL_MAX_LENGTH];
     char current_address_label[LABEL_MAX_LENGTH];
     int curr_char;
-    signed int label_address :24;
+    unsigned int label_address :24;
     void * symbolPtr;
     int distance;
     symbol* sym;
