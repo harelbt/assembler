@@ -31,69 +31,65 @@ static void create_ext_ent_files(char* name_without_type, FILE** externals_file,
     *externals_file = open_file(ext_file_name, "a+");
     *entries_file = open_file(ent_file_name, "a+");
 }
-static void code_symbols(FILE* machine_code, symbol* symbol_table, FILE* externals_file, char* is_external){
+static void code_symbols(FILE* machine_code, symbol* symbol_table, FILE* externals_file, char* is_external) {
     char symbol_to_code[LABEL_MAX_LENGTH];
     char current_address_label[LABEL_MAX_LENGTH];
     int curr_char;
-    typedef struct __attribute__((packed)){
+    typedef struct __attribute__((packed)) {
         unsigned int label_address: 24;
-    }address;
+    } address;
     address label;
 
     int distance;
-    symbol* symbol_ptr;
-    FILE * start_line = machine_code;
-    while ((curr_char = fgetc(machine_code)) != EOF){
-        if(fgetc(machine_code)=='\n'){
+    symbol *symbol_ptr;
+    FILE *start_line = machine_code;
+    while ((curr_char = fgetc(machine_code)) != EOF) {
+        if (fgetc(machine_code) == '\n') {
             start_line = machine_code;
-            fscanf(start_line,"%s",current_address_label);
+            fscanf(start_line, "%s", current_address_label);
         }
-        if(curr_char == '?'){
-            if(fgetc(machine_code) == '&'){//need to put the distance of label
-                fscanf(machine_code,"%s",symbol_to_code);
+        if (curr_char == '?') {
+            fprintf(machine_code, " ");//overriding the question mark
+            if (fgetc(machine_code) == '&') {//need to put the distance of label
+                fprintf(machine_code, " ");//overriding the & sign
+                fscanf(machine_code, "%s", symbol_to_code);
                 symbol_ptr = get_symbol(symbol_table, symbol_to_code, &symbol_table);
-                if(!strcmp(symbol_ptr->name, symbol_to_code)){
+                if (!strcmp(symbol_ptr->name, symbol_to_code)) {
                     distance = strtod(current_address_label, NULL) - symbol_ptr->address;
-                    if(distance<0){
+                    if (distance < 0) {
                         label.label_address = abs(distance);
                         label.label_address ^= TWOS_COMP_MASK;
                         (label.label_address <<= 3u);
                         label.label_address |= ABSOLUTE;//turn on the A bit
 
                     }
-                    else
-                        label.label_address = (((unsigned )distance << 3u)|ABSOLUTE);
-                    writeHexa(label.label_address,machine_code);/*write in hexa the address*/
-                    if (symbol_ptr->extern_or_entry == EXTERN){
+                    label.label_address = (((unsigned) distance << 3u) | ABSOLUTE);//turn on the A bit
+                    fprintf(machine_code, "%06x", label.label_address);/*write in hexa the label address*/
+                    if (symbol_ptr->extern_or_entry == EXTERN) {
                         print_entry_extern(externals_file, symbol_ptr);
                     }
 
-                }
-                else{
-                    fprintf(stderr,"The label %s does not exist in the file",symbol_to_code); /*throw an error that there is no label*/
+                } else {
+                    fprintf(stderr, "The label %s does not exist in the file",
+                            symbol_to_code); /*throw an error that there is no label*/
                 }
 
-                }
-            else{//need to put in  address of the label
-                fscanf(machine_code,"%s",symbol_to_code);
+            } else {//need to put in  address of the label
+                fscanf(machine_code, "%s", symbol_to_code);
                 symbol_ptr = get_symbol(symbol_table, symbol_to_code, &symbol_table);
-                if(strcmp(symbol_ptr->name, symbol_to_code)){
+                if (!strcmp(symbol_ptr->name, symbol_to_code)) {
                     label.label_address = symbol_ptr->address;
-                    writeHexa(label.label_address,machine_code);/*write in hexa the label address*/
-                }
-                else{
-                    fprintf(stderr,"The label %s does not exist in the file",symbol_to_code);/* throw an error that there is no label with such name*/
+                    fprintf(machine_code, "%06x", label.label_address);/*write in hexa the label address*/
+                } else {
+                    fprintf(stderr, "The label %s does not exist in the file",
+                            symbol_to_code);/* throw an error that there is no label with such name*/
                 }
             }
-
+            while ((fgetc(machine_code)) != '\n') {//deleting all the writing that is not part of the translated label
+                fprintf(machine_code, " ");
+            }
         }
     }
-}
-void writeHexa(unsigned int label,FILE * file){
-
-}
-static void print_external(){
-
 }
 static char add_entries(FILE* input_file, symbol* symbol_table, FILE* entries_file, symbol** symbol_addresses_table, line_counters* counters, char* error_found){
     char* line;
