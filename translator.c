@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "translator.h"
 #include "data image.h"
+#include "in out tools.h"
 void first_pass_translation(FILE* machine_code, line* sentence, line_indexes* indexes, line_counters* counters, data_image* data){
     if (sentence->flags.is_code == TRUE){
         code_translation(machine_code, sentence, indexes, counters);
@@ -344,7 +345,7 @@ static void print_code_words(FILE* machine_code, char* line, line_indexes* index
         word_to_print = va_arg(arg_pointer, word*);
         printf("%i ", last_IC);
         if (word_to_print->is_label == TRUE || word_to_print->is_jump == TRUE) {
-            print_label(machine_code, line, indexes, word_to_print, num_of_words, i);
+            print_label(machine_code, line, indexes, word_to_print);
         } else {/*prints prepared word*/
             non_label_print(word_to_print, machine_code);
         }
@@ -368,7 +369,7 @@ static void non_label_print(word* word_to_print, FILE* machine_code){
     fprintf(machine_code, "\n");
     printf("\n");
 }
-static void print_label(FILE* machine_code, const char* line, line_indexes* indexes, word* word_to_print, int num_of_words, int i){
+static void print_label(FILE* machine_code, const char* line, line_indexes* indexes, word* word_to_print){
     char *label_name = get_until_white_char(line, word_to_print->label_index);
         fprintf(machine_code, "?%s\n", label_name);
         printf("?%s\n", label_name);

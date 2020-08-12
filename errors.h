@@ -61,6 +61,7 @@
 #define ILLEGAL_LABEL_SYNTAX 41
 #define LABEL_IS_RESERVED 42
 #define SECOND_LABEL_DEFINITION 43
+#define ENTRY_NOT_EXIST 46
 /**/
 /*macros for more elegant code*/
 #define PRINT_ERROR_DESCRIPTION puts(line);\

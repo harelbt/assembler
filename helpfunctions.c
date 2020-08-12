@@ -58,17 +58,7 @@ void stop(int exit_type, const char* to_print) {
             default: exit(EXIT_FAILURE);
         }
 }
-/*opens file safely and exits program in case of failure with a proper massage to stderr*/
-FILE* open_file(const char* file_name, const char* open_type){
-    FILE* file_pointer;
-    file_pointer = fopen(file_name, open_type);/*the opening*/
-    /*_____________________________________________________________*/
-    if (file_pointer == NULL) {/*fail check*/
-        stop(FOPEN,"");
-    }
-    /*_____________________________________________________________*/
-    return file_pointer;
-}
+
 /*allocates memory for array of any type safely and exits program in case of failure with a proper massage to stderr
  * returns the address*/
 void* allocate_arr_memory (int size, char type){
@@ -109,23 +99,7 @@ void* realloc_arr_memory (void* ptr, int size, char type){
     /*_____________________________________________________________*/
     return NULL;
 }
-/*returns a string from the file pointer until a white char(dynamic memory allocation)
- * if the file pointer points at a white char, returns "" (empty string)*/
-char* get_until_white_char(const char* line, int index) {
-    char* string = allocate_arr_memory(1, CHAR);/*initial allocation*/
-    int i = index;
-    int k = 0;
-    /*_____________________________________________________________*/
-    while (*(line + i) != ' ' && *(line + i) != '\t' && *(line + i)){
-        *(string+k) = *(line+i);
-        i++;
-        k++;
-        string = realloc_arr_memory(string, (k + 1), CHAR);/*expanding string*/
-    }
-    *(string+k) = '\0';
-    /*_____________________________________________________________*/
-    return string;
-}
+
 int current_word_length(const char* line, int index){
     char* string = allocate_arr_memory(1, CHAR);/*initial allocation*/
     int i = index;
@@ -545,14 +519,7 @@ int read_line(FILE* file, line* sentence){
     return 0;
 }
 
-int find_next_word(const char* line, int index){
-    int str_length = (int)strlen(line);
-    int i = index;
-    while (i < str_length && (*(line + i) == ' ' || *(line + i) == '\t')){
-        i++;
-    }
-    return i;
-}
+
 /*void find_label(line* sentence, line_marks_index indexes){
     if (indexes.colon_index >= 0){
 
@@ -573,23 +540,4 @@ int find_data_or_operands(const char* line, int index){
     index = find_next_word(line, index);
     return index;
 }
-void print_visual_indication(int index, const char* line) {
-    int i = index;
-    if (i == 1) {
-        puts("_^");
-        return;
-    }
-    while (i > 1) {
-        putchar('_');
-        i--;
-    }
-    puts("^");
-    printf("Starting at the character ' %c '\n", *(line + index));
-}
-void check_number_appearance(short int *did_number_appeared, char curr_char) {
-    if (*did_number_appeared == 0) {
-        if (curr_char >= '0' && curr_char <= '9') {
-            *did_number_appeared = 1;
-        }
-    }
-}
+

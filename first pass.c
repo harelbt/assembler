@@ -4,7 +4,7 @@
 #include "words.h"
 #include "symbol table.h"
 #include "translator.h"
-symbol* first_pass(FILE* source, FILE* machine_code, symbol** symbol_addresses_table, char* error_found) {
+symbol* first_pass(FILE* source, char* file_name, FILE* machine_code, symbol** symbol_addresses_table, char* error_found) {
     /*structs*/
     line sentence;
     line_indexes indexes;
@@ -56,7 +56,7 @@ symbol* first_pass(FILE* source, FILE* machine_code, symbol** symbol_addresses_t
     }
     printf("%d %x\n", data->DC, data->word.word);
     if (*error_found == TRUE) {
-        print_errors_summary(file, counters.error_number);
+        print_errors_summary(file_name, counters.error_number);
     }
     free_first_pass(source, &sentence);
     return symbol_table;
@@ -75,9 +75,4 @@ static void free_line(line* sentence){
         free(sentence->data_parts.data);
         sentence->data_parts.data = NULL;
     }
-}
-static void convert_command_to_binary(line command){
-    command.
-
-
 }

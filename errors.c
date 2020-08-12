@@ -1,5 +1,9 @@
+#include <stdarg.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 #include "errors.h"
-#include "helpfunctions.h"
+#include "in out tools.h"
 /*~~general functions~~*/
 char errors_inspection(line* sentence, line_indexes* indexes, line_counters* counters){
     char error_found = FALSE;
@@ -250,6 +254,10 @@ void report_error(char* line, char error_code, line_counters* counters, ...){
         }
         case SECOND_LABEL_DEFINITION:{
             printf("Labels can't be defined more than once. line %d.\n", counters->line_number);
+            break;
+        }
+        case ENTRY_NOT_EXIST:{
+            printf("entry order was given, but the label supplied isn't define. line %d.\n", counters->line_number);
             break;
         }
         case NUMBER_TOO_LARGE:{
@@ -845,4 +853,11 @@ void print_errors_summary(char* file_name, int errors_count){
     printf("%d ERRORS WAS FOUND\n", errors_count);
     puts("NO OUTPUT FILES WERE GENERATED"
          "\n*************************************************************************************");
+}
+void check_number_appearance(short int *did_number_appeared, char curr_char) {
+    if (*did_number_appeared == 0) {
+        if (curr_char >= '0' && curr_char <= '9') {
+            *did_number_appeared = 1;
+        }
+    }
 }

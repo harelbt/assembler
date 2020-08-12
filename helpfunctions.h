@@ -44,13 +44,7 @@ int skip_spaces(FILE* file);
  * @param massage
  */
 void stop(int exit_type, const char* massage);
-/**
- * like fopen, but if the opening failed gives a proper massage and exit the program
- * @param file_name to open
- * @param mode open mode, as in fopen
- * @return a FILE pointer to the file (FILE*)
- */
-FILE* open_file(const char* file_name, const char* mode);
+
 /**
  * like malloc, but in case of a failure, gives a proper massage and exit the program, and does the casting
  * and all the hard work, and works with all of the data types
@@ -68,13 +62,7 @@ void* allocate_arr_memory (int size, char arr_type);
  * @return a pointer to reallocated new array
  */
 void* realloc_arr_memory (void* ptr, int size, char arr_type);
-/**
- * returns a string until a white character.
- * if starts in a white character, returns empty string
- * @param file to read from
- * @return a string until a white space
- */
-char* get_until_white_char(const char* line, int index);
+
 int current_word_length(const char* line, int index);
 /**
  * returns a line and deletes the spaces
@@ -190,10 +178,10 @@ short int* comp_of_2 (short int* binary,long length);
 int find_first_char(line* sentence);
 int find_semicolon(line* sentence);
 int read_line(FILE* file, line* sentence);
-int find_next_word(const char* line, int index);
+
 /*void find_label(line* sentence, line_marks_index indexes);*/
 int find_next_space(const char* line, int index);
 int find_data_or_operands(const char* line, int index);
-void print_visual_indication(int index, const char* line);
-void check_number_appearance(short int* did_number_appeared, char curr_char);
+
+
 #endif /*HELP_H*/

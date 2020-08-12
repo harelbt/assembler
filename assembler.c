@@ -1,11 +1,14 @@
 #include <time.h>
 #include "assembler.h"
+#include "in out tools.h"
 int main (int argc, char* argv[]){
     char error_found = FALSE;
     int i = 1;
     symbol* symbol_table;
     symbol* symbol_addresses_table[NUM_OF_ENGLISH_CHARS];
     FILE* machine_code;
+    FILE *filep;
+    char* name_without_type;
     clock_t start = clock();
     clock_t end;
     double runtime;
@@ -16,12 +19,16 @@ int main (int argc, char* argv[]){
     }
     /*assembles each supplied file*/
     while (i < argc) {
-        machine_code = open_machine_code(machine_code, *(argv+i));
-        symbol_table = first_pass(*(argv+i), machine_code, symbol_addresses_table, &error_found);
-        if (error_found == TRUE) {
-            /*second_pass();*/
-        }
+        /*opening file*/
+        filep = open_file(*(argv+i), "r");/*this custom function can handle malloc failure*/
+        name_without_type = get_file_name_without_type(*(argv + i));
+        machine_code = open_machine_code(name_without_type);
+        symbol_table = first_pass(filep, *(argv + i), machine_code, symbol_addresses_table, &error_found);
+
         fclose(machine_code);
+        if (error_found == TRUE) {
+            remove_output_files(name_without_type);
+        }
         error_found = FALSE;/*resets error flag for the next file*/
         i++;
     }
@@ -43,13 +50,43 @@ int main (int argc, char* argv[]){
     printf("%f", runtime);
     return 0;
 }
-FILE * open_machine_code(FILE* machine_code, char* file_name){
-    unsigned int file_name_length = strlen(file_name);
-    char output_file_name [file_name_length];
-    strncpy(output_file_name, file_name, file_name_length - 3);
-    *(output_file_name + file_name_length - 3) = 'o';
-    *(output_file_name + file_name_length - 2) = 'b';
-    *(output_file_name + file_name_length - 1) = '\0';
-    machine_code = open_file(output_file_name, "a+");
+static char* get_file_name_without_type(char* file_name){
+    unsigned int length = strlen(file_name);
+    char* i = file_name + length;
+    while (*i != '.'){
+        i--;
+    }
+    *i = '\0';
+    return file_name;
+}
+static void remove_output_files(char* file_name){
+    remove_ob_file(file_name);
+    //remove_ent_file(file_name);
+    //remove_ext_file(file_name);
+}
+static void remove_ob_file(char* file_name){
+    char to_remove [strlen(file_name) + TYPE_MAX_LENGTH];
+    strcpy(to_remove, file_name);
+    strcat(to_remove, ".ob");
+    remove(to_remove);
+}
+void remove_ent_file(char* file_name){
+    char to_remove [strlen(file_name) + TYPE_MAX_LENGTH];
+    strcpy(to_remove, file_name);
+    strcat(to_remove, ".ext");
+    remove(to_remove);
+}
+static void remove_ext_file(char* file_name){
+    char to_remove [strlen(file_name) + TYPE_MAX_LENGTH];
+    strcpy(to_remove, file_name);
+    strcat(to_remove, ".ent");
+    remove(to_remove);
+}
+static FILE* open_machine_code(char* file_name){
+    char to_open[strlen(file_name) + TYPE_MAX_LENGTH];
+    FILE* machine_code;
+    strcpy(to_open, file_name);
+    strcat(to_open, ".ob");
+    machine_code = open_file(to_open, "a+");
     return machine_code;
 }

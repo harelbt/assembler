@@ -71,7 +71,7 @@ static void code_instruction_word(word* word, const char* line, int index, line_
 static void code_number(word* word, const char* line, int index, char mode);
 static void code_char(word* word, const char* line, int index);
 static void print_code_words(FILE* machine_code, char* line, line_indexes* indexes, int last_IC, int num_of_words, ...);
-static void print_label(FILE* machine_code, const char* line, line_indexes* indexes, word* word_to_print, int num_of_words, int i);
+static void print_label(FILE* machine_code, const char* line, line_indexes* indexes, word* word_to_print);
 static void non_label_print(word* word_to_print, FILE* machine_code);
 static char* get_label_name(char* label_name, const char* line, word* word_to_print, line_indexes* indexes, int num_of_words, int i);
 static int get_dest_addressing(const char* line, line_indexes* indexes);
