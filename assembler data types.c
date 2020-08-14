@@ -7,7 +7,6 @@ void initialize_line_tools(line* sentence, line_counters* counters, line_indexes
     initialize_line(sentence);
 }
 static void initialize_counters(line_counters* counters){
-    counters->number_of_hashmarks = 0;
     counters->number_of_quotation_marks = 0;
     counters->number_of_dots = 0;
     counters->number_of_operators = 0;
@@ -17,12 +16,10 @@ static void initialize_counters(line_counters* counters){
     counters->number_of_commas = 0;
 }
 static void initialize_indexes(line_indexes* indexes){
-    indexes->first_hash_mark_index = NOT_FOUND;
     indexes->first_char_index = NOT_FOUND;
     indexes->first_register_index = NOT_FOUND;
     indexes->first_quotation_mark_index = NOT_FOUND;
     indexes->second_quotation_mark_index = NOT_FOUND;
-    indexes->second_hash_mark_index = NOT_FOUND;
     indexes->second_register_index = NOT_FOUND;
     indexes->dot_index = NOT_FOUND;
     indexes->colon_index = NOT_FOUND;
@@ -39,7 +36,6 @@ static void initialize_line(line* sentence){
     sentence->flags.is_comment = FALSE;
     sentence->code_parts.opcode = NOT_FOUND;
     sentence->code_parts.function = NOT_FOUND;
-    sentence->data_parts.data = NULL;
     *(sentence->data_parts.order) = '\0';
     sentence->label.address = 0;
     *(sentence->label.name) = '\0';

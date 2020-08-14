@@ -90,10 +90,8 @@ static void find_line_components(line* sentence, line_indexes* indexes, line_cou
 void prepare_label(line* sentence, int data_index){
     /*prepares sentence type*/
     if (sentence->flags.is_code == TRUE) {
-        sentence->label.sentence_type = INSTRUCTION;
         sentence->label.extern_or_entry = FALSE;
     } else{
-        sentence->label.sentence_type = ORDER;
         if (!strcmp(sentence->data_parts.order, "extern")) {
             sentence->label.extern_or_entry = EXTERN;
             strncpy(sentence->label.name, sentence->line + data_index, LABEL_MAX_LENGTH);
@@ -111,10 +109,6 @@ static void signs_check(line* sentence, line_counters* counters, line_indexes* i
         }
         case '.': {
             DOT_CASE
-        }
-        case '#': {
-            HASHMARK_CASE
-
         }
         case 'r': {
             REGISTER_CASE

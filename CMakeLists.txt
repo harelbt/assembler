@@ -7,4 +7,4 @@ include_directories(.)
 
 add_executable(assembler
         words.c
-        words.h second_pass.c assembler.c "first pass.c" "first pass.h" "assembler data types.c" "assembler data types.h" errors.c errors.h "line analyzer.c" "line analyzer.h" "symbol table.c" "symbol table.h" translator.c translator.h assembler.h "data image.c" "data image.h" "in out tools.c" "in out tools.h")
+        words.h second_pass.c assembler.c "first pass.c" "first pass.h" "assembler data types.c" "assembler data types.h" errors.c errors.h "line analyzer.c" "line analyzer.h" "symbol table.c" "symbol table.h" translator.c translator.h "in out tools.c" "in out tools.h")

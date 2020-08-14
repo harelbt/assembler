@@ -1,3 +1,4 @@
+#include <string.h>
 #include "words.h"
 void calculate_number_of_words(line* sentence, line_indexes indexes, line_counters* counters){
     if (sentence->flags.is_code == TRUE){

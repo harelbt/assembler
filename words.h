@@ -1,6 +1,6 @@
 #ifndef WORDS_WORDS_H
 #define WORDS_WORDS_H
-#include "helpfunctions.h"
+#include "in out tools.h"
 #define ONE_WORD 1
 void calculate_number_of_words(line* sentence, line_indexes indexes, line_counters* counters);
 void calculate_instruction_word(line* sentence, line_indexes indexes, line_counters* counters);

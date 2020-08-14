@@ -172,3 +172,43 @@ char* get_until_white_char(const char* line, int index) {
     /*_____________________________________________________________*/
     return string;
 }
+char* get_file_name_without_type(char* file_name){
+    unsigned int length = strlen(file_name);
+    char* i = file_name + length;
+    while (*i != '.'){
+        i--;
+    }
+    *i = '\0';
+    return file_name;
+}
+void remove_output_files(char* file_name){
+    remove_ob_file(file_name);
+    remove_ent_file(file_name);
+    remove_ext_file(file_name);
+}
+void remove_ob_file(char* file_name){
+    char to_remove [strlen(file_name) + TYPE_MAX_LENGTH];
+    strcpy(to_remove, file_name);
+    strcat(to_remove, ".ob\0");
+    remove(to_remove);
+}
+void remove_ent_file(char* file_name){
+    char to_remove [strlen(file_name) + TYPE_MAX_LENGTH + 1];
+    strcpy(to_remove, file_name);
+    strcat(to_remove, ".ext\0");
+    remove(to_remove);
+}
+void remove_ext_file(char* file_name){
+    char to_remove [strlen(file_name) + TYPE_MAX_LENGTH + 1];
+    strcpy(to_remove, file_name);
+    strcat(to_remove, ".ent\0");
+    remove(to_remove);
+}
+FILE* open_machine_code(char* file_name){
+    char to_open[strlen(file_name) + TYPE_MAX_LENGTH];
+    FILE* machine_code;
+    strcpy(to_open, file_name);
+    strcat(to_open, ".ob\0");
+    machine_code = open_file(to_open, "a+");
+    return machine_code;
+}

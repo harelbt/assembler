@@ -8,6 +8,7 @@
 #define OTHER 13
 #define FOPEN 14
 #define POINTER_CHECK if (p == NULL) stop(MEMORY,"");
+#define TYPE_MAX_LENGTH 4
 #define ON 1
 #define OFF 0
 
@@ -68,4 +69,10 @@ void check_number_appearance(short int* did_number_appeared, char curr_char);
  * @return a string until a white space
  */
 char* get_until_white_char(const char* line, int index);
+FILE * open_machine_code(char* file_name);
+char* get_file_name_without_type(char* file_name);
+void remove_output_files(char* file_name);
+void remove_ob_file(char* file_name);
+void remove_ent_file(char* file_name);
+void remove_ext_file(char* file_name);
 #endif //ASSEMBLER_IN_OUT_TOOLS_H

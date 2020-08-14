@@ -15,7 +15,6 @@
 typedef struct __attribute__((packed)) symbol_table{
     char name[LABEL_MAX_LENGTH];
     int address;
-    char sentence_type;
     char extern_or_entry;
     struct symbol_table* next;
 } symbol;
@@ -26,7 +25,6 @@ typedef struct{
 }code;/*explain*/
 typedef struct __attribute__((packed)){
     char order[ORDER_MAX_LENGTH];
-    char* data;
 }data;
 typedef struct __attribute__((packed)){
     char is_comment;
@@ -46,8 +44,6 @@ typedef struct __attribute__((packed)){
     int first_char_index;
     int colon_index;
     int semicolon_index;
-    int first_hash_mark_index;
-    int second_hash_mark_index;
     int dot_index;
     int first_register_index;
     int second_register_index;
@@ -64,7 +60,6 @@ typedef struct __attribute__((packed)){
     int DC;
     int last_data_address;
     int number_of_registers;
-    int number_of_hashmarks;
     int number_of_colons;
     int number_of_quotation_marks;
     int number_of_dots;

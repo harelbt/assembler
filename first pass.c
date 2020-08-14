@@ -1,14 +1,15 @@
+#include <string.h>
+#include <stdlib.h>
 #include "first pass.h"
 #include "line analyzer.h"
 #include "errors.h"
 #include "words.h"
 #include "symbol table.h"
 #include "translator.h"
-symbol* first_pass(FILE* source, char* file_name, FILE* machine_code, line_counters* counters, char* error_found) {
+void first_pass(FILE* source, char* file_name, FILE* machine_code, symbol* symbol_table, line_counters* counters, char* error_found) {
     /*structs*/
     line sentence;
     line_indexes indexes;
-    symbol* symbol_table = allocate_arr_memory(1, SYMBOL);
     data_image* data = allocate_arr_memory(1, DATA_IMAGE);
     /**/
     counters->line_number = 0;
@@ -48,17 +49,11 @@ symbol* first_pass(FILE* source, char* file_name, FILE* machine_code, line_count
                 }
         }
     }
-    while (data->next != NULL){
-        unsigned int a =  data->word.word;
-        printf("%d %x\n", data->DC,a);
-        data = data->next;
-    }
-    printf("%d %x\n", data->DC, data->word.word);
+    print_data(data, counters);
     if (*error_found == TRUE) {
         print_errors_summary(file_name, counters->error_number);
     }
     free_first_pass(source, &sentence);
-    return symbol_table;
 }
 
 static void free_first_pass(FILE* filep, line* sentence){
@@ -70,8 +65,4 @@ static void free_first_pass(FILE* filep, line* sentence){
 static void free_line(line* sentence){
     free(sentence->line);
     sentence->line = NULL;
-    if (sentence->data_parts.data != NULL){
-        free(sentence->data_parts.data);
-        sentence->data_parts.data = NULL;
-    }
 }

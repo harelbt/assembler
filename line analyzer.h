@@ -28,15 +28,6 @@ if(index == 0 || (first_char_found == 1 && indexes->first_char_index == index)){
 *semicolon_found = 1;}\
 break;
 /**/
-#define HASHMARK_CASE if (counters->number_of_hashmarks < 2) {\
-if (!counters->number_of_hashmarks) {\
-indexes->first_hash_mark_index = index;\
-} else if (counters->number_of_hashmarks == 1) {\
-indexes->second_hash_mark_index = index;\
-}}\
-counters->number_of_hashmarks++;\
-break;
-
 #define DOT_CASE  if (!(*dot_found)) {\
 indexes->dot_index = index;\
 *dot_found = 1;\

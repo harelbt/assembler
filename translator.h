@@ -68,20 +68,18 @@ static void set_source_register(word* word, const char* line, int register_index
 static void set_dest_register(word* word, const char* line, int register_index);
 static void prepare_extra_words(const char* line, line_indexes* indexes, int num_of_words, ...);
 static void code_word( word* word, const char* line, int index, line_indexes* indexes, char mode);
-static void code_data_word(word* word, const char* line, int index, char mode);
 static void code_instruction_word(word* word, const char* line, int index, line_indexes* indexes);
 static void code_number(word* word, const char* line, int index, char mode);
-static void code_char(word* word, const char* line, int index);
 static void print_code_words(FILE* machine_code, char* line, line_indexes* indexes, int last_IC, int num_of_words, ...);
 static void print_label(FILE* machine_code, const char* line, word* word_to_print);
-static void non_label_print(word* word_to_print, FILE* machine_code);
-static char* get_label_name(char* label_name, const char* line, word* word_to_print, line_indexes* indexes, int num_of_words, int i);
 static int get_dest_addressing(const char* line, line_indexes* indexes);
 static int get_source_addressing(const char* line, line_indexes* indexes);
 static void prepare_dest_only_instruction(word* to_prepare, const char* line, line_indexes* indexes);
 static void prepare_full_instruction_word(word* to_prepare, line_indexes* indexes, const char* line);
 static char* get_number(const char* line, int index);
 static void get_to_next_number(int* index, const char* line);
+void print_data(data_image* data, line_counters* counters);
+void insert_data_node(data_image* head, data_image* to_insert);
 void resetString(char str[100]);
 int isWhitespace(char letter);
 #endif //ASSEMBLER_TRANSLATOR_H

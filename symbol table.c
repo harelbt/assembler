@@ -1,6 +1,7 @@
 #include <stdlib.h>
+#include <string.h>
 #include "symbol table.h"
-#include "helpfunctions.h"
+#include "in out tools.h"
 #include "errors.h"
 symbol* insert_symbol(symbol* to_insert, symbol* symbol_table, char* is_first_symbol, line_counters* counters, char* error_found) {
     symbol *curr_pointer = symbol_table;
@@ -70,6 +71,5 @@ static void symbol_copy(symbol* dest, symbol* source){
     strcpy(dest->name, source->name);
     dest->address = source->address;
     dest->extern_or_entry = source->extern_or_entry;
-    dest->sentence_type = source->sentence_type;
     dest->next = source->next;
 }

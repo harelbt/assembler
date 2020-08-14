@@ -1,7 +1,8 @@
 #include <stdio.h>
+#include <stdarg.h>
+#include <stdlib.h>
+#include <string.h>
 #include "translator.h"
-#include "data image.h"
-#include "in out tools.h"
 void first_pass_translation(FILE* machine_code, line* sentence, line_indexes* indexes, line_counters* counters, data_image* data){
     if (sentence->flags.is_code == TRUE){
         code_translation(machine_code, sentence, indexes, counters);
@@ -347,27 +348,13 @@ static void print_code_words(FILE* machine_code, char* line, line_indexes* index
         if (word_to_print->is_label == TRUE || word_to_print->is_jump == TRUE) {
             print_label(machine_code, line, word_to_print);
         } else {/*prints prepared word*/
-            non_label_print(word_to_print, machine_code);
+            unsigned int to_print = word_to_print->word;
+            fprintf(machine_code, "%06x\n", to_print);
+            printf("%06x\n", to_print);
         }
         i--;
         last_IC++;
     }
-}
-static void non_label_print(word* word_to_print, FILE* machine_code){
-    unsigned int to_print;
-    unsigned int translation_mask = FOUR_BINARIES_TO_HEX;
-    char i = 0;
-    unsigned int k = 20;
-    to_print = word_to_print->word;
-    while (i < 6) {
-        fprintf(machine_code, "%x", (to_print & translation_mask) >> k);
-        printf("%x", (to_print & translation_mask) >> k);
-        translation_mask = (translation_mask >> 4u);
-        i++;
-        k -= 4;
-    }
-    fprintf(machine_code, "\n");
-    printf("\n");
 }
 static void print_label(FILE* machine_code, const char* line, word* word_to_print) {
     char *label_name = get_until_white_char(line, word_to_print->label_index);
@@ -415,4 +402,29 @@ static void get_to_next_number(int* index, const char* line){
         (*index)++;
         curr_char = *(line + *index);
     }
+}
+void print_data(data_image* data, line_counters* counters){
+    int data_print_counter = 1;
+    unsigned int data_to_print;
+    while (data->next != NULL){
+        data_to_print =  data->word.word;
+        printf("%d %06x\n", counters->last_instruction_address + data_print_counter, data_to_print);
+        data = data->next;
+        data_print_counter++;
+    }
+    data_to_print =  data->word.word;
+    printf("%d %06x\n", counters->last_instruction_address + data_print_counter, data_to_print);
+}
+void insert_data_node(data_image* head, data_image* to_insert){
+    data_image* curr_pointer = head;
+    if (head->is_head_filled == FALSE){
+        head->word = to_insert->word;
+        head->DC = to_insert->DC;
+        head->is_head_filled = TRUE;
+        return;
+    }
+    while (curr_pointer->next != NULL){
+        curr_pointer = curr_pointer->next;
+    }
+    curr_pointer->next = to_insert;
 }
