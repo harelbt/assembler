@@ -14,7 +14,6 @@
 #define CHAR 1
 #define SYMBOL 2
 #define DATA_IMAGE 3
-
 #define LINE_ASSUMED_LENGTH 100
 /**
  * gets a line from a file using dynamic memory allocation. returns a pointer to a string (char array)

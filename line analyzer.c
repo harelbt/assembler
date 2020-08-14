@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "line analyzer.h"
-#include "words.h"
+/*--for the first pass--*/
 void analyze_sentence(line* sentence, line_indexes* indexes, line_counters* counters) {
     find_line_components(sentence, indexes, counters);/*fills sentence, indexes and counters*/
     define_sentence_type(sentence, *counters, *indexes);/*code or order*/

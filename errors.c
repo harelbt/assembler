@@ -257,7 +257,7 @@ void report_error(char* line, char error_code, line_counters* counters, ...){
             break;
         }
         case ENTRY_NOT_EXIST:{
-            printf("entry order was given, but the label supplied isn't define. line %d.\n", counters->line_number);
+            printf("Entry order was given, but the label supplied isn't define. line %d.\n", counters->line_number);
             break;
         }
         case NUMBER_TOO_LARGE:{

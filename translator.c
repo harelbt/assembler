@@ -345,7 +345,7 @@ static void print_code_words(FILE* machine_code, char* line, line_indexes* index
         word_to_print = va_arg(arg_pointer, word*);
         printf("%i ", last_IC);
         if (word_to_print->is_label == TRUE || word_to_print->is_jump == TRUE) {
-            print_label(machine_code, line, indexes, word_to_print);
+            print_label(machine_code, line, word_to_print);
         } else {/*prints prepared word*/
             non_label_print(word_to_print, machine_code);
         }
@@ -369,10 +369,26 @@ static void non_label_print(word* word_to_print, FILE* machine_code){
     fprintf(machine_code, "\n");
     printf("\n");
 }
-static void print_label(FILE* machine_code, const char* line, line_indexes* indexes, word* word_to_print){
+static void print_label(FILE* machine_code, const char* line, word* word_to_print) {
     char *label_name = get_until_white_char(line, word_to_print->label_index);
-        fprintf(machine_code, "?%s\n", label_name);
-        printf("?%s\n", label_name);
+    unsigned int label_length = strlen(label_name);
+    unsigned int i = label_length;
+    fprintf(machine_code, "?%s", label_name);
+    printf("?%s", label_name);
+    if (label_length < HEX_PRINT_LENGTH) {
+        i++;/*the '?' counts*/
+        if (word_to_print->is_jump == TRUE){
+            i++;/*the '&' counts*/
+        }
+        while (i != HEX_PRINT_LENGTH) {
+            fprintf(machine_code, " ");
+            printf(" ");
+            i++;
+        }
+    }
+        fprintf(machine_code, "\n");
+        printf("\n");
+
 }
 static char* get_number(const char* line, int index){
     char* number_str = allocate_arr_memory(1, CHAR);

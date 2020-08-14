@@ -1,26 +1,12 @@
 #include <stdlib.h>
 #include "assembler data types.h"
-/*#include "helpfunctions.h"
-void insert_symbol(symbol to_enter, symbol* symbol_table, int *symbol_tabel_length){
-    *symbol_tabel_length++;
-    if (*symbol_tabel_length == 1){
-        symbol_table = allocate_arr_memory(*symbol_tabel_length,"symbol");
-    } else
-        symbol_table = realloc_arr_memory(symbol_table, *symbol_tabel_length, "symbol");
-    symbol_table[*symbol_tabel_length-1] = to_enter;
-}
-static void create_symbol(symbol* to_initialize, char* name, char* address, char sentence_type, char is_extern){
-    strcpy(to_initialize->name, name);
-    strcpy(to_initialize->address, address);
-    to_initialize->is_extern = is_extern;
-    to_initialize->sentence_type = sentence_type;
-}*/
+/*-explain tools or replace name-*/
 void initialize_line_tools(line* sentence, line_counters* counters, line_indexes* indexes){
     initialize_counters(counters);
     initialize_indexes(indexes);
     initialize_line(sentence);
 }
-void initialize_counters(line_counters* counters){
+static void initialize_counters(line_counters* counters){
     counters->number_of_hashmarks = 0;
     counters->number_of_quotation_marks = 0;
     counters->number_of_dots = 0;
@@ -30,7 +16,7 @@ void initialize_counters(line_counters* counters){
     counters->number_of_operands = 0;
     counters->number_of_commas = 0;
 }
-void initialize_indexes(line_indexes* indexes){
+static void initialize_indexes(line_indexes* indexes){
     indexes->first_hash_mark_index = NOT_FOUND;
     indexes->first_char_index = NOT_FOUND;
     indexes->first_register_index = NOT_FOUND;
@@ -46,7 +32,7 @@ void initialize_indexes(line_indexes* indexes){
     indexes->second_operand_index = NOT_FOUND;
     indexes->data_index = NOT_FOUND;
 }
-void initialize_line(line* sentence){
+static void initialize_line(line* sentence){
     sentence->flags.is_empty_line = FALSE;
     sentence->flags.is_data = FALSE;
     sentence->flags.is_code = FALSE;

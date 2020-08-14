@@ -1,17 +1,17 @@
 #include <time.h>
+#include <string.h>
 #include "assembler.h"
-#include "in out tools.h"
+#include "second_pass.h"
 int main (int argc, char* argv[]){
     char error_found = FALSE;
+    char is_entry = FALSE;
+    char is_external = FALSE;
     int i = 1;
     symbol* symbol_table;
-    symbol* symbol_addresses_table[NUM_OF_ENGLISH_CHARS];
     FILE* machine_code;
     FILE *filep;
+    line_counters counters;
     char* name_without_type;
-    clock_t start = clock();
-    clock_t end;
-    double runtime;
     /*checks if operators supplied*/
     if (argc == 1) {
         /*prints this error to stderr with exit code 1*/
@@ -23,31 +23,23 @@ int main (int argc, char* argv[]){
         filep = open_file(*(argv+i), "r");/*this custom function can handle malloc failure*/
         name_without_type = get_file_name_without_type(*(argv + i));
         machine_code = open_machine_code(name_without_type);
-        symbol_table = first_pass(filep, *(argv + i), machine_code, symbol_addresses_table, &error_found);
-
+        symbol_table = first_pass(filep, *(argv + i), machine_code, &counters, &error_found);
+        second_pass(machine_code, symbol_table, filep, &counters, &error_found, name_without_type,
+                &is_entry, &is_external);
         fclose(machine_code);
         if (error_found == TRUE) {
             remove_output_files(name_without_type);
+        } else{
+            if (is_external == FALSE){
+                remove_ext_file(name_without_type);
+            }
+            if (is_entry == FALSE){
+                remove_ent_file(name_without_type);
+            }
         }
         error_found = FALSE;/*resets error flag for the next file*/
         i++;
     }
-    while (symbol_table){
-        printf("%s %d\n", symbol_table->name, symbol_table->address);
-        symbol_table = symbol_table->next;
-    }
-    int a = NUM_OF_ENGLISH_CHARS;
-    symbol* s;
-    while (a!=-1){
-        s = *(symbol_addresses_table + a);
-        if (a == 'D' - 65){
-            printf("~~~~~%s\n", s->name);
-        }
-        a--;
-    }
-    end = clock();
-    runtime = (double)(end - start)/CLOCKS_PER_SEC;
-    printf("%f", runtime);
     return 0;
 }
 static char* get_file_name_without_type(char* file_name){
@@ -61,8 +53,8 @@ static char* get_file_name_without_type(char* file_name){
 }
 static void remove_output_files(char* file_name){
     remove_ob_file(file_name);
-    //remove_ent_file(file_name);
-    //remove_ext_file(file_name);
+    remove_ent_file(file_name);
+    remove_ext_file(file_name);
 }
 static void remove_ob_file(char* file_name){
     char to_remove [strlen(file_name) + TYPE_MAX_LENGTH];

@@ -11,32 +11,33 @@
 #include "first pass.h"
 #include "assembler.h"
 #include "translator.h"
-int second_pass(FILE * first_pass_file, symbol * symbol_table,FILE * input_file,symbol** symbol_addresses_table,
+void second_pass(FILE * first_pass_file, symbol * symbol_table,FILE * input_file,
         line_counters* counters, char* error_found, char* file_name_without_type, char* is_entry, char* is_external){
-    FILE** externals_file = NULL;
-    FILE** entries_file = NULL;
-    create_ext_ent_files(file_name_without_type, externals_file, entries_file);
+    FILE* externals_file = create_ext_files(file_name_without_type);
+    FILE* entries_file = create_ent_files(file_name_without_type);
     fseek(first_pass_file, 0, SEEK_SET);
-    code_symbols(first_pass_file, symbol_table, *externals_file, is_external);
-    *is_entry = add_entries(input_file, symbol_table, *entries_file, symbol_addresses_table, counters, error_found);
+    code_symbols(first_pass_file, symbol_table, externals_file, is_external);
+    *is_entry = add_entries(input_file, symbol_table, entries_file, counters, error_found);
 
 }
-static void create_ext_ent_files(char* name_without_type, FILE** externals_file, FILE** entries_file){
-    char ext_file_name[strlen(name_without_type) + TYPE_MAX_LENGTH];
-    char ent_file_name[strlen(name_without_type) + TYPE_MAX_LENGTH];
-    strcpy(ext_file_name, name_without_type);
+static FILE* create_ent_files(char* name_without_type){
+    char ent_file_name[strlen(name_without_type) + TYPE_MAX_LENGTH + 1];
     strcpy(ent_file_name, name_without_type);
-    strcat(ext_file_name, ".ext");
-    strcat(ent_file_name, ".ent");
-    *externals_file = open_file(ext_file_name, "a+");
-    *entries_file = open_file(ent_file_name, "a+");
+    strcat(ent_file_name, ".ent\0");
+    return open_file(ent_file_name, "a+");
+}
+static FILE* create_ext_files(char* name_without_type){
+    char ext_file_name[strlen(name_without_type) + TYPE_MAX_LENGTH + 1];
+    strcpy(ext_file_name, name_without_type);
+    strcat(ext_file_name, ".ext\0");
+    return open_file(ext_file_name, "a+");
 }
 static void code_symbols(FILE* machine_code, symbol* symbol_table, FILE* externals_file, char* is_external) {
     char symbol_to_code[LABEL_MAX_LENGTH];
     char current_address_label[LABEL_MAX_LENGTH];
     int curr_char;
     typedef struct __attribute__((packed)) {
-        unsigned int label_address: 24;
+        unsigned int label_translated: 24;
     } address;
     address label;
 
@@ -53,20 +54,20 @@ static void code_symbols(FILE* machine_code, symbol* symbol_table, FILE* externa
             if (fgetc(machine_code) == '&') {//need to put the distance of label
                 fprintf(machine_code, " ");//overriding the & sign
                 fscanf(machine_code, "%s", symbol_to_code);
-                symbol_ptr = get_symbol(symbol_table, symbol_to_code, &symbol_table);
+                symbol_ptr = get_symbol(symbol_table, symbol_to_code);
                 if (!strcmp(symbol_ptr->name, symbol_to_code)) {
                     distance = strtod(current_address_label, NULL) - symbol_ptr->address;
                     if (distance < 0) {
-                        label.label_address = abs(distance);
-                        label.label_address ^= TWOS_COMP_MASK;
-                        (label.label_address <<= 3u);
-                        label.label_address |= ABSOLUTE;//turn on the A bit
-
+                        label.label_translated = abs(distance);
+                        label.label_translated ^= TWOS_COMP_MASK;
+                        (label.label_translated <<= 3u);
+                        label.label_translated |= ABSOLUTE;//turn on the A bit
                     }
-                    label.label_address = (((unsigned) distance << 3u) | ABSOLUTE);//turn on the A bit
-                    fprintf(machine_code, "%06x", label.label_address);/*write in hexa the label address*/
+                    label.label_translated = (((unsigned) distance << 3u) | ABSOLUTE);//turn on the A bit
+                    fprintf(machine_code, "%06x", label.label_translated);/*write in hexa the label address*/
                     if (symbol_ptr->extern_or_entry == EXTERN) {
                         print_entry_extern(externals_file, symbol_ptr);
+                        *is_external = TRUE;
                     }
 
                 } else {
@@ -76,10 +77,10 @@ static void code_symbols(FILE* machine_code, symbol* symbol_table, FILE* externa
 
             } else {//need to put in  address of the label
                 fscanf(machine_code, "%s", symbol_to_code);
-                symbol_ptr = get_symbol(symbol_table, symbol_to_code, &symbol_table);
+                symbol_ptr = get_symbol(symbol_table, symbol_to_code);
                 if (!strcmp(symbol_ptr->name, symbol_to_code)) {
-                    label.label_address = symbol_ptr->address;
-                    fprintf(machine_code, "%06x", label.label_address);/*write in hexa the label address*/
+                    label.label_translated = symbol_ptr->address;
+                    fprintf(machine_code, "%06x", label.label_translated);/*write in hexa the label address*/
                 } else {
                     fprintf(stderr, "The label %s does not exist in the file",
                             symbol_to_code);/* throw an error that there is no label with such name*/
@@ -91,7 +92,7 @@ static void code_symbols(FILE* machine_code, symbol* symbol_table, FILE* externa
         }
     }
 }
-static char add_entries(FILE* input_file, symbol* symbol_table, FILE* entries_file, symbol** symbol_addresses_table, line_counters* counters, char* error_found){
+static char add_entries(FILE* input_file, symbol* symbol_table, FILE* entries_file, line_counters* counters, char* error_found){
     char* line;
     char* entry;
     symbol* entry_symbol;
@@ -100,7 +101,7 @@ static char add_entries(FILE* input_file, symbol* symbol_table, FILE* entries_fi
     while (strcmp(line = get_line_dynamic(input_file, &line_length), "") != 0){
         entry = get_entry(line);
         if (strcmp(entry, "") != 0){
-            entry_symbol = get_symbol(symbol_table, entry, symbol_addresses_table);
+            entry_symbol = get_symbol(symbol_table, entry);
             if (entry_symbol == NULL){
                 report_error(line, ENTRY_NOT_EXIST, counters);
                 *error_found = TRUE;
@@ -154,8 +155,6 @@ static int get_address_length(int address){
     }
     return length;
 }
-static void prepare_output_files(){}
-
 /***** Ignore this *******/
 
 /*while(*input_file!=EOF){
@@ -183,10 +182,3 @@ static void prepare_output_files(){}
             /*if its negative make the number negative by using the complement 2 method(make a function of complement 2)*/
             /*put the ARE bits in its right position*/
 
-
-
-void resetString(char str[STRING_LEN]){
-    int i;
-    for (i = 0; i <STRING_LEN; ++i)
-        str[i]='\0';
-}

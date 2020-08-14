@@ -1,8 +1,7 @@
-
 #ifndef ASSEMBLER_ASSEMBLER_H
 #define ASSEMBLER_ASSEMBLER_H
 #include <stdlib.h>
-#include "helpfunctions.h"
+#include "in out tools.h"
 #include "first pass.h"
 #define NUM_OF_ENGLISH_CHARS 52
 #define TYPE_MAX_LENGTH 4

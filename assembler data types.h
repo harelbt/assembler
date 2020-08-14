@@ -11,7 +11,6 @@
 #define INSTRUCTION 1
 #define ORDER 2
 #define EXTERN 1
-#define ENTRY 2
 /*STRUCTS*/
 typedef struct __attribute__((packed)) symbol_table{
     char name[LABEL_MAX_LENGTH];
@@ -24,7 +23,7 @@ typedef struct{
     char operator_name[OPERATOR_MAX_LENGTH];
     int opcode;
     int function;
-}code;
+}code;/*explain*/
 typedef struct __attribute__((packed)){
     char order[ORDER_MAX_LENGTH];
     char* data;
@@ -89,8 +88,8 @@ typedef  struct __attribute__((packed)) data_binary_node{
 }data_image;
 /*FUNCTIONS DECLARATION*/
 void initialize_line_tools(line* sentence, line_counters* counters, line_indexes* indexes);
-void initialize_counters(line_counters* counters);
-void initialize_indexes(line_indexes* indexes);
-void initialize_line(line* sentence);
+static void initialize_counters(line_counters* counters);
+static void initialize_indexes(line_indexes* indexes);
+static void initialize_line(line* sentence);
 /**/
 #endif /*ASSEMBLER_ASSEMBLER_DATA_TYPES_H*/
