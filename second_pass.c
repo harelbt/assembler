@@ -36,56 +36,64 @@ static void code_symbols(FILE* machine_code, symbol* symbol_table, FILE* externa
     char current_address_label[LABEL_MAX_LENGTH];
     int curr_char;
     typedef struct __attribute__((packed)) {
-        unsigned int label_address: 24;
+        unsigned int label_address_binary: 24;
     } address;
-    address label;
-
+    address label_address;
     int distance;
     symbol *symbol_ptr;
-    FILE *start_line = machine_code;
+    FILE *start_line;
     while ((curr_char = fgetc(machine_code)) != EOF) {
-        if (fgetc(machine_code) == '\n') {
+        if (fgetc(machine_code) == '\n') {// starting of a new line
             start_line = machine_code;
-            fscanf(start_line, "%s", current_address_label);
+            fscanf(start_line, "%s", current_address_label);// getting the IC of the label
         }
-        if (curr_char == '?') {
+        if (curr_char == '?') {//this condition makes sure that there is a symbol need to be translated to machine code
             fprintf(machine_code, " ");//overriding the question mark
-            if (fgetc(machine_code) == '&') {//need to put the distance of label
+
+            if (fgetc(machine_code) == '&') {//need to put the distance of label_address
                 fprintf(machine_code, " ");//overriding the & sign
-                fscanf(machine_code, "%s", symbol_to_code);
-                symbol_ptr = get_symbol(symbol_table, symbol_to_code, &symbol_table);
+                fscanf(machine_code, "%s", symbol_to_code);//getting the name of the label
+                symbol_ptr = get_symbol(symbol_table, symbol_to_code, &symbol_table);//checking that the name of the label is in the symbol table
                 if (!strcmp(symbol_ptr->name, symbol_to_code)) {
-                    distance = strtod(current_address_label, NULL) - symbol_ptr->address;
+                    distance = (int)strtod(current_address_label, NULL) - symbol_ptr->address;
                     if (distance < 0) {
-                        label.label_address = abs(distance);
-                        label.label_address ^= TWOS_COMP_MASK;
-                        (label.label_address <<= 3u);
-                        label.label_address |= ABSOLUTE;//turn on the A bit
+                        label_address.label_address_binary = abs(distance);
+                        label_address.label_address_binary ^= TWOS_COMP_MASK;
+                        label_address.label_address_binary <<= 3u;
+                        label_address.label_address_binary |= ABSOLUTE;//turn on the A bit
 
                     }
-                    label.label_address = (((unsigned) distance << 3u) | ABSOLUTE);//turn on the A bit
-                    fprintf(machine_code, "%06x", label.label_address);/*write in hexa the label address*/
+                    label_address.label_address_binary = (((unsigned) distance << 3u) | ABSOLUTE);//turn on the A bit
+                    fprintf(machine_code, "%06x", (signed int)label_address.label_address_binary);/*write in hexa the labels address */
                     if (symbol_ptr->extern_or_entry == EXTERN) {
                         print_entry_extern(externals_file, symbol_ptr);
                     }
-
-                } else {
-                    fprintf(stderr, "The label %s does not exist in the file",
-                            symbol_to_code); /*throw an error that there is no label*/
+                }
+                else {
+                    fprintf(stderr, "The label_address %s does not exist in the file",
+                            symbol_to_code); /*throw an error that there is no label_address*/
                 }
 
-            } else {//need to put in  address of the label
+            }
+            else {//need to put in  address of the label_address
                 fscanf(machine_code, "%s", symbol_to_code);
                 symbol_ptr = get_symbol(symbol_table, symbol_to_code, &symbol_table);
                 if (!strcmp(symbol_ptr->name, symbol_to_code)) {
-                    label.label_address = symbol_ptr->address;
-                    fprintf(machine_code, "%06x", label.label_address);/*write in hexa the label address*/
-                } else {
-                    fprintf(stderr, "The label %s does not exist in the file",
-                            symbol_to_code);/* throw an error that there is no label with such name*/
+                    label_address.label_address_binary = symbol_ptr->address;
+                    label_address.label_address_binary <<= 3u;
+                    if(symbol_ptr->extern_or_entry == EXTERN)
+                        label_address.label_address_binary |= EXTERNAL;//turn on the E bit
+                    else
+                        label_address.label_address_binary |= RELOCATABLE;//turn on the R bit
+
+                    fprintf(machine_code, "%06x", (signed int)label_address.label_address_binary);/*write in hexa the label_address address*/
+                }
+                else {
+                    fprintf(stderr, "The label_address %s does not exist in the file",
+                            symbol_to_code);/* throw an error that there is no label_address with such name*/
                 }
             }
-            while ((fgetc(machine_code)) != '\n') {//deleting all the writing that is not part of the translated label
+            while ((fgetc(machine_code)) != '\n') {//deleting all the writing that is not part of the translated label_address
                 fprintf(machine_code, " ");
             }
         }
@@ -154,37 +162,6 @@ static int get_address_length(int address){
     }
     return length;
 }
-static void prepare_output_files(){}
-
-/***** Ignore this *******/
-
-/*while(*input_file!=EOF){
-    resetString(string);
-    i = 0;
-    while(*input_file!= '\t' || *input_file!='\n' ||*input_file!=' '|| *input_file!= ':'){
-        string[i] = *input_file;
-        input_file++; i++;
-    }
-    input_file++;*/
-    /* if the string is in the map symbol */
-    /*get its details from the map symbol*/
-        /*if the label does not contains '&'*/
-             /*while line does not contain question mark in file first_pass_file so continue (find the line with the question mark)*/
-             /*while line in file first_pass_file contains question mark do:
-            *** this doesnt need to be a loop because there is only one line missing****/
-
-            /*if the label is extern so put in ARE the variable E*/
-            /*if the label is relocate able so put in ARE the variable R*/
-            /*if the label is constant put in ARE the variable A*/
-            /*insert the label address to the first pass file*/
-       /*else*/
-            /*calculate the distance of the line to the address of the label*/
-            /*if the distance is positive so put into labelAddress1 the distance*/
-            /*if its negative make the number negative by using the complement 2 method(make a function of complement 2)*/
-            /*put the ARE bits in its right position*/
-
-
-
 void resetString(char str[STRING_LEN]){
     int i;
     for (i = 0; i <STRING_LEN; ++i)
