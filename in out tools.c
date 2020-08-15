@@ -1,30 +1,34 @@
 #include <string.h>
 #include <stdlib.h>
+#include <stdarg.h>
 #include "in out tools.h"
 char* get_line_dynamic(FILE* file, int* length){
-    char* str = allocate_arr_memory(LINE_ASSUMED_LENGTH, CHAR);
+    char* str = allocate_memory(LINE_ASSUMED_LENGTH, CHAR);
     int ch = skip_spaces(file);
     int line_length_multiplier = 1;
-    *(str + LINE_ASSUMED_LENGTH - 1) = '\0';
     *length = 1;
-    if (ch == EOF)
-        return "";
-    if (ch == '\n'){
-        return "\n";
-    }
     *(str) = (char) ch;
-    while ((ch = fgetc(file)) != '\n' && ch != EOF){
-        if (*(str + (*length)) == '\0') {
+    if (ch == EOF) {
+        free(str);
+        return "";
+    }
+    if (ch == '\n'){
+        *(str + 1) = '\0';
+        return str;
+    }
+    while ((ch = fgetc(file)) != '\n' && ch != '\r' && ch != EOF){
+        if (*length == line_length_multiplier*LINE_ASSUMED_LENGTH) {
             line_length_multiplier++;
-            str = realloc_arr_memory(str, LINE_ASSUMED_LENGTH * line_length_multiplier, CHAR);
+            str = realloc_memory(str, LINE_ASSUMED_LENGTH * line_length_multiplier, CHAR);
         }
         *(str + (*length)) = (char) ch;
         (*length)++;
     }
-    if (*(str + (*length)) != '\0') {
-        *(str + (*length)) = '\0';
-        free((str + (*length) + 1));
+    if (ch == '\r'){
+        fgetc(file);/*on linux new line contain two chars, skips the second*/
     }
+        *(str + (*length)) = '\0';
+
     return str;
 }
 int read_line(FILE* file, line* sentence){
@@ -35,7 +39,7 @@ int read_line(FILE* file, line* sentence){
 }
 /*allocates memory for array of any type safely and exits program in case of failure with a proper massage to stderr
  * returns the address*/
-void* allocate_arr_memory (int size, char type){
+void* allocate_memory (int size, char type){
     /*allocation*/
     if (type == SYMBOL) {
         symbol* p = (symbol*) malloc(sizeof(symbol) * size);
@@ -58,7 +62,7 @@ void* allocate_arr_memory (int size, char type){
 
 /*reallocates memory for array of any type safely and exits program in case of failure with a proper massage to stderr
  * returns the address*/
-void* realloc_arr_memory (void* ptr, int size, char type){
+void* realloc_memory (void* ptr, int size, char type){
     /*reallocation*/
     if (type == SYMBOL) {
         symbol * p = (symbol *) realloc(ptr, sizeof(symbol) * size);
@@ -94,30 +98,12 @@ void stop(int exit_type, const char* to_print) {
         exit(exit_type);
     } else/*exit with exit code and "" (empty) string*/
         switch (exit_type) {
-            case INPUT: {
-                fputs("Can't open input file. Terminating program\n", stderr);
-                exit(EXIT_FAILURE);
-            }
-            case OUTPUT: {
-                fputs("Can't open output file. Terminating program\n", stderr);
-                exit(EXIT_FAILURE);
-            }
             case MEMORY: {
                 fputs("Not enough memory\nTerminating program\n", stderr);
                 exit(EXIT_FAILURE);
             }
             case FOPEN:{
                 fputs("Can't open file. Terminating program\n", stderr);
-                exit(EXIT_FAILURE);
-            }
-            case OTHER: {
-                fputs("Something went wrong\nTerminating program\n", stderr);
-                exit(EXIT_FAILURE);
-            }
-            case EXIT_SUCCESS: {
-                exit(EXIT_SUCCESS);
-            }
-            case EXIT_FAILURE: {
                 exit(EXIT_FAILURE);
             }
             default: exit(EXIT_FAILURE);
@@ -158,17 +144,23 @@ int find_next_word(const char* line, int index){
 /*returns a string from the file pointer until a white char(dynamic memory allocation)
  * if the file pointer points at a white char, returns "" (empty string)*/
 char* get_until_white_char(const char* line, int index) {
-    char* string = allocate_arr_memory(1, CHAR);/*initial allocation*/
+    char* string = allocate_memory(LINE_ASSUMED_LENGTH, CHAR);/*initial allocation*/
     int i = index;
     int k = 0;
+    int line_length_multiplier = 1;
+    *(string) = '\0';
     /*_____________________________________________________________*/
-    while (*(line + i) != ' ' && *(line + i) != '\t' && *(line + i)){
+    while (*(line + i) && *(line + i) != ' ' && *(line + i) != '\t'){
         *(string+k) = *(line+i);
         i++;
         k++;
-        string = realloc_arr_memory(string, (k + 1), CHAR);/*expanding string*/
+        if (k == line_length_multiplier* LINE_ASSUMED_LENGTH) {
+            line_length_multiplier++;
+            string = realloc_memory(string, LINE_ASSUMED_LENGTH * line_length_multiplier, CHAR);
+            *(string + LINE_ASSUMED_LENGTH * line_length_multiplier - 1) = '\0';
+        }
     }
-    *(string+k) = '\0';
+        *(string + k) = '\0';
     /*_____________________________________________________________*/
     return string;
 }
@@ -209,6 +201,87 @@ FILE* open_machine_code(char* file_name){
     FILE* machine_code;
     strcpy(to_open, file_name);
     strcat(to_open, ".ob\0");
-    machine_code = open_file(to_open, "a+");
+    machine_code = open_file(to_open, "w+");
     return machine_code;
+}
+FILE* create_ent_files(char* name_without_type){
+    char ent_file_name[strlen(name_without_type) + TYPE_MAX_LENGTH + 1];
+    strcpy(ent_file_name, name_without_type);
+    strcat(ent_file_name, ".ent\0");
+    return open_file(ent_file_name, "w+");
+}
+FILE* create_ext_files(char* name_without_type){
+    char ext_file_name[strlen(name_without_type) + TYPE_MAX_LENGTH + 1];
+    strcpy(ext_file_name, name_without_type);
+    strcat(ext_file_name, ".ext\0");
+    return open_file(ext_file_name, "w+");
+}
+void print_entry_extern(FILE* file, symbol* entry_extern){
+    fprintf(file, "%s ", entry_extern->name);
+    fprintf(file, "%07d", entry_extern->address);
+}
+void remove_unnecessary_files(char* name_without_type, const char* error_found, const char* is_external, const char* is_entry){
+    if (*error_found == TRUE) {
+        remove_output_files(name_without_type);
+    } else{
+        if (*is_external == FALSE){
+            remove_ext_file(name_without_type);
+        }
+        if (*is_entry == FALSE){
+            remove_ent_file(name_without_type);
+        }
+    }
+}
+void print_code_words(FILE* machine_code, char* line, line_indexes* indexes, int last_IC, int num_of_words, ...) {
+    int i = num_of_words;
+    va_list arg_pointer;
+    word *word_to_print;
+    va_start(arg_pointer, num_of_words);
+    while (i) {
+        PRINT_ADDRESS;
+                word_to_print = va_arg(arg_pointer, word*);
+        if (word_to_print->is_label == TRUE || word_to_print->is_jump == TRUE){
+            print_label(machine_code, line, word_to_print);
+        } else {/*prints prepared word*/
+            unsigned int to_print = word_to_print->word;
+            PRINT_CODE_WORD;
+        }
+        i--;
+        last_IC++;
+    }
+}
+void print_label(FILE* machine_code, const char* line, word* word_to_print) {
+    char *label_name = get_until_white_char(line, word_to_print->label_index);
+    unsigned int label_length = strlen(label_name);
+    unsigned int i = label_length;
+    PRINT_LABEL;
+    if (label_length < HEX_PRINT_LENGTH) {
+        i++;/*the '?' counts*/
+        if (word_to_print->is_jump == TRUE){
+            i++;/*the '&' counts*/
+        }
+        while (i != HEX_PRINT_LENGTH) {
+            fprintf(machine_code, " ");
+            i++;
+        }
+    }
+    fprintf(machine_code, "\n");
+    free(label_name);
+    label_name = NULL;
+}
+void print_data(FILE* machine_code, data_image* data, line_counters* counters){
+    data_image* data_pointer = data;
+    int data_print_counter = 1;
+    unsigned int data_to_print;
+    while (data->next != NULL){
+        data_to_print =  data->word.word;
+        PRINT_DATA_WORD;
+        data = data->next;
+        free(data_pointer);
+        data_pointer = data;
+        data_print_counter++;
+    }
+    data_to_print =  data->word.word;
+    PRINT_DATA_WORD;
+    free(data);
 }

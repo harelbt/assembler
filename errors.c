@@ -801,22 +801,23 @@ static void check_label_syntax(line* sentence, line_indexes* indexes, line_count
 }
 static char* check_label_body(line* sentence, line_counters* counters, char curr_char, int* i, char* error_found){
     int label_length = 0;
-    char* label_copy = allocate_arr_memory(label_length+1, CHAR);
+    char* label_copy = allocate_memory(LABEL_MAX_LENGTH, CHAR);
+    *label_copy = '\0';
     while (curr_char != ' ' && curr_char != '\t' && curr_char && curr_char != ':'){
         if (ILLEGAL_LABEL_CHAR_CONDITION){
             report_error(sentence->line, ILLEGAL_LABEL_SYNTAX, counters, *i);
             *error_found = TRUE;
         }
         if (!(*(sentence->label.name)) && *i < LABEL_MAX_LENGTH){
-            label_copy = realloc_arr_memory(label_copy, label_length+1, CHAR);
             *(label_copy + label_length) = curr_char;
         }
         (*i)++;
         curr_char = *(sentence->line + *i);
         label_length++;
     }
-    label_copy = realloc_arr_memory(label_copy, label_length+1, CHAR);
-    *(label_copy + label_length) = '\0';
+    if (!*(sentence->label.name)) {
+        *(label_copy + label_length) = '\0';
+    }
     return label_copy;
 }
 static void check_label_first_char(line* sentence, line_counters* counters, char curr_char, int index, char* error_found){

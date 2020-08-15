@@ -3,14 +3,14 @@
 #include "first pass.h"
 #include "line analyzer.h"
 #include "errors.h"
-#include "words.h"
 #include "symbol table.h"
 #include "translator.h"
 void first_pass(FILE* source, char* file_name, FILE* machine_code, symbol* symbol_table, line_counters* counters, char* error_found) {
     /*structs*/
     line sentence;
     line_indexes indexes;
-    data_image* data = allocate_arr_memory(1, DATA_IMAGE);
+    data_image* data = allocate_memory(1, DATA_IMAGE);
+    (data->word.word) = 0;
     /**/
     counters->line_number = 0;
     counters->error_number = 0;
@@ -30,7 +30,7 @@ void first_pass(FILE* source, char* file_name, FILE* machine_code, symbol* symbo
         counters->line_number++;
         /**/
         /*'\n' line is a line we want to count but not to read("read_line" can't skip '\n' because it needs to stop at the end of the line)*/
-        if (strcmp(sentence.line, "\n") != 0) {
+        if (strcmp(sentence.line, "\n") != 0 && strcmp(sentence.line, "\r") != 0) {
             analyze_sentence(&sentence, &indexes, counters);/*parsing*/
             empty_or_comment_line_check(&sentence, &indexes);
             /*continues if not a comment /empty line*/
@@ -44,23 +44,18 @@ void first_pass(FILE* source, char* file_name, FILE* machine_code, symbol* symbo
                         if (*sentence.label.name != '\0') {
                             symbol_table = insert_symbol(&sentence.label, symbol_table, &is_first_symbol, counters, error_found);
                         }
+
                         first_pass_translation(machine_code, &sentence, &indexes, counters, data);
                     }
                 }
         }
+        free_line(&sentence);
     }
-    print_data(data, counters);
+
+    print_data(machine_code, data, counters);
     if (*error_found == TRUE) {
         print_errors_summary(file_name, counters->error_number);
     }
-    free_first_pass(source, &sentence);
-}
-
-static void free_first_pass(FILE* filep, line* sentence){
-    fclose(filep);
-    free(filep);
-    filep = NULL;
-    free_line(sentence);
 }
 static void free_line(line* sentence){
     free(sentence->line);

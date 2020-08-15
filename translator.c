@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "translator.h"
+#include "in out tools.h"
 void first_pass_translation(FILE* machine_code, line* sentence, line_indexes* indexes, line_counters* counters, data_image* data){
     if (sentence->flags.is_code == TRUE){
         code_translation(machine_code, sentence, indexes, counters);
@@ -16,6 +17,9 @@ static void code_translation(FILE* machine_code, line* sentence, line_indexes* i
     word third_word;
     int distance_from_last_IC = counters->IC - counters->last_instruction_address;
     prepare_instruction_word(&instruction_word, sentence, indexes);
+    if(distance_from_last_IC == 1){
+        return;
+    }
     if (distance_from_last_IC == 2) {
         prepare_extra_words(sentence->line, indexes, distance_from_last_IC, &second_word);
         print_code_words(machine_code, sentence->line, indexes, counters->last_instruction_address, distance_from_last_IC, &instruction_word, &second_word);
@@ -35,7 +39,7 @@ static void translate_numbers_sequence(const char* numbers_sequence, line_indexe
     int index = 0;
     int DC_addition = 0;
     while (*(numbers_sequence + index)){
-        data_image* new_data = allocate_arr_memory(1, DATA_IMAGE);
+        data_image* new_data = allocate_memory(1, DATA_IMAGE);
         new_data->DC = last_DC + DC_addition;
         new_data->next = NULL;
         code_word(&new_data->word, numbers_sequence, index, indexes, DATA);
@@ -47,7 +51,7 @@ static void translate_numbers_sequence(const char* numbers_sequence, line_indexe
 static void translate_string_sequence(const char* string_sequence, int last_DC, int second_quotemark_index, data_image* data){
     int index = 1;
     while (index != second_quotemark_index){
-        data_image* new_data = allocate_arr_memory(1, DATA_IMAGE);
+        data_image* new_data = allocate_memory(1, DATA_IMAGE);
         new_data->DC = last_DC + index;
         new_data->next = NULL;
         new_data->word.word = *(string_sequence + index);
@@ -65,6 +69,8 @@ static void prepare_instruction_word(word* to_prepare, line* sentence, line_inde
     } else {
         prepare_full_instruction_word(to_prepare, indexes, sentence->line);
     }
+    to_prepare->is_jump = FALSE;
+    to_prepare->is_label = FALSE;
 }
 static void prepare_full_instruction_word(word* to_prepare, line_indexes* indexes, const char* line){
     if (indexes->first_operand_index == indexes->first_register_index) {
@@ -245,7 +251,7 @@ static void set_dest_register(word* word, const char* line, int register_index){
     }
 }
 static int get_source_addressing(const char* line, line_indexes* indexes){
-    if (*(line + indexes->first_operand_index) == '#') {
+    if (indexes->first_operand_index == NOT_FOUND || *(line + indexes->first_operand_index) == '#') {
         return 0;
     } else if (*(line + indexes->first_operand_index) == '&') {
         return 2;
@@ -256,7 +262,7 @@ static int get_source_addressing(const char* line, line_indexes* indexes){
     }
 }
 static int get_dest_addressing(const char* line, line_indexes* indexes){
-    if (*(line + indexes->second_operand_index) == '#') {
+    if (indexes->first_operand_index == NOT_FOUND || *(line + indexes->second_operand_index) == '#') {
         return 0;
     } else if (*(line + indexes->second_operand_index) == '&') {
         return 2;
@@ -335,50 +341,11 @@ static void code_number(word* word, const char* line, int index, char mode){
         word->word <<= 3u;
         word->word |= ABSOLUTE;
     }
-}
-static void print_code_words(FILE* machine_code, char* line, line_indexes* indexes, int last_IC, int num_of_words, ...) {
-    int i = num_of_words;
-    va_list arg_pointer;
-    word *word_to_print;
-    va_start(arg_pointer, num_of_words);
-    while (i) {
-        PRINT_ADDRESS
-        word_to_print = va_arg(arg_pointer, word*);
-        printf("%i ", last_IC);
-        if (word_to_print->is_label == TRUE || word_to_print->is_jump == TRUE) {
-            print_label(machine_code, line, word_to_print);
-        } else {/*prints prepared word*/
-            unsigned int to_print = word_to_print->word;
-            fprintf(machine_code, "%06x\n", to_print);
-            printf("%06x\n", to_print);
-        }
-        i--;
-        last_IC++;
-    }
-}
-static void print_label(FILE* machine_code, const char* line, word* word_to_print) {
-    char *label_name = get_until_white_char(line, word_to_print->label_index);
-    unsigned int label_length = strlen(label_name);
-    unsigned int i = label_length;
-    fprintf(machine_code, "?%s", label_name);
-    printf("?%s", label_name);
-    if (label_length < HEX_PRINT_LENGTH) {
-        i++;/*the '?' counts*/
-        if (word_to_print->is_jump == TRUE){
-            i++;/*the '&' counts*/
-        }
-        while (i != HEX_PRINT_LENGTH) {
-            fprintf(machine_code, " ");
-            printf(" ");
-            i++;
-        }
-    }
-        fprintf(machine_code, "\n");
-        printf("\n");
-
+    free(to_code);
+    to_code = NULL;
 }
 static char* get_number(const char* line, int index){
-    char* number_str = allocate_arr_memory(1, CHAR);
+    char* number_str = allocate_memory(NUMBER_ALLOWED_LENGTH, CHAR);
     int i = index;
     int k = 0;
     char curr_char = *(line + i);
@@ -387,7 +354,6 @@ static char* get_number(const char* line, int index){
         k++;
         i++;
         curr_char = *(line + i);
-        number_str = realloc_arr_memory(number_str, k+1, CHAR);
     }
     *(number_str + k) = '\0';
     return number_str;
@@ -398,22 +364,10 @@ static void get_to_next_number(int* index, const char* line){
         (*index)++;
         curr_char = *(line + *index);
     }
-    while (curr_char && curr_char == ' ' || curr_char == '\t' || curr_char == ','){
+    while (curr_char && (curr_char == ' ' || curr_char == '\t' || curr_char == ',')){
         (*index)++;
         curr_char = *(line + *index);
     }
-}
-void print_data(data_image* data, line_counters* counters){
-    int data_print_counter = 1;
-    unsigned int data_to_print;
-    while (data->next != NULL){
-        data_to_print =  data->word.word;
-        printf("%d %06x\n", counters->last_instruction_address + data_print_counter, data_to_print);
-        data = data->next;
-        data_print_counter++;
-    }
-    data_to_print =  data->word.word;
-    printf("%d %06x\n", counters->last_instruction_address + data_print_counter, data_to_print);
 }
 void insert_data_node(data_image* head, data_image* to_insert){
     data_image* curr_pointer = head;
@@ -421,10 +375,32 @@ void insert_data_node(data_image* head, data_image* to_insert){
         head->word = to_insert->word;
         head->DC = to_insert->DC;
         head->is_head_filled = TRUE;
+        free(to_insert);
+        to_insert = NULL;
         return;
     }
     while (curr_pointer->next != NULL){
         curr_pointer = curr_pointer->next;
     }
     curr_pointer->next = to_insert;
+}
+void calculate_number_of_words(line* sentence, line_indexes indexes, line_counters* counters){
+    if (sentence->flags.is_code == TRUE){
+        calculate_instruction_word(sentence, indexes, counters);
+    }else{
+        calculate_order_word(sentence, indexes, counters);
+    }
+}
+void calculate_instruction_word(line* sentence, line_indexes indexes, line_counters* counters){
+    /*every operand costs a word, unless it's a register*/
+    counters->last_instruction_address = counters->IC;
+    counters->IC += counters->number_of_operands - counters->number_of_registers + ONE_WORD;/*one word for the assembly line*/
+}
+void calculate_order_word(line* sentence, line_indexes indexes, line_counters* counters){
+    if (strcmp(sentence->data_parts.order, "extern") != 0 && strcmp(sentence->data_parts.order, "entry") != 0) {
+        counters->last_data_address = counters->DC;
+        counters->DC += counters->number_of_quotation_marks == 2 ?
+                        indexes.second_quotation_mark_index - indexes.first_quotation_mark_index - 1 :
+                        counters->number_of_commas + 1;
+    }
 }

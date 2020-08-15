@@ -4,13 +4,13 @@
 #define LABEL_MAX_LENGTH 32
 #define ORDER_MAX_LENGTH 7
 #define OPERATOR_MAX_LENGTH 5
+
 /*FLAGS*/
 #define TRUE 1
 #define FALSE 0
 #define NOT_FOUND -1
-#define INSTRUCTION 1
-#define ORDER 2
 #define EXTERN 1
+
 /*STRUCTS*/
 typedef struct __attribute__((packed)) symbol_table{
     char name[LABEL_MAX_LENGTH];
@@ -81,6 +81,7 @@ typedef  struct __attribute__((packed)) data_binary_node{
     char is_head_filled;
     struct data_binary_node * next;
 }data_image;
+
 /*FUNCTIONS DECLARATION*/
 void initialize_line_tools(line* sentence, line_counters* counters, line_indexes* indexes);
 static void initialize_counters(line_counters* counters);

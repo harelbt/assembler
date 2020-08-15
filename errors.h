@@ -3,7 +3,7 @@
 #define ASSEMBLER_ERRORS_H
 #include "assembler data types.h"
 
-/*information to functions*/
+/*functions modes*/
 #define SOURCE_OPERAND 1
 #define DEST_OPERAND 2
 
@@ -94,11 +94,13 @@ curr_char != ',' && curr_char != '-' && curr_char != '+'\
 #define ILLEGAL_LABEL_CHAR_CONDITION curr_char < '0' || (curr_char > '9' && curr_char < 'A') || (curr_char > 'Z' && curr_char < 'a') || curr_char > 'z'
 
 #define ILLEGAL_LABEL_FIRST_CHAR_CONDITION curr_char < 'A' || (curr_char > 'Z' && curr_char < 'a') || curr_char > 'z'
-
+/*GENERAL*/
 #define NUMBER_OF_RESERVED_WORDS 27
 #define NUMBER_MAX_VAL 8388607
 #define NUMBER_MIN_VAL -8388607
 #define NUMBER_MAX_LENGTH 7
+
+/*FUNCTIONS DECLARATION*/
 /*~~general functions~~*/
 char errors_inspection(line* sentence, line_indexes* indexes, line_counters* counters);
 void report_error(char* line, char error_code, line_counters* counters, ...);

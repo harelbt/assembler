@@ -2,6 +2,7 @@
 #define ASSEMBLER_LINE_ANALYZER_H
 #include "assembler data types.h"
 
+/*conditions*/
 #define REGISTER_CONDITION ((index+1) < sentence->length && *(sentence->line+index+1) >= '0' && *(sentence->line+index+1) <= '7') &&\
 ((index > 0 && (*(sentence->line+index-1) == ' ' || *(sentence->line+index-1) == '\t' ))\
 ||(index == 0) && counters->number_of_quotation_marks == 0)
@@ -49,21 +50,31 @@ indexes->first_register_index = index;\
 indexes->second_register_index = index;}}\
 }break;
 /**/
+
 #define NUMBER_OF_OPERATORS 15
+
+/*FUNCTIONS DECLARATION*/
+/*NON STATIC FUNCTIONS*/
 void empty_or_comment_line_check (line* sentence, line_indexes* indexes);
 void analyze_sentence(line* sentence, line_indexes* indexes, line_counters* counters);
+/*STATIC FUNCTIONS*/
+/*general*/
+static void define_sentence_type(line* sentence, line_counters counters, line_indexes indexes);
+static void find_line_components(line* sentence, line_indexes* indexes, line_counters* counters);
+/*labels*/
+static void prepare_label(line* sentence, int data_index);
+static void find_label(line* sentence, line_indexes indexes);
+/*operators*/
 static int recognize_operator(char* operator, int* opcode, int* function);
 static void check_for_operators(line_counters* counters, line_indexes* indexes, line* sentence, int i);
-static void find_line_components(line* sentence, line_indexes* indexes, line_counters* counters);
-void prepare_label(line* sentence, int data_index);
+static void operator_check(line* sentence, line_counters* counters, line_indexes* indexes, int index);
+/*info check*/
 static void signs_check(line* sentence, line_counters* counters, line_indexes* indexes, char curr_char, char* colon_found,
                         char* semicolon_found, char* dot_found, char first_char_found, int index);
 static void data_check(line_indexes* indexes, char* order_ended, char* data_found, char dot_found, char curr_char, int index);
 static void operands_check(line* sentence, line_counters* counters, line_indexes* indexes, char* operand_ended, char curr_char, int index);
-static void operator_check(line* sentence, line_counters* counters, line_indexes* indexes, int index);
 static void first_char_check(line_indexes* indexes, char* first_char_found, char curr_char, int index);
-void find_data_order(line* sentence, int dot_index);
-static void define_sentence_type(line* sentence, line_counters counters, line_indexes indexes);
+/*orders*/
+static void find_data_order(line* sentence, int dot_index);
 static short int is_order(line_counters counters, line_indexes indexes);
-static void find_label(line* sentence, line_indexes indexes);
 #endif //ASSEMBLER_LINE_ANALYZER_H

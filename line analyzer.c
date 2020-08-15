@@ -184,7 +184,7 @@ static short int is_order(line_counters counters, line_indexes indexes){
         }
     }
 }
-void find_data_order(line* sentence, int dot_index){
+static void find_data_order(line* sentence, int dot_index){
     if (dot_index >= 0){
         char* i = sentence->line + dot_index+1;
         int k = 0;

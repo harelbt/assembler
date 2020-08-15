@@ -1,7 +1,7 @@
 #ifndef ASSEMBLER_TRANSLATOR_H
 #define ASSEMBLER_TRANSLATOR_H
 #include "assembler data types.h"
-#include "words.h"
+
 /*MASKS*/
 #define TWOS_COMP_MASK 0b1111111111111111111110u
 /*opcodes*/
@@ -45,41 +45,48 @@
 #define ABSOLUTE 0b000000000000000000000100u
 #define RELOCATABLE 0b000000000000000000000010u
 #define EXTERNAL 0b000000000000000000000001u
-/*PRINTING*/
-#define FOUR_BINARIES_TO_HEX 0b111100000000000000000000
+/*END OF MASKS*/
 
 /*FLAGS*/
 #define CODE 1
 #define DATA 2
+
 /*GENERAL*/
-#define HEX_PRINT_LENGTH 6
-#define PRINT_ADDRESS fprintf(machine_code, "%i ", last_IC);
+#define ONE_WORD 1
+#define NUMBER_ALLOWED_LENGTH 8
+/*NON STATIC FUNCTIONS*/
 void first_pass_translation(FILE* machine_code, line* sentence, line_indexes* indexes, line_counters* counters, data_image* data);
+void insert_data_node(data_image* head, data_image* to_insert);
+/*STATIC FUNCTIONS*/
+/*instruction translation functions*/
 static void code_translation(FILE* machine_code, line* sentence, line_indexes* indexes, line_counters* counters);
+/*____________________________________________________________________________________________________________________*/
+static void prepare_instruction_word(word* to_prepare, line* sentence, line_indexes* indexes);
+/**/static void prepare_dest_only_instruction(word* to_prepare, const char* line, line_indexes* indexes);
+/**/static void prepare_full_instruction_word(word* to_prepare, line_indexes* indexes, const char* line);
+/*____________________________________________________________________________________________________________________*/
+static void prepare_extra_words(const char* line, line_indexes* indexes, int num_of_words, ...);
+static void code_word( word* word, const char* line, int index, line_indexes* indexes, char mode);
+static void code_instruction_word(word* word, const char* line, int index, line_indexes* indexes);
+/*data translation functions*/
 static void data_translation(line* sentence, line_indexes* indexes, line_counters* counters, data_image* data);
 static void translate_numbers_sequence(const char* numbers_sequence, line_indexes* indexes, int last_DC, data_image* data);
 static void translate_string_sequence(const char* string_sequence, int last_DC, int second_quotemark_index, data_image* data);
-static void prepare_instruction_word(word* to_prepare, line* sentence, line_indexes* indexes);
+static char* get_number(const char* line, int index);
+static void get_to_next_number(int* index, const char* line);
+static void code_number(word* word, const char* line, int index, char mode);
+/*set instruction bitfield functions*/
 static void set_opcode(word* word, int opcode);
 static void set_function(word* word, int function);
 static void set_dest_addressing(word* word, const char* line, line_indexes* indexes);
 static void set_source_addressing(const char* line, word* word, line_indexes* indexes);
 static void set_source_register(word* word, const char* line, int register_index);
 static void set_dest_register(word* word, const char* line, int register_index);
-static void prepare_extra_words(const char* line, line_indexes* indexes, int num_of_words, ...);
-static void code_word( word* word, const char* line, int index, line_indexes* indexes, char mode);
-static void code_instruction_word(word* word, const char* line, int index, line_indexes* indexes);
-static void code_number(word* word, const char* line, int index, char mode);
-static void print_code_words(FILE* machine_code, char* line, line_indexes* indexes, int last_IC, int num_of_words, ...);
-static void print_label(FILE* machine_code, const char* line, word* word_to_print);
+/*addressing discover functions*/
 static int get_dest_addressing(const char* line, line_indexes* indexes);
 static int get_source_addressing(const char* line, line_indexes* indexes);
-static void prepare_dest_only_instruction(word* to_prepare, const char* line, line_indexes* indexes);
-static void prepare_full_instruction_word(word* to_prepare, line_indexes* indexes, const char* line);
-static char* get_number(const char* line, int index);
-static void get_to_next_number(int* index, const char* line);
-void print_data(data_image* data, line_counters* counters);
-void insert_data_node(data_image* head, data_image* to_insert);
-void resetString(char str[100]);
-int isWhitespace(char letter);
+/*words calculation*/
+void calculate_number_of_words(line* sentence, line_indexes indexes, line_counters* counters);
+void calculate_instruction_word(line* sentence, line_indexes indexes, line_counters* counters);
+void calculate_order_word(line* sentence, line_indexes indexes, line_counters* counters);
 #endif //ASSEMBLER_TRANSLATOR_H

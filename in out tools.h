@@ -2,20 +2,30 @@
 #define ASSEMBLER_IN_OUT_TOOLS_H
 #include <stdio.h>
 #include "assembler data types.h"
-#define INPUT 10
-#define OUTPUT 11
+/*program stop kinds*/
 #define MEMORY 12
-#define OTHER 13
 #define FOPEN 14
-#define POINTER_CHECK if (p == NULL) stop(MEMORY,"");
-#define TYPE_MAX_LENGTH 4
-#define ON 1
-#define OFF 0
 
+/*pointer NULL check*/
+#define POINTER_CHECK if (p == NULL) stop(MEMORY,"");
+
+/*pointer types*/
 #define CHAR 1
 #define SYMBOL 2
 #define DATA_IMAGE 3
+
+/*lengths*/
 #define LINE_ASSUMED_LENGTH 100
+#define TYPE_MAX_LENGTH 4
+#define HEX_PRINT_LENGTH 6
+
+/*prints*/
+#define PRINT_ADDRESS fprintf(machine_code, "%i ", last_IC)
+#define PRINT_LABEL fprintf(machine_code, "?%s", label_name)
+#define PRINT_CODE_WORD fprintf(machine_code, "%06x\n", to_print)
+#define PRINT_DATA_WORD fprintf(machine_code,"%d %06x\n", counters->last_instruction_address + data_print_counter, data_to_print)
+
+/*FUNCTIONS DECLARATION*/
 /**
  * gets a line from a file using dynamic memory allocation. returns a pointer to a string (char array)
  * @param file FILE pointer to the file to get the line from
@@ -30,7 +40,7 @@ int read_line(FILE* file, line* sentence);
  * @param arr_type
  * @return a pointer to the new array
  */
-void* allocate_arr_memory (int size, char arr_type);
+void* allocate_memory (int size, char arr_type);
 /**
  * like realloc, but in case of a failure, gives a proper massage and exit the program, and does the casting
  * and all the hard work, and works with all of the data types
@@ -39,7 +49,7 @@ void* allocate_arr_memory (int size, char arr_type);
  * @param arr_type
  * @return a pointer to reallocated new array
  */
-void* realloc_arr_memory (void* ptr, int size, char arr_type);
+void* realloc_memory (void* ptr, int size, char arr_type);
 int skip_spaces(FILE* file);
 /**
  * stops with exit code, optional - custom massage, if a massage isn't provided, ""(empty string) is required instead:
@@ -75,4 +85,12 @@ void remove_output_files(char* file_name);
 void remove_ob_file(char* file_name);
 void remove_ent_file(char* file_name);
 void remove_ext_file(char* file_name);
+FILE* create_ent_files(char* name_without_type);
+FILE* create_ext_files(char* name_without_type);
+void print_entry_extern(FILE* file, symbol* entry_extern);
+void remove_unnecessary_files(char* name_without_type, const char* error_found, const char* is_external, const char* is_entry);
+/*print functions*/
+void print_code_words(FILE* machine_code, char* line, line_indexes* indexes, int last_IC, int num_of_words, ...);
+void print_label(FILE* machine_code, const char* line, word* word_to_print);
+void print_data(FILE* machine_code,data_image* data, line_counters* counters);
 #endif //ASSEMBLER_IN_OUT_TOOLS_H

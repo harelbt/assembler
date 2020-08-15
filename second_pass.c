@@ -1,12 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "in out tools.h"
-#include "first pass.h"
 #include "second_pass.h"
 #include "errors.h"
-#include "assembler data types.h"
 #include "symbol table.h"
-#include "stdlib.h"
 #include "string.h"
 #include "translator.h"
 void second_pass(FILE * first_pass_file, symbol * symbol_table,FILE * input_file,
@@ -15,21 +12,13 @@ void second_pass(FILE * first_pass_file, symbol * symbol_table,FILE * input_file
     FILE* entries_file = create_ent_files(file_name_without_type);
     fseek(first_pass_file, 0, SEEK_SET);
     code_symbols(first_pass_file, symbol_table, externals_file, is_external);
-    *is_entry = add_entries(input_file, symbol_table, entries_file, counters, error_found);
+    if (*error_found == FALSE) {
+        *is_entry = add_entries(input_file, symbol_table, entries_file, counters, error_found);
+    }
+    fclose(externals_file);
+    fclose(entries_file);
+}
 
-}
-static FILE* create_ent_files(char* name_without_type){
-    char ent_file_name[strlen(name_without_type) + TYPE_MAX_LENGTH + 1];
-    strcpy(ent_file_name, name_without_type);
-    strcat(ent_file_name, ".ent\0");
-    return open_file(ent_file_name, "a+");
-}
-static FILE* create_ext_files(char* name_without_type){
-    char ext_file_name[strlen(name_without_type) + TYPE_MAX_LENGTH + 1];
-    strcpy(ext_file_name, name_without_type);
-    strcat(ext_file_name, ".ext\0");
-    return open_file(ext_file_name, "a+");
-}
 static void code_symbols(FILE* machine_code, symbol* symbol_table, FILE* externals_file, char* is_external) {
     char symbol_to_code[LABEL_MAX_LENGTH];
     char current_address_label[LABEL_MAX_LENGTH];
@@ -105,6 +94,7 @@ static char add_entries(FILE* input_file, symbol* symbol_table, FILE* entries_fi
     symbol* entry_symbol;
     int line_length = 0;
     char is_entry = FALSE;
+    fseek(input_file, 0, SEEK_SET);
     while (strcmp(line = get_line_dynamic(input_file, &line_length), "") != 0){
         entry = get_entry(line);
         if (strcmp(entry, "") != 0){
@@ -117,18 +107,25 @@ static char add_entries(FILE* input_file, symbol* symbol_table, FILE* entries_fi
                 print_entry_extern(entries_file, entry_symbol);
             }
         }
+        free(line);
+        line = NULL;
+        if (strcmp(entry, "") != 0) {
+            free(entry);
+            entry = NULL;
+        }
     }
+
     return is_entry;
 }
 static char* get_entry(char* line){
     char* i = line;
-    char entry_check[ENTRY_ORDER_LENGTH];
-    char* label = allocate_arr_memory(LABEL_MAX_LENGTH, CHAR);
-    *(label + LABEL_MAX_LENGTH - 1) = '\0';
-    *(entry_check + ENTRY_ORDER_LENGTH - 1) = '\0';
-    while (*i){
+    char entry_check[ENTRY_ORDER_LENGTH] = {'\0'};
+    char* label = allocate_memory(LABEL_MAX_LENGTH, CHAR);
+    *(label) = '\0';
+    //*(entry_check) = '\0';
+    while (*i && *i != '\"' && *i != ','){
         if (*i == 'e'){
-            strncat(entry_check, i, ENTRY_ORDER_LENGTH - 1);
+            strncpy(entry_check, i, ENTRY_ORDER_LENGTH - 1);
             if (!strcmp(entry_check, "entry")){
                 i += ENTRY_ORDER_LENGTH - 1;
                 while (*i == ' ' || *i == '\t'){
@@ -140,6 +137,7 @@ static char* get_entry(char* line){
         }
         i++;
     }
+    free(label);
     return "";
 }
 static void print_entry_extern(FILE* file, symbol* entry_extern){

@@ -1,7 +1,6 @@
-	
+longlabelprobablytoomuchihopethatitwillcauseanerror: add r1 r2
 .string "a" 
 .data 9-,8
-longlabelprobablytoomuchihopethatitwillcauseanerror: add r1 r2
 longlabelprobablytoomuchihopetha: add r1 r2
 .string "al:"
 8labe: add r1 r2
