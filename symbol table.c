@@ -2,7 +2,6 @@
 #include <string.h>
 #include "symbol table.h"
 #include "in out tools.h"
-#include "errors.h"
 symbol* insert_symbol(symbol* to_insert, symbol* symbol_table, char* is_first_symbol, line_counters* counters, char* error_found) {
     symbol *curr_pointer = symbol_table;
     symbol* new_symbol;

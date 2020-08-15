@@ -187,13 +187,13 @@ void remove_ob_file(char* file_name){
 void remove_ent_file(char* file_name){
     char to_remove [strlen(file_name) + TYPE_MAX_LENGTH + 1];
     strcpy(to_remove, file_name);
-    strcat(to_remove, ".ext\0");
+    strcat(to_remove, ".ent\0");
     remove(to_remove);
 }
 void remove_ext_file(char* file_name){
     char to_remove [strlen(file_name) + TYPE_MAX_LENGTH + 1];
     strcpy(to_remove, file_name);
-    strcat(to_remove, ".ent\0");
+    strcat(to_remove, ".ext\0");
     remove(to_remove);
 }
 FILE* open_machine_code(char* file_name){

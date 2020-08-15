@@ -95,7 +95,9 @@ static char add_entries(FILE* input_file, symbol* symbol_table, FILE* entries_fi
     int line_length = 0;
     char is_entry = FALSE;
     fseek(input_file, 0, SEEK_SET);
+    counters->line_number = 0;
     while (strcmp(line = get_line_dynamic(input_file, &line_length), "") != 0){
+        counters->line_number++;
         entry = get_entry(line);
         if (strcmp(entry, "") != 0){
             entry_symbol = get_symbol(symbol_table, entry);
@@ -121,6 +123,7 @@ static char* get_entry(char* line){
     char* i = line;
     char entry_check[ENTRY_ORDER_LENGTH] = {'\0'};
     char* label = allocate_memory(LABEL_MAX_LENGTH, CHAR);
+    int index = 0;
     *(label) = '\0';
     //*(entry_check) = '\0';
     while (*i && *i != '\"' && *i != ','){
@@ -132,6 +135,12 @@ static char* get_entry(char* line){
                     i++;
                 }
                 strncpy(label, i, LABEL_MAX_LENGTH - 1);
+                while (*(label + index)){
+                    if (*(label + index) == '\t' || *(label + index) == ' '){
+                        *(label + index) = '\0';
+                    }
+                    index++;
+                }
                 return label;
             }
         }
@@ -140,7 +149,7 @@ static char* get_entry(char* line){
     free(label);
     return "";
 }
-static void print_entry_extern(FILE* file, symbol* entry_extern){
+/*static void print_entry_extern(FILE* file, symbol* entry_extern){
     int address_length = get_address_length(entry_extern->address);
     int number_of_pre_zeros = ADDRESS_PRINT_LENGTH - address_length;
     fprintf(file, "%s ", entry_extern->name);
@@ -159,9 +168,9 @@ static int get_address_length(int address){
         length++;
     }
     return length;
-}
-void resetString(char str[STRING_LEN]){
+}*/
+/*void resetString(char str[STRING_LEN]){
     int i;
     for (i = 0; i <STRING_LEN; ++i)
         str[i]='\0';
-}
+}*/
