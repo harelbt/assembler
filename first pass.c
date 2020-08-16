@@ -29,7 +29,7 @@ void first_pass(FILE* source, char* file_name, FILE* machine_code, symbol* symbo
         /**/
         counters->line_number++;
         /**/
-        /*'\n' line is a line we want to count but not to read("read_line" can't skip '\n' because it needs to stop at the end of the line)*/
+        /*'\n' or '\r' line is a line we want to count but not to read("read_line" can't skip '\n' because it needs to stop at the end of the line)*/
         if (strcmp(sentence.line, "\n") != 0 && strcmp(sentence.line, "\r") != 0) {
             analyze_sentence(&sentence, &indexes, counters);/*parsing*/
             empty_or_comment_line_check(&sentence, &indexes);
@@ -51,8 +51,10 @@ void first_pass(FILE* source, char* file_name, FILE* machine_code, symbol* symbo
         }
         free_line(&sentence);
     }
-
+    printf("%d", counters->IC);
+    fprintf(machine_code,"\n++++++++++++++++++++++++++++++++++++HERE\n");
     print_data(machine_code, data, counters);
+    print_instructions_data_count();
     if (*error_found == TRUE) {
         print_errors_summary(file_name, counters->error_number);
     }

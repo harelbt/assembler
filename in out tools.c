@@ -239,7 +239,7 @@ void print_code_words(FILE* machine_code, char* line, line_indexes* indexes, int
     va_start(arg_pointer, num_of_words);
     while (i) {
         PRINT_ADDRESS;
-                word_to_print = va_arg(arg_pointer, word*);
+        word_to_print = va_arg(arg_pointer, word*);
         if (word_to_print->is_label == TRUE || word_to_print->is_jump == TRUE){
             print_label(machine_code, line, word_to_print);
         } else {/*prints prepared word*/
@@ -284,4 +284,8 @@ void print_data(FILE* machine_code, data_image* data, line_counters* counters){
     data_to_print =  data->word.word;
     PRINT_DATA_WORD;
     free(data);
+}
+void print_instructions_data_count(FILE* machine_code, line_counters* counters){
+    fseek(machine_code, START, SEEK_SET);
+    fprintf(machine_code,"%d\n");
 }

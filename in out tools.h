@@ -20,10 +20,13 @@
 #define HEX_PRINT_LENGTH 6
 
 /*prints*/
-#define PRINT_ADDRESS fprintf(machine_code, "%i ", last_IC)
+#define PRINT_ADDRESS fprintf(machine_code, "%07d ", last_IC)
 #define PRINT_LABEL fprintf(machine_code, "?%s", label_name)
 #define PRINT_CODE_WORD fprintf(machine_code, "%06x\n", to_print)
-#define PRINT_DATA_WORD fprintf(machine_code,"%d %06x\n", counters->last_instruction_address + data_print_counter, data_to_print)
+#define PRINT_DATA_WORD fprintf(machine_code,"%d %06x\n", counters->last_instruction_address + data->DC, data_to_print)
+
+/*general*/
+#define START 0
 
 /*FUNCTIONS DECLARATION*/
 /**
@@ -89,8 +92,9 @@ FILE* create_ent_files(char* name_without_type);
 FILE* create_ext_files(char* name_without_type);
 void print_entry_extern(FILE* file, symbol* entry_extern);
 void remove_unnecessary_files(char* name_without_type, const char* error_found, const char* is_external, const char* is_entry);
-/*print functions*/
+/*printing functions*/
 void print_code_words(FILE* machine_code, char* line, line_indexes* indexes, int last_IC, int num_of_words, ...);
 void print_label(FILE* machine_code, const char* line, word* word_to_print);
 void print_data(FILE* machine_code,data_image* data, line_counters* counters);
+void print_instructions_data_count();
 #endif //ASSEMBLER_IN_OUT_TOOLS_H

@@ -13,4 +13,5 @@ void second_pass(FILE * first_pass_file, symbol * symbol_table,FILE * input_file
 static void code_symbols(FILE* machine_code, symbol* symbol_table, FILE* externals_file, char* is_external);
 static char add_entries(FILE* input_file, symbol* symbol_table, FILE* entries_file, line_counters* counters, char* error_found);
 static char* get_entry(char* line);
+static void close_ext_ent(FILE* externals_file, FILE* entries_file);
 #endif //ASSEMBLER_SECOND_PASS_H

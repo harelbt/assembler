@@ -15,8 +15,7 @@ void second_pass(FILE * first_pass_file, symbol * symbol_table,FILE * input_file
     if (*error_found == FALSE) {
         *is_entry = add_entries(input_file, symbol_table, entries_file, counters, error_found);
     }
-    fclose(externals_file);
-    fclose(entries_file);
+    close_ext_ent(externals_file, entries_file);
 }
 
 static void code_symbols(FILE* machine_code, symbol* symbol_table, FILE* externals_file, char* is_external) {
@@ -149,28 +148,7 @@ static char* get_entry(char* line){
     free(label);
     return "";
 }
-/*static void print_entry_extern(FILE* file, symbol* entry_extern){
-    int address_length = get_address_length(entry_extern->address);
-    int number_of_pre_zeros = ADDRESS_PRINT_LENGTH - address_length;
-    fprintf(file, "%s ", entry_extern->name);
-    if (number_of_pre_zeros > 0) {
-        while (number_of_pre_zeros) {
-            fprintf(file, "0");
-            number_of_pre_zeros--;
-        }
-    }
-    fprintf(file, "%d", entry_extern->address);
+static void close_ext_ent(FILE* externals_file, FILE* entries_file){
+    fclose(externals_file);
+    fclose(entries_file);
 }
-static int get_address_length(int address){
-    int length = 0;
-    while (address){
-        address /= 10;
-        length++;
-    }
-    return length;
-}*/
-/*void resetString(char str[STRING_LEN]){
-    int i;
-    for (i = 0; i <STRING_LEN; ++i)
-        str[i]='\0';
-}*/
