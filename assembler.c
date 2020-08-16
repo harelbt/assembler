@@ -8,6 +8,7 @@ int main (int argc, char* argv[]){
     char is_entry = FALSE;
     char is_external = FALSE;
     int i = 1;
+    FILE* temp_machine_code;
     FILE* machine_code;
     FILE *source;
     char* name_without_type;
@@ -25,13 +26,15 @@ int main (int argc, char* argv[]){
         /*opening file*/
         source = open_file(*(argv + i), "r");/*this custom function can handle malloc failure*/
         name_without_type = get_file_name_without_type(*(argv + i));
-        machine_code = open_machine_code(name_without_type);
-        first_pass(source, *(argv + i), machine_code, symbol_table, &counters, &error_found);
+        machine_code = open_machine_code(name_without_type, "w+");
+        temp_machine_code = open_file("temp.TXT", "w+");
+        first_pass(source, *(argv + i), temp_machine_code, symbol_table, &counters, &error_found);
+        print_words_count(machine_code, &counters);
+        unite_temp_with_machine_code(temp_machine_code, machine_code);
         second_pass(machine_code, symbol_table, source, &counters, &error_found, name_without_type,
                     &is_entry, &is_external);
-        fclose(machine_code);
         remove_unnecessary_files(name_without_type, &error_found, &is_external, &is_entry);
-            free_symbol_table(symbol_table, source);
+        free_symbol_table(symbol_table, source);
         error_found = FALSE;/*resets error flag for the next file*/
         i++;
     }

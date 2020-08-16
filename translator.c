@@ -18,6 +18,7 @@ static void code_translation(FILE* machine_code, line* sentence, line_indexes* i
     int distance_from_last_IC = counters->IC - counters->last_instruction_address;
     prepare_instruction_word(&instruction_word, sentence, indexes);
     if(distance_from_last_IC == 1){
+        print_code_words(machine_code, sentence->line, indexes, counters->last_instruction_address, distance_from_last_IC, &instruction_word);
         return;
     }
     if (distance_from_last_IC == 2) {
