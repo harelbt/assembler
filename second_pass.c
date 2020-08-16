@@ -4,8 +4,9 @@
 #include "second_pass.h"
 #include "errors.h"
 #include "symbol table.h"
-#include "string.h"
+#include <string.h>
 #include "translator.h"
+#include <ctype.h>
 void second_pass(FILE * first_pass_file, symbol * symbol_table,FILE * input_file,
         line_counters* counters, char* error_found, char* file_name_without_type, char* is_entry, char* is_external){
     FILE* externals_file = create_ext_files(file_name_without_type);
@@ -31,15 +32,14 @@ static void code_symbols(FILE* machine_code, symbol* symbol_table, FILE* externa
     symbol *symbol_ptr;
     FILE *start_line;
     while ((curr_char = fgetc(machine_code)) != EOF) {
-        if (fgetc(machine_code) == '\n') {// starting of a new line
+        if (curr_char == '\n') {// starting of a new line
             start_line = machine_code;
             fscanf(start_line, "%s", current_address_label);// getting the IC of the label
         }
         if (curr_char == '?') {//this condition makes sure that there is a symbol need to be translated to machine code
-            fprintf(machine_code, " ");//overriding the question mark
-
-            if (fgetc(machine_code) == '&') {//need to put the distance of label_address
-                fprintf(machine_code, " ");//overriding the & sign
+          //fprintf(machine_code, " ");//overriding the question mark
+            if ((int) machine_code->_p == '&') {//need to put the distance of label_address
+                //fprintf(machine_code, " ");//overriding the & sign
                 fscanf(machine_code, "%s", symbol_to_code);//getting the name of the label
                 symbol_ptr = get_symbol(symbol_table, symbol_to_code);//checking that the name of the label is in the symbol table
                 if (!strcmp(symbol_ptr->name, symbol_to_code)) {
@@ -65,6 +65,9 @@ static void code_symbols(FILE* machine_code, symbol* symbol_table, FILE* externa
 
             }
             else {//need to put in  address of the label_address
+              while(!(isalpha((int )machine_code->_p))&&machine_code->_p==' ') {
+                 machine_code->_p++;
+              }
                 fscanf(machine_code, "%s", symbol_to_code);
                 symbol_ptr = get_symbol(symbol_table, symbol_to_code);
                 if (!strcmp(symbol_ptr->name, symbol_to_code)) {
@@ -78,13 +81,13 @@ static void code_symbols(FILE* machine_code, symbol* symbol_table, FILE* externa
                     fprintf(machine_code, "%06x", (signed int)label_address.label_address_binary);/*write in hexa the label_address address*/
                 }
                 else {
-                    fprintf(stderr, "The label_address %s does not exist in the file",
-                            symbol_to_code);/* throw an error that there is no label_address with such name*/
+                    fprintf(stderr, "The label_address %s does not exist in the file",symbol_to_code);/* throw an error that there is no label_address with such name*/
+
                 }
             }
-            while ((fgetc(machine_code)) != '\n') {//deleting all the writing that is not part of the translated label_address
+           /* while ((fgetc(machine_code)) != '\n') {//deleting all the writing that is not part of the translated label_address
                 fprintf(machine_code, " ");
-            }
+            }*/
         }
     }
 }
