@@ -1,17 +1,13 @@
 #include <stdlib.h>
-#include "in out tools.h"
 #include "first pass.h"
 #include "second_pass.h"
-static void free_symbol_table(symbol* symbol_table, FILE* source);
 int main (int argc, char* argv[]){
     char error_found = FALSE;
-    char is_entry = FALSE;
-    char is_external = FALSE;
     int i = 1;
     FILE* temp_machine_code;
     FILE* machine_code;
     FILE *source;
-    char* name_without_type;
+    char* file_name_without_type;
     /*checks if operators supplied*/
     if (argc == 1) {
         /*prints this error to stderr with exit code 1*/
@@ -25,26 +21,15 @@ int main (int argc, char* argv[]){
         symbol_table->next = NULL;
         /*opening file*/
         source = open_file(*(argv + i), "r");/*this custom function can handle malloc failure*/
-        name_without_type = get_file_name_without_type(*(argv + i));
-        machine_code = open_machine_code(name_without_type, "w+");
+        file_name_without_type = get_file_name_without_type(*(argv + i));
+        machine_code = open_machine_code(file_name_without_type, "w+");
         temp_machine_code = open_file("temp.TXT", "w+");
         first_pass(source, *(argv + i), temp_machine_code, symbol_table, &counters, &error_found);
         print_words_count(machine_code, &counters);
         unite_temp_with_machine_code(temp_machine_code, machine_code);
-        second_pass(machine_code, symbol_table, source, &counters, &error_found, name_without_type,
-                    &is_entry, &is_external);
-        remove_unnecessary_files(name_without_type, &error_found, &is_external, &is_entry);
-        free_symbol_table(symbol_table, source);
+        second_pass(machine_code, symbol_table, source, &counters, &error_found, file_name_without_type);
         error_found = FALSE;/*resets error flag for the next file*/
         i++;
     }
     return 0;
-}
-static void free_symbol_table(symbol* symbol_table, FILE* source){
-    while (symbol_table != NULL){
-        symbol* next_pointer = symbol_table->next;
-            free(symbol_table);
-            symbol_table = NULL;
-        symbol_table = next_pointer;
-    }
 }

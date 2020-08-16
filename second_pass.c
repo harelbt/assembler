@@ -6,15 +6,19 @@
 #include "symbol table.h"
 #include "string.h"
 #include "translator.h"
-void second_pass(FILE * machine_code, symbol * symbol_table, FILE * input_file,
-                 line_counters* counters, char* error_found, char* file_name_without_type, char* is_entry, char* is_external){
+void second_pass(FILE * machine_code, symbol * symbol_table, FILE * input_file, line_counters* counters, char* error_found,
+                char* file_name_without_type){
     FILE* externals_file = create_ext_files(file_name_without_type);
     FILE* entries_file = create_ent_files(file_name_without_type);
+    char is_entry = FALSE;
+    char is_external = FALSE;
     //code_symbols(first_pass_file, symbol_table, externals_file, is_external);
     if (*error_found == FALSE) {
-        *is_entry = add_entries(input_file, symbol_table, entries_file, counters, error_found);
+        is_entry = add_entries(input_file, symbol_table, entries_file, counters, error_found);
     }
     close_files(externals_file, entries_file, machine_code);
+    free_symbol_table(symbol_table);
+    remove_unnecessary_files(file_name_without_type, error_found, is_external, is_entry);
 }
 
 static void code_symbols(FILE* machine_code, symbol* symbol_table, FILE* externals_file, char* is_external) {

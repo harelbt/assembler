@@ -220,14 +220,14 @@ void print_entry_extern(FILE* file, symbol* entry_extern){
     fprintf(file, "%s ", entry_extern->name);
     fprintf(file, "%07d", entry_extern->address);
 }
-void remove_unnecessary_files(char* name_without_type, const char* error_found, const char* is_external, const char* is_entry){
+void remove_unnecessary_files(char* name_without_type, const char* error_found, const char is_external, const char is_entry){
     if (*error_found == TRUE) {
         remove_output_files(name_without_type);
     } else{
-        if (*is_external == FALSE){
+        if (is_external == FALSE){
             remove_ext_file(name_without_type);
         }
-        if (*is_entry == FALSE){
+        if (is_entry == FALSE){
             remove_ent_file(name_without_type);
         }
     }

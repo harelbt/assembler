@@ -92,7 +92,7 @@ void remove_ext_file(char* file_name);
 FILE* create_ent_files(char* name_without_type);
 FILE* create_ext_files(char* name_without_type);
 void print_entry_extern(FILE* file, symbol* entry_extern);
-void remove_unnecessary_files(char* name_without_type, const char* error_found, const char* is_external, const char* is_entry);
+void remove_unnecessary_files(char* name_without_type, const char* error_found, char is_external, char is_entry);
 /*printing functions*/
 void print_code_words(FILE* machine_code, char* line, line_indexes* indexes, int last_IC, int num_of_words, ...);
 void print_label(FILE* machine_code, const char* line, word* word_to_print);

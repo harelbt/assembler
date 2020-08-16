@@ -8,7 +8,7 @@
 
 /*FUNCTIONS DECLARATION*/
 void second_pass(FILE * machine_code, symbol * symbol_table, FILE * input_file,
-                 line_counters* counters, char* error_found, char* file_name_without_type, char* is_entry, char* is_external);
+                 line_counters* counters, char* error_found, char* file_name_without_type);
 /**/
 static void code_symbols(FILE* machine_code, symbol* symbol_table, FILE* externals_file, char* is_external);
 static char add_entries(FILE* input_file, symbol* symbol_table, FILE* entries_file, line_counters* counters, char* error_found);

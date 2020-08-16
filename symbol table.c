@@ -53,3 +53,11 @@ static void symbol_copy(symbol* dest, symbol* source){
     dest->extern_or_entry = source->extern_or_entry;
     dest->next = source->next;
 }
+void free_symbol_table(symbol* symbol_table){
+    while (symbol_table != NULL){
+        symbol* next_pointer = symbol_table->next;
+        free(symbol_table);
+        symbol_table = NULL;
+        symbol_table = next_pointer;
+    }
+}
