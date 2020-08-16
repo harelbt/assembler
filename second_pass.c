@@ -65,9 +65,6 @@ static void code_symbols(FILE* machine_code, symbol* symbol_table, FILE* externa
 
             }
             else {//need to put in  address of the label_address
-              while(!(isalpha((int )machine_code->_p))&&machine_code->_p==' ') {
-                 machine_code->_p++;
-              }
                 fscanf(machine_code, "%s", symbol_to_code);
                 symbol_ptr = get_symbol(symbol_table, symbol_to_code);
                 if (!strcmp(symbol_ptr->name, symbol_to_code)) {
