@@ -54,10 +54,8 @@
 /*GENERAL*/
 #define ONE_WORD 1
 #define NUMBER_ALLOWED_LENGTH 8
-/*NON STATIC FUNCTIONS*/
+/*general*/
 void first_pass_translation(FILE* machine_code, line* sentence, line_indexes* indexes, line_counters* counters, data_image* data);
-void insert_data_node(data_image* head, data_image* to_insert);
-/*STATIC FUNCTIONS*/
 /*instruction translation functions*/
 static void code_translation(FILE* machine_code, line* sentence, line_indexes* indexes, line_counters* counters);
 /*____________________________________________________________________________________________________________________*/
@@ -75,6 +73,7 @@ static void translate_string_sequence(const char* string_sequence, int last_DC, 
 static char* get_number(const char* line, int index);
 static void get_to_next_number(int* index, const char* line);
 static void code_number(word* word, const char* line, int index, char mode);
+void insert_data_node(data_image* head, data_image* to_insert);
 /*set instruction bitfield functions*/
 static void set_opcode(word* word, int opcode);
 static void set_function(word* word, int function);

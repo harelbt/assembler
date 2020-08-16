@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include "in out tools.h"
+/*strings functions*/
 char* get_line_dynamic(FILE* file, int* length){
     char* str = allocate_memory(LINE_ASSUMED_LENGTH, CHAR);
     int ch = skip_spaces(file);
@@ -37,6 +38,47 @@ int read_line(FILE* file, line* sentence){
         return EOF;
     return 0;
 }
+/*returns the first char after the spaces. return value may be a new line character, consider using the skip_white_chars
+  function.*/
+int skip_spaces(FILE* file){
+    int ch;
+    /*_____________________________________________________________*/
+    while ((ch = fgetc(file)) == ' ');/*skipping engine*/
+    /*_____________________________________________________________*/
+    return ch;
+}
+int find_next_word(const char* line, int index){
+    int str_length = (int)strlen(line);
+    int i = index;
+    while (i < str_length && (*(line + i) == ' ' || *(line + i) == '\t')){
+        i++;
+    }
+    return i;
+}
+/*returns a string from the file pointer until a white char(dynamic memory allocation)
+ * if the file pointer points at a white char, returns "" (empty string)*/
+char* get_until_white_char(const char* line, int index) {
+    char* string = allocate_memory(LINE_ASSUMED_LENGTH, CHAR);/*initial allocation*/
+    int i = index;
+    int k = 0;
+    int line_length_multiplier = 1;
+    *(string) = '\0';
+    /*_____________________________________________________________*/
+    while (*(line + i) && *(line + i) != ' ' && *(line + i) != '\t'){
+        *(string+k) = *(line+i);
+        i++;
+        k++;
+        if (k == line_length_multiplier* LINE_ASSUMED_LENGTH) {
+            line_length_multiplier++;
+            string = realloc_memory(string, LINE_ASSUMED_LENGTH * line_length_multiplier, CHAR);
+            *(string + LINE_ASSUMED_LENGTH * line_length_multiplier - 1) = '\0';
+        }
+    }
+    *(string + k) = '\0';
+    /*_____________________________________________________________*/
+    return string;
+}
+/*memory allocation functions*/
 /*allocates memory for array of any type safely and exits program in case of failure with a proper massage to stderr
  * returns the address*/
 void* allocate_memory (int size, char type){
@@ -77,38 +119,12 @@ void* realloc_memory (void* ptr, int size, char type){
     /*_____________________________________________________________*/
     return NULL;
 }
-/*returns the first char after the spaces. return value may be a new line character, consider using the skip_white_chars
-  function.*/
-int skip_spaces(FILE* file){
-    int ch;
-    /*_____________________________________________________________*/
-    while ((ch = fgetc(file)) == ' ');/*skipping engine*/
-    /*_____________________________________________________________*/
-    return ch;
-}
+/*files functions*/
 /*stops with exit code.
  * 1)with pre defined codes and "" string (pre made massage to stderr).
  * 2)"EXIT_SUCCESS/FAILURE" and "" string(no massage to stderr).
  * "EXIT_SUCCESS/FAILURE" and a massage to stderr.
  * codes were defined as macros*/
-void stop(int exit_type, const char* to_print) {
-    /*custom exit with a given string*/
-    if (strcmp(to_print,"") != 0 && (exit_type == EXIT_FAILURE || exit_type == EXIT_SUCCESS)) {
-        fputs(to_print,stderr);
-        exit(exit_type);
-    } else/*exit with exit code and "" (empty) string*/
-        switch (exit_type) {
-            case MEMORY: {
-                fputs("Not enough memory\nTerminating program\n", stderr);
-                exit(EXIT_FAILURE);
-            }
-            case FOPEN:{
-                fputs("Can't open file. Terminating program\n", stderr);
-                exit(EXIT_FAILURE);
-            }
-            default: exit(EXIT_FAILURE);
-        }
-}
 /*opens file safely and exits program in case of failure with a proper massage to stderr*/
 FILE* open_file(const char* file_name, const char* open_type){
     FILE* file_pointer;
@@ -120,49 +136,35 @@ FILE* open_file(const char* file_name, const char* open_type){
     /*_____________________________________________________________*/
     return file_pointer;
 }
-void print_visual_indication(int index, const char* line) {
-    int i = index;
-    if (i == 1) {
-        puts("_^");
-        return;
-    }
-    while (i > 1) {
-        putchar('_');
-        i--;
-    }
-    puts("^");
-    printf("Starting at the character ' %c '\n", *(line + index));
+FILE* open_machine_code(char* file_name, const char* mode){
+    char to_open[strlen(file_name) + TYPE_MAX_LENGTH];
+    FILE* machine_code;
+    strcpy(to_open, file_name);
+    strcat(to_open, ".ob\0");
+    machine_code = open_file(to_open, mode);
+    return machine_code;
 }
-int find_next_word(const char* line, int index){
-    int str_length = (int)strlen(line);
-    int i = index;
-    while (i < str_length && (*(line + i) == ' ' || *(line + i) == '\t')){
-        i++;
+void unite_temp_with_machine_code(FILE* temp_machine_code, FILE* machine_code){
+    fseek(temp_machine_code, START, SEEK_SET);
+    int curr_char = fgetc(temp_machine_code);
+    while (curr_char != EOF){
+        fputc(curr_char, machine_code);
+        curr_char = fgetc(temp_machine_code);
     }
-    return i;
+    fclose(temp_machine_code);
+    remove("temp.TXT");
 }
-/*returns a string from the file pointer until a white char(dynamic memory allocation)
- * if the file pointer points at a white char, returns "" (empty string)*/
-char* get_until_white_char(const char* line, int index) {
-    char* string = allocate_memory(LINE_ASSUMED_LENGTH, CHAR);/*initial allocation*/
-    int i = index;
-    int k = 0;
-    int line_length_multiplier = 1;
-    *(string) = '\0';
-    /*_____________________________________________________________*/
-    while (*(line + i) && *(line + i) != ' ' && *(line + i) != '\t'){
-        *(string+k) = *(line+i);
-        i++;
-        k++;
-        if (k == line_length_multiplier* LINE_ASSUMED_LENGTH) {
-            line_length_multiplier++;
-            string = realloc_memory(string, LINE_ASSUMED_LENGTH * line_length_multiplier, CHAR);
-            *(string + LINE_ASSUMED_LENGTH * line_length_multiplier - 1) = '\0';
-        }
-    }
-        *(string + k) = '\0';
-    /*_____________________________________________________________*/
-    return string;
+FILE* create_ent_files(char* name_without_type){
+    char ent_file_name[strlen(name_without_type) + TYPE_MAX_LENGTH + 1];
+    strcpy(ent_file_name, name_without_type);
+    strcat(ent_file_name, ".ent\0");
+    return open_file(ent_file_name, "w+");
+}
+FILE* create_ext_files(char* name_without_type){
+    char ext_file_name[strlen(name_without_type) + TYPE_MAX_LENGTH + 1];
+    strcpy(ext_file_name, name_without_type);
+    strcat(ext_file_name, ".ext\0");
+    return open_file(ext_file_name, "w+");
 }
 char* get_file_name_without_type(char* file_name){
     unsigned int length = strlen(file_name);
@@ -196,30 +198,6 @@ void remove_ext_file(char* file_name){
     strcat(to_remove, ".ext\0");
     remove(to_remove);
 }
-FILE* open_machine_code(char* file_name, const char* mode){
-    char to_open[strlen(file_name) + TYPE_MAX_LENGTH];
-    FILE* machine_code;
-    strcpy(to_open, file_name);
-    strcat(to_open, ".ob\0");
-    machine_code = open_file(to_open, mode);
-    return machine_code;
-}
-FILE* create_ent_files(char* name_without_type){
-    char ent_file_name[strlen(name_without_type) + TYPE_MAX_LENGTH + 1];
-    strcpy(ent_file_name, name_without_type);
-    strcat(ent_file_name, ".ent\0");
-    return open_file(ent_file_name, "w+");
-}
-FILE* create_ext_files(char* name_without_type){
-    char ext_file_name[strlen(name_without_type) + TYPE_MAX_LENGTH + 1];
-    strcpy(ext_file_name, name_without_type);
-    strcat(ext_file_name, ".ext\0");
-    return open_file(ext_file_name, "w+");
-}
-void print_entry_extern(FILE* file, symbol* entry_extern){
-    fprintf(file, "%s ", entry_extern->name);
-    fprintf(file, "%07d", entry_extern->address);
-}
 void remove_unnecessary_files(char* name_without_type, const char* error_found, const char is_external, const char is_entry){
     if (*error_found == TRUE) {
         remove_output_files(name_without_type);
@@ -232,7 +210,8 @@ void remove_unnecessary_files(char* name_without_type, const char* error_found, 
         }
     }
 }
-void print_code_words(FILE* machine_code, char* line, line_indexes* indexes, int last_IC, int num_of_words, ...) {
+/*printing functions*/
+void print_code_words(FILE* machine_code, char* line, int last_IC, int num_of_words, ...) {
     int i = num_of_words;
     va_list arg_pointer;
     word *word_to_print;
@@ -288,13 +267,39 @@ void print_data(FILE* machine_code, data_image* data, line_counters* counters){
 void print_words_count(FILE* machine_code, line_counters* counters){
     fprintf(machine_code,"%d %d\n", counters->IC-100, counters->DC-100);
 }
-void unite_temp_with_machine_code(FILE* temp_machine_code, FILE* machine_code){
-    fseek(temp_machine_code, START, SEEK_SET);
-    int curr_char = fgetc(temp_machine_code);
-    while (curr_char != EOF){
-        fputc(curr_char, machine_code);
-        curr_char = fgetc(temp_machine_code);
+void print_visual_indication(int index, const char* line) {
+    int i = index;
+    if (i == 1) {
+        puts("_^");
+        return;
     }
-    fclose(temp_machine_code);
-    remove("temp.TXT");
+    while (i > 1) {
+        putchar('_');
+        i--;
+    }
+    puts("^");
+    printf("Starting at the character ' %c '\n", *(line + index));
+}
+void print_entry_extern(FILE* file, symbol* entry_extern){
+    fprintf(file, "%s ", entry_extern->name);
+    fprintf(file, "%07d", entry_extern->address);
+}
+/**/
+void stop(int exit_type, const char* to_print) {
+    /*custom exit with a given string*/
+    if (strcmp(to_print,"") != 0 && (exit_type == EXIT_FAILURE || exit_type == EXIT_SUCCESS)) {
+        fputs(to_print,stderr);
+        exit(exit_type);
+    } else/*exit with exit code and "" (empty) string*/
+        switch (exit_type) {
+            case MEMORY: {
+                fputs("Not enough memory\nTerminating program\n", stderr);
+                exit(EXIT_FAILURE);
+            }
+            case FOPEN:{
+                fputs("Can't open file. Terminating program\n", stderr);
+                exit(EXIT_FAILURE);
+            }
+            default: exit(EXIT_FAILURE);
+        }
 }

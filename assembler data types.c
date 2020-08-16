@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include "assembler data types.h"
 /*-explain tools or replace name-*/
 void initialize_line_tools(line* sentence, line_counters* counters, line_indexes* indexes){

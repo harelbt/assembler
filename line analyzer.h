@@ -55,8 +55,8 @@ indexes->second_register_index = index;}}\
 
 /*FUNCTIONS DECLARATION*/
 /*NON STATIC FUNCTIONS*/
-void empty_or_comment_line_check (line* sentence, line_indexes* indexes);
 void analyze_sentence(line* sentence, line_indexes* indexes, line_counters* counters);
+void empty_or_comment_line_check (line* sentence, line_indexes* indexes);
 /*STATIC FUNCTIONS*/
 /*general*/
 static void define_sentence_type(line* sentence, line_counters counters, line_indexes indexes);
@@ -77,4 +77,5 @@ static void first_char_check(line_indexes* indexes, char* first_char_found, char
 /*orders*/
 static void find_data_order(line* sentence, int dot_index);
 static short int is_order(line_counters counters, line_indexes indexes);
+/**/
 #endif //ASSEMBLER_LINE_ANALYZER_H

@@ -20,7 +20,7 @@ void second_pass(FILE * machine_code, symbol * symbol_table, FILE * input_file, 
     free_symbol_table(symbol_table);
     remove_unnecessary_files(file_name_without_type, error_found, is_external, is_entry);
 }
-
+/**/
 static void code_symbols(FILE* machine_code, symbol* symbol_table, FILE* externals_file, char* is_external) {
     char symbol_to_code[LABEL_MAX_LENGTH];
     char current_address_label[LABEL_MAX_LENGTH];

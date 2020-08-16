@@ -14,4 +14,5 @@ static void code_symbols(FILE* machine_code, symbol* symbol_table, FILE* externa
 static char add_entries(FILE* input_file, symbol* symbol_table, FILE* entries_file, line_counters* counters, char* error_found);
 static char* get_entry(char* line);
 static void close_files(FILE *externals_file, FILE *entries_file, FILE *machine_code);
+/**/
 #endif //ASSEMBLER_SECOND_PASS_H

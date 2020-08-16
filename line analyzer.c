@@ -2,6 +2,7 @@
 #include <string.h>
 #include "line analyzer.h"
 /*--for the first pass--*/
+/*NON STATIC FUNCTIONS*/
 void analyze_sentence(line* sentence, line_indexes* indexes, line_counters* counters) {
     find_line_components(sentence, indexes, counters);/*fills sentence, indexes and counters*/
     define_sentence_type(sentence, *counters, *indexes);/*code or order*/
@@ -18,43 +19,14 @@ void empty_or_comment_line_check (line* sentence, line_indexes* indexes){
         return;
     }
 }
-static int recognize_operator(char* operator, int* opcode, int* function){
-    char** endp = NULL;/*for "strtod"*/
-    int i = 0;
-    char* operators_table[NUMBER_OF_OPERATORS][3] = {{"mov", "0", ""},{"cmp", "1", ""},{"add", "2", "1"},{"sub", "2", "2"},{"lea", "4", ""},
-                                    {"clr", "5", "1"},{"not", "5", "2"},{"inc", "5", "3"},{"dec", "5", "4"},{"jmp", "9", "1"},
-                                    {"bne","9", "2"},{"jsr", "9", "3"},{"red", "12", ""},{"prn", "13", ""},{"rts", "14", ""}
-                                    };
-    while (i < NUMBER_OF_OPERATORS){
-        if (!strcmp(operator, operators_table[i][0])){/*if operator was found gets the opcode and the function*/
-            *opcode = strtod(operators_table[i][1],endp);
-            *function = strtod(operators_table[i][2],endp);
-            return TRUE;
-        }
-        i++;
+/*STATIC FUNCTIONS*/
+/*general*/
+static void define_sentence_type(line* sentence, line_counters counters, line_indexes indexes) {
+    if (counters.number_of_operators > 0) {
+        sentence->flags.is_code = TRUE;
     }
-    return FALSE;/*operator wasn't found*/
-}
-void check_for_operators(line_counters* counters, line_indexes* indexes, line* sentence, int i){
-    *sentence->code_parts.operator_name = *(sentence->line + i);
-    *(sentence->code_parts.operator_name+1) = *(sentence->line + i + 1);
-    *(sentence->code_parts.operator_name+2) = *(sentence->line + i + 2);
-    if (i < sentence->length-3){
-        *(sentence->code_parts.operator_name+3) = *(sentence->line + i + 3);
-        *(sentence->code_parts.operator_name+4) = '\0';
-        if (!strcmp(sentence->code_parts.operator_name,"stop") && STOP_OPERATOR_CONDITION){
-            sentence->code_parts.opcode = 15;
-            counters->number_of_operators++;
-            return ;
-        } else{
-            *(sentence->code_parts.operator_name+3) = '\0';
-        }
-    }
-    if (recognize_operator(sentence->code_parts.operator_name, &sentence->code_parts.opcode, &sentence->code_parts.function) == TRUE
-    && OPERATOR_CONDITION){
-        counters->number_of_operators++;
-        indexes->operator_index = i;
-        return ;
+    if (is_order(counters, indexes) == TRUE) {
+        sentence->flags.is_data = TRUE;
     }
 }
 static void find_line_components(line* sentence, line_indexes* indexes, line_counters* counters) {
@@ -81,12 +53,13 @@ static void find_line_components(line* sentence, line_indexes* indexes, line_cou
         if (curr_char == ';' && indexes->first_char_index == i) { return; }
         i++;
     }
-        /*if only one operand was found, set it as the second operand (destination operand)*/
-        if (indexes->first_operand_index != NOT_FOUND && indexes->second_operand_index == NOT_FOUND) {
-            indexes->second_operand_index = indexes->first_operand_index;
-            indexes->first_operand_index = NOT_FOUND;
-        }
+    /*if only one operand was found, set it as the second operand (destination operand)*/
+    if (indexes->first_operand_index != NOT_FOUND && indexes->second_operand_index == NOT_FOUND) {
+        indexes->second_operand_index = indexes->first_operand_index;
+        indexes->first_operand_index = NOT_FOUND;
+    }
 }
+/*labels*/
 void prepare_label(line* sentence, int data_index){
     /*prepares sentence type*/
     if (sentence->flags.is_code == TRUE) {
@@ -98,6 +71,63 @@ void prepare_label(line* sentence, int data_index){
         }
     }
 }
+static void find_label(line* sentence, line_indexes indexes){
+    if (indexes.first_quotation_mark_index == NOT_FOUND) {/*a label definition can't be in or after a string*/
+        int i = 0;
+        /*LABEL_MAX_LENGTH == 32, so max index is 30 and index 31 is '\0' (LABEL_MAX_LENGTH - 2)*/
+        while ((i + indexes.first_char_index < indexes.colon_index) && i < LABEL_MAX_LENGTH - 1) {
+            *(sentence->label.name + i) = *(sentence->line + (i + indexes.first_char_index));
+            i++;
+        }
+        *(sentence->label.name + i) = '\0';/*end of string*/
+    }
+}
+/*operators*/
+static int recognize_operator(char* operator, int* opcode, int* function){
+    char** endp = NULL;/*for "strtod"*/
+    int i = 0;
+    char* operators_table[NUMBER_OF_OPERATORS][3] = {{"mov", "0", ""},{"cmp", "1", ""},{"add", "2", "1"},{"sub", "2", "2"},{"lea", "4", ""},
+                                                     {"clr", "5", "1"},{"not", "5", "2"},{"inc", "5", "3"},{"dec", "5", "4"},{"jmp", "9", "1"},
+                                                     {"bne","9", "2"},{"jsr", "9", "3"},{"red", "12", ""},{"prn", "13", ""},{"rts", "14", ""}
+    };
+    while (i < NUMBER_OF_OPERATORS){
+        if (!strcmp(operator, operators_table[i][0])){/*if operator was found gets the opcode and the function*/
+            *opcode = strtod(operators_table[i][1],endp);
+            *function = strtod(operators_table[i][2],endp);
+            return TRUE;
+        }
+        i++;
+    }
+    return FALSE;/*operator wasn't found*/
+}
+void check_for_operators(line_counters* counters, line_indexes* indexes, line* sentence, int i){
+    *sentence->code_parts.operator_name = *(sentence->line + i);
+    *(sentence->code_parts.operator_name+1) = *(sentence->line + i + 1);
+    *(sentence->code_parts.operator_name+2) = *(sentence->line + i + 2);
+    if (i < sentence->length-3){
+        *(sentence->code_parts.operator_name+3) = *(sentence->line + i + 3);
+        *(sentence->code_parts.operator_name+4) = '\0';
+        if (!strcmp(sentence->code_parts.operator_name,"stop") && STOP_OPERATOR_CONDITION){
+            sentence->code_parts.opcode = 15;
+            counters->number_of_operators++;
+            return ;
+        } else{
+            *(sentence->code_parts.operator_name+3) = '\0';
+        }
+    }
+    if (recognize_operator(sentence->code_parts.operator_name, &sentence->code_parts.opcode, &sentence->code_parts.function) == TRUE
+        && OPERATOR_CONDITION){
+        counters->number_of_operators++;
+        indexes->operator_index = i;
+        return ;
+    }
+}
+static void operator_check(line* sentence, line_counters* counters, line_indexes* indexes, int index){
+    if (index < sentence->length - 2){
+        check_for_operators(counters, indexes, sentence, index);
+    }
+}
+/*info check*/
 static void signs_check(line* sentence, line_counters* counters, line_indexes* indexes, char curr_char, char* colon_found,
                         char* semicolon_found, char* dot_found, char first_char_found, int index){
     switch (curr_char) {
@@ -119,11 +149,6 @@ static void signs_check(line* sentence, line_counters* counters, line_indexes* i
         case ',':{
             counters->number_of_commas++;
         }
-    }
-}
-static void operator_check(line* sentence, line_counters* counters, line_indexes* indexes, int index){
-    if (index < sentence->length - 2){
-        check_for_operators(counters, indexes, sentence, index);
     }
 }
 static void data_check(line_indexes* indexes, char* order_ended, char* data_found, char dot_found, char curr_char, int index){
@@ -158,14 +183,7 @@ static void first_char_check(line_indexes* indexes, char* first_char_found, char
         *first_char_found = TRUE;
     }
 }
-static void define_sentence_type(line* sentence, line_counters counters, line_indexes indexes) {
-    if (counters.number_of_operators > 0) {
-        sentence->flags.is_code = TRUE;
-    }
-    if (is_order(counters, indexes) == TRUE) {
-        sentence->flags.is_data = TRUE;
-    }
-}
+/*orders*/
 static short int is_order(line_counters counters, line_indexes indexes){
     switch (counters.number_of_dots) {
         case 0:{
@@ -194,16 +212,5 @@ static void find_data_order(line* sentence, int dot_index){
             i++;
         }
         *(sentence->data_parts.order+k) = '\0';
-    }
-}
-static void find_label(line* sentence, line_indexes indexes){
-    if (indexes.first_quotation_mark_index == NOT_FOUND) {/*a label definition can't be in or after a string*/
-        int i = 0;
-        /*LABEL_MAX_LENGTH == 32, so max index is 30 and index 31 is '\0' (LABEL_MAX_LENGTH - 2)*/
-        while ((i + indexes.first_char_index < indexes.colon_index) && i < LABEL_MAX_LENGTH - 1) {
-            *(sentence->label.name + i) = *(sentence->line + (i + indexes.first_char_index));
-            i++;
-        }
-        *(sentence->label.name + i) = '\0';/*end of string*/
     }
 }

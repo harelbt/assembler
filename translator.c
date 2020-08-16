@@ -11,6 +11,7 @@ void first_pass_translation(FILE* machine_code, line* sentence, line_indexes* in
         data_translation(sentence, indexes, counters, data);
     }
 }
+/*instruction translation functions*/
 static void code_translation(FILE* machine_code, line* sentence, line_indexes* indexes, line_counters* counters){
     word instruction_word;
     word second_word;
@@ -18,17 +19,100 @@ static void code_translation(FILE* machine_code, line* sentence, line_indexes* i
     int distance_from_last_IC = counters->IC - counters->last_instruction_address;
     prepare_instruction_word(&instruction_word, sentence, indexes);
     if(distance_from_last_IC == 1){
-        print_code_words(machine_code, sentence->line, indexes, counters->last_instruction_address, distance_from_last_IC, &instruction_word);
+        print_code_words(machine_code, sentence->line, counters->last_instruction_address, distance_from_last_IC, &instruction_word);
         return;
     }
     if (distance_from_last_IC == 2) {
         prepare_extra_words(sentence->line, indexes, distance_from_last_IC, &second_word);
-        print_code_words(machine_code, sentence->line, indexes, counters->last_instruction_address, distance_from_last_IC, &instruction_word, &second_word);
+        print_code_words(machine_code, sentence->line, counters->last_instruction_address, distance_from_last_IC, &instruction_word, &second_word);
     } else{
         prepare_extra_words(sentence->line, indexes, distance_from_last_IC, &second_word, &third_word);
-        print_code_words(machine_code, sentence->line, indexes, counters->last_instruction_address, distance_from_last_IC, &instruction_word, &second_word, &third_word);
+        print_code_words(machine_code, sentence->line, counters->last_instruction_address, distance_from_last_IC, &instruction_word, &second_word, &third_word);
     }
 }
+static void prepare_instruction_word(word* to_prepare, line* sentence, line_indexes* indexes){
+    to_prepare->word = 0;
+    to_prepare->word |= ABSOLUTE;
+    set_opcode(to_prepare, sentence->code_parts.opcode);
+    set_function(to_prepare, sentence->code_parts.function);
+    if (indexes->first_operand_index == NOT_FOUND && indexes->second_operand_index != NOT_FOUND){
+        prepare_dest_only_instruction(to_prepare, sentence->line, indexes);
+    } else {
+        prepare_full_instruction_word(to_prepare, indexes, sentence->line);
+    }
+    to_prepare->is_jump = FALSE;
+    to_prepare->is_label = FALSE;
+}
+static void prepare_dest_only_instruction(word* to_prepare, const char* line, line_indexes* indexes){
+    if (indexes->second_operand_index == indexes->first_register_index) {
+        set_dest_register(to_prepare, line, indexes->first_register_index);
+    }
+    set_dest_addressing(to_prepare, line, indexes);
+}
+static void prepare_full_instruction_word(word* to_prepare, line_indexes* indexes, const char* line){
+    if (indexes->first_operand_index == indexes->first_register_index) {
+        set_source_register(to_prepare, line, indexes->first_register_index);
+    }
+    if (indexes->second_operand_index == indexes->first_register_index){
+        set_dest_register(to_prepare, line, indexes->first_register_index);
+    }
+    if (indexes->second_operand_index == indexes->second_register_index) {
+        set_dest_register(to_prepare, line, indexes->second_register_index);
+    }
+    set_source_addressing(line, to_prepare, indexes);
+    set_dest_addressing(to_prepare, line, indexes);
+
+}
+static void prepare_extra_words(const char* line, line_indexes* indexes, int num_of_words, ...){
+    va_list arg_pointer;
+    va_start(arg_pointer, num_of_words);
+    if (num_of_words == 2){
+        int index;
+        word* second_word = va_arg(arg_pointer, word*);
+        if(indexes->second_operand_index != NOT_FOUND && indexes->second_operand_index == indexes->first_register_index){
+            index = indexes->first_operand_index;
+        } else{
+            index = indexes->second_operand_index;
+        }
+        code_word(second_word, line, index, indexes, CODE);
+    } else{
+        word* second_word = va_arg(arg_pointer, word*);
+        word* third_word = va_arg(arg_pointer, word*);
+        code_word(second_word, line, indexes->first_operand_index, indexes, CODE);
+        code_word(third_word, line, indexes->second_operand_index, indexes, CODE);
+    }
+    va_end(arg_pointer);
+}
+static void code_word( word* word, const char* line, int index, line_indexes* indexes, char mode){
+    if (mode == CODE){
+        code_instruction_word(word, line, index, indexes);
+    } else{
+        code_number(word, line, index, DATA);
+    }
+}
+static void code_instruction_word(word* word, const char* line, int index, line_indexes* indexes){
+    word->label_index = NOT_FOUND;
+    word->is_label = FALSE;
+    word->is_jump = FALSE;
+    switch (*(line + index)) {
+        case '#':{
+            code_number(word, line, index, CODE);
+            break;
+        }
+        case '&':{
+            word->is_jump = TRUE;
+            word->label_index = index;
+            break;
+        }
+        default:{
+            if (index != indexes->first_register_index && index != indexes->second_register_index) {
+                word->is_label = TRUE;
+                word->label_index = index;
+            }
+        }
+    }
+}
+/*data translation functions*/
 static void data_translation(line* sentence, line_indexes* indexes, line_counters* counters, data_image* data){
     if (indexes->first_quotation_mark_index != NOT_FOUND){
         translate_string_sequence(sentence->line + indexes->data_index, counters->last_data_address,indexes->second_quotation_mark_index-indexes->data_index, data);
@@ -60,59 +144,69 @@ static void translate_string_sequence(const char* string_sequence, int last_DC, 
         index++;
     }
 }
-static void prepare_instruction_word(word* to_prepare, line* sentence, line_indexes* indexes){
-    to_prepare->word = 0;
-    to_prepare->word |= ABSOLUTE;
-    set_opcode(to_prepare, sentence->code_parts.opcode);
-    set_function(to_prepare, sentence->code_parts.function);
-    if (indexes->first_operand_index == NOT_FOUND && indexes->second_operand_index != NOT_FOUND){
-        prepare_dest_only_instruction(to_prepare, sentence->line, indexes);
-    } else {
-        prepare_full_instruction_word(to_prepare, indexes, sentence->line);
+static char* get_number(const char* line, int index){
+    char* number_str = allocate_memory(NUMBER_ALLOWED_LENGTH, CHAR);
+    int i = index;
+    int k = 0;
+    char curr_char = *(line + i);
+    while (curr_char && curr_char != ' ' && curr_char != '\t' && curr_char != ','){
+        *(number_str + k) = curr_char;
+        k++;
+        i++;
+        curr_char = *(line + i);
     }
-    to_prepare->is_jump = FALSE;
-    to_prepare->is_label = FALSE;
+    *(number_str + k) = '\0';
+    return number_str;
 }
-static void prepare_full_instruction_word(word* to_prepare, line_indexes* indexes, const char* line){
-    if (indexes->first_operand_index == indexes->first_register_index) {
-        set_source_register(to_prepare, line, indexes->first_register_index);
+static void get_to_next_number(int* index, const char* line){
+    char curr_char = *(line + *index);
+    while (curr_char && curr_char != ' ' && curr_char != '\t' && curr_char != ','){
+        (*index)++;
+        curr_char = *(line + *index);
     }
-    if (indexes->second_operand_index == indexes->first_register_index){
-        set_dest_register(to_prepare, line, indexes->first_register_index);
-    }
-    if (indexes->second_operand_index == indexes->second_register_index) {
-        set_dest_register(to_prepare, line, indexes->second_register_index);
-    }
-    set_source_addressing(line, to_prepare, indexes);
-    set_dest_addressing(to_prepare, line, indexes);
-
-}
-static void prepare_dest_only_instruction(word* to_prepare, const char* line, line_indexes* indexes){
-    if (indexes->second_operand_index == indexes->first_register_index) {
-        set_dest_register(to_prepare, line, indexes->first_register_index);
-    }
-    set_dest_addressing(to_prepare, line, indexes);
-}
-static void set_function(word* word, int function){
-    switch (function) {
-        case 1:{
-            word->word |= FUNCTION_ONE;
-            break;
-        }
-        case 2:{
-            word->word |= FUNCTION_TWO;
-            break;
-        }
-        case 3:{
-            word->word |= FUNCTION_THREE;
-            break;
-        }
-        case 4:{
-            word->word |= FUNCTION_FOUR;
-            break;
-        }
+    while (curr_char && (curr_char == ' ' || curr_char == '\t' || curr_char == ',')){
+        (*index)++;
+        curr_char = *(line + *index);
     }
 }
+static void code_number(word* word, const char* line, int index, char mode){
+    char is_sign = FALSE;
+    if (mode == CODE) {
+        index++;
+    }
+    char* to_code;
+    if (*(line + index) == '-' || *(line + index) == '+'){
+        is_sign = TRUE;
+        index++;
+    }
+    to_code = get_number(line, index);
+    word->word = strtod(to_code, NULL);
+    if (is_sign == TRUE){
+        word->word ^= (unsigned int) TWOS_COMP_MASK;
+    }
+    if (mode == CODE) {
+        word->word <<= 3u;
+        word->word |= ABSOLUTE;
+    }
+    free(to_code);
+    to_code = NULL;
+}
+void insert_data_node(data_image* head, data_image* to_insert){
+    data_image* curr_pointer = head;
+    if (head->is_head_filled == FALSE){
+        head->word = to_insert->word;
+        head->DC = to_insert->DC;
+        head->is_head_filled = TRUE;
+        free(to_insert);
+        to_insert = NULL;
+        return;
+    }
+    while (curr_pointer->next != NULL){
+        curr_pointer = curr_pointer->next;
+    }
+    curr_pointer->next = to_insert;
+}
+/*set instruction bitfield functions*/
 static void set_opcode(word* word, int opcode){
     switch (opcode) {
         case 1:{
@@ -153,19 +247,22 @@ static void set_opcode(word* word, int opcode){
         }
     }
 }
-static void set_source_addressing(const char* line, word* word, line_indexes* indexes){
-    int addressing = get_source_addressing(line, indexes);
-    switch (addressing) {
+static void set_function(word* word, int function){
+    switch (function) {
         case 1:{
-            word->word |= FIRST_SOURCE_ADDRESSING;
+            word->word |= FUNCTION_ONE;
             break;
         }
         case 2:{
-            word->word |= SECOND_SOURCE_ADDRESSING;
+            word->word |= FUNCTION_TWO;
             break;
         }
         case 3:{
-            word->word |= THIRD_SOURCE_ADDRESSING;
+            word->word |= FUNCTION_THREE;
+            break;
+        }
+        case 4:{
+            word->word |= FUNCTION_FOUR;
             break;
         }
     }
@@ -183,6 +280,23 @@ static void set_dest_addressing(word* word, const char* line, line_indexes* inde
         }
         case 3:{
             word->word |= THIRD_DEST_ADDRESSING;
+            break;
+        }
+    }
+}
+static void set_source_addressing(const char* line, word* word, line_indexes* indexes){
+    int addressing = get_source_addressing(line, indexes);
+    switch (addressing) {
+        case 1:{
+            word->word |= FIRST_SOURCE_ADDRESSING;
+            break;
+        }
+        case 2:{
+            word->word |= SECOND_SOURCE_ADDRESSING;
+            break;
+        }
+        case 3:{
+            word->word |= THIRD_SOURCE_ADDRESSING;
             break;
         }
     }
@@ -251,6 +365,7 @@ static void set_dest_register(word* word, const char* line, int register_index){
         }
     }
 }
+/*addressing discover functions*/
 static int get_source_addressing(const char* line, line_indexes* indexes){
     if (indexes->first_operand_index == NOT_FOUND || *(line + indexes->first_operand_index) == '#') {
         return 0;
@@ -274,117 +389,7 @@ static int get_dest_addressing(const char* line, line_indexes* indexes){
         return 1;
     }
 }
-static void prepare_extra_words(const char* line, line_indexes* indexes, int num_of_words, ...){
-    va_list arg_pointer;
-    va_start(arg_pointer, num_of_words);
-    if (num_of_words == 2){
-        int index;
-        word* second_word = va_arg(arg_pointer, word*);
-        if(indexes->second_operand_index != NOT_FOUND && indexes->second_operand_index == indexes->first_register_index){
-            index = indexes->first_operand_index;
-        } else{
-            index = indexes->second_operand_index;
-        }
-        code_word(second_word, line, index, indexes, CODE);
-    } else{
-        word* second_word = va_arg(arg_pointer, word*);
-        word* third_word = va_arg(arg_pointer, word*);
-        code_word(second_word, line, indexes->first_operand_index, indexes, CODE);
-        code_word(third_word, line, indexes->second_operand_index, indexes, CODE);
-    }
-    va_end(arg_pointer);
-}
-static void code_word( word* word, const char* line, int index, line_indexes* indexes, char mode){
-    if (mode == CODE){
-        code_instruction_word(word, line, index, indexes);
-    } else{
-        code_number(word, line, index, DATA);
-    }
-}
-static void code_instruction_word(word* word, const char* line, int index, line_indexes* indexes){
-    word->label_index = NOT_FOUND;
-    word->is_label = FALSE;
-    word->is_jump = FALSE;
-    switch (*(line + index)) {
-        case '#':{
-            code_number(word, line, index, CODE);
-            break;
-        }
-        case '&':{
-            word->is_jump = TRUE;
-            word->label_index = index;
-            break;
-        }
-        default:{
-            if (index != indexes->first_register_index && index != indexes->second_register_index) {
-                word->is_label = TRUE;
-                word->label_index = index;
-            }
-        }
-    }
-}
-static void code_number(word* word, const char* line, int index, char mode){
-    char is_sign = FALSE;
-    if (mode == CODE) {
-        index++;
-    }
-    char* to_code;
-    if (*(line + index) == '-' || *(line + index) == '+'){
-        is_sign = TRUE;
-        index++;
-    }
-    to_code = get_number(line, index);
-    word->word = strtod(to_code, NULL);
-    if (is_sign == TRUE){
-        word->word ^= (unsigned int) TWOS_COMP_MASK;
-    }
-    if (mode == CODE) {
-        word->word <<= 3u;
-        word->word |= ABSOLUTE;
-    }
-    free(to_code);
-    to_code = NULL;
-}
-static char* get_number(const char* line, int index){
-    char* number_str = allocate_memory(NUMBER_ALLOWED_LENGTH, CHAR);
-    int i = index;
-    int k = 0;
-    char curr_char = *(line + i);
-    while (curr_char && curr_char != ' ' && curr_char != '\t' && curr_char != ','){
-        *(number_str + k) = curr_char;
-        k++;
-        i++;
-        curr_char = *(line + i);
-    }
-    *(number_str + k) = '\0';
-    return number_str;
-}
-static void get_to_next_number(int* index, const char* line){
-    char curr_char = *(line + *index);
-    while (curr_char && curr_char != ' ' && curr_char != '\t' && curr_char != ','){
-        (*index)++;
-        curr_char = *(line + *index);
-    }
-    while (curr_char && (curr_char == ' ' || curr_char == '\t' || curr_char == ',')){
-        (*index)++;
-        curr_char = *(line + *index);
-    }
-}
-void insert_data_node(data_image* head, data_image* to_insert){
-    data_image* curr_pointer = head;
-    if (head->is_head_filled == FALSE){
-        head->word = to_insert->word;
-        head->DC = to_insert->DC;
-        head->is_head_filled = TRUE;
-        free(to_insert);
-        to_insert = NULL;
-        return;
-    }
-    while (curr_pointer->next != NULL){
-        curr_pointer = curr_pointer->next;
-    }
-    curr_pointer->next = to_insert;
-}
+/*words calculation*/
 void calculate_number_of_words(line* sentence, line_indexes indexes, line_counters* counters){
     if (sentence->flags.is_code == TRUE){
         calculate_instruction_word(sentence, indexes, counters);

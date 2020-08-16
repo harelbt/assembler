@@ -104,6 +104,7 @@ curr_char != ',' && curr_char != '-' && curr_char != '+'\
 /*~~general functions~~*/
 char errors_inspection(line* sentence, line_indexes* indexes, line_counters* counters);
 void report_error(char* line, char error_code, line_counters* counters, ...);
+static void check_number_appearance(short int* did_number_appeared, char curr_char);
 /*~~order inspection section~~*/
 static char inspect_order_line(line* sentence, line_indexes* indexes, line_counters* counters);
 static short int is_order_proper(line* sentence);
@@ -141,4 +142,5 @@ static void check_label_def_white_chars(line* sentence, line_counters* counters,
 static void check_label_first_char(line* sentence, line_counters* counters, char curr_char, int index, char* error_found);
 static char* check_label_body(line* sentence, line_counters* counters, char curr_char, int* i, char* error_found);
 void print_errors_summary(char* file_name, int errors_count);
+/**/
 #endif /*ASSEMBLER_ERRORS_H*/

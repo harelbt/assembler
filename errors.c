@@ -460,7 +460,6 @@ static void values_check(line* sentence, line_counters* counters, char curr_char
             *error_found = TRUE;
         }
     }
-
 static void check_if_after_comma(const char *curr_char, short int *is_after_comma) {
     if (*curr_char == ',') {
         *is_after_comma = TRUE;
@@ -855,7 +854,7 @@ void print_errors_summary(char* file_name, int errors_count){
     puts("NO OUTPUT FILES WERE GENERATED"
          "\n*************************************************************************************");
 }
-void check_number_appearance(short int *did_number_appeared, char curr_char) {
+static void check_number_appearance(short int *did_number_appeared, char curr_char) {
     if (*did_number_appeared == 0) {
         if (curr_char >= '0' && curr_char <= '9') {
             *did_number_appeared = 1;

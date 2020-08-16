@@ -28,8 +28,10 @@
 
 /*general*/
 #define START 0
-
+/*sizes*/
+#define ONE_UNIT 1
 /*FUNCTIONS DECLARATION*/
+/*strings functions*/
 /**
  * gets a line from a file using dynamic memory allocation. returns a pointer to a string (char array)
  * @param file FILE pointer to the file to get the line from
@@ -37,6 +39,16 @@
  */
 char* get_line_dynamic(FILE* file, int* length);
 int read_line(FILE* file, line* sentence);
+int skip_spaces(FILE* file);
+int find_next_word(const char* line, int index);
+/**
+ * returns a string until a white character.
+ * if starts in a white character, returns empty string
+ * @param file to read from
+ * @return a string until a white space
+ */
+char* get_until_white_char(const char* line, int index);
+/*memory allocation functions*/
 /**
  * like malloc, but in case of a failure, gives a proper massage and exit the program, and does the casting
  * and all the hard work, and works with all of the data types
@@ -54,18 +66,7 @@ void* allocate_memory (int size, char arr_type);
  * @return a pointer to reallocated new array
  */
 void* realloc_memory (void* ptr, int size, char arr_type);
-int skip_spaces(FILE* file);
-/**
- * stops with exit code, optional - custom massage, if a massage isn't provided, ""(empty string) is required instead:
- * 1)with pre defined codes(below) and "" string (pre made massage to stderr).
- * 2)"EXIT_SUCCESS/FAILURE" and "" string(no massage to stderr).
- * "EXIT_SUCCESS/FAILURE" and a massage to stderr.
- * codes were defined as macros:
- * INPUT, OUTPUT, MEMORY, OTHER, FOPEN, EXIT_SUCCESS, EXIT_FAILURE.
- * @param exit_type
- * @param massage
- */
-void stop(int exit_type, const char* massage);
+/*files functions*/
 /**
  * like fopen, but if the opening failed gives a proper massage and exit the program
  * @param file_name to open
@@ -73,30 +74,33 @@ void stop(int exit_type, const char* massage);
  * @return a FILE pointer to the file (FILE*)
  */
 FILE* open_file(const char* file_name, const char* mode);
-void print_visual_indication(int index, const char* line);
-int find_next_word(const char* line, int index);
-void check_number_appearance(short int* did_number_appeared, char curr_char);
-/**
- * returns a string until a white character.
- * if starts in a white character, returns empty string
- * @param file to read from
- * @return a string until a white space
- */
-char* get_until_white_char(const char* line, int index);
 FILE * open_machine_code(char* file_name, const char* mode);
+void unite_temp_with_machine_code(FILE* temp_machine_code, FILE* machine_code);
+FILE* create_ent_files(char* name_without_type);
+FILE* create_ext_files(char* name_without_type);
 char* get_file_name_without_type(char* file_name);
 void remove_output_files(char* file_name);
 void remove_ob_file(char* file_name);
 void remove_ent_file(char* file_name);
 void remove_ext_file(char* file_name);
-FILE* create_ent_files(char* name_without_type);
-FILE* create_ext_files(char* name_without_type);
-void print_entry_extern(FILE* file, symbol* entry_extern);
 void remove_unnecessary_files(char* name_without_type, const char* error_found, char is_external, char is_entry);
 /*printing functions*/
-void print_code_words(FILE* machine_code, char* line, line_indexes* indexes, int last_IC, int num_of_words, ...);
+void print_code_words(FILE* machine_code, char* line, int last_IC, int num_of_words, ...);
 void print_label(FILE* machine_code, const char* line, word* word_to_print);
 void print_data(FILE* machine_code,data_image* data, line_counters* counters);
 void print_words_count(FILE* machine_code, line_counters* counters);
-void unite_temp_with_machine_code(FILE* temp_machine_code, FILE* machine_code);
+void print_visual_indication(int index, const char* line);
+void print_entry_extern(FILE* file, symbol* entry_extern);
+/**/
+/**
+ * stops with exit code, optional - custom massage, if a massage isn't provided, ""(empty string) is required instead:
+ * 1)with pre defined codes(below) and "" string (pre made massage to stderr).
+ * 2)"EXIT_SUCCESS/FAILURE" and "" string(no massage to stderr).
+ * "EXIT_SUCCESS/FAILURE" and a massage to stderr.
+ * codes that are defined as macros:
+ * MEMORY, FOPEN, EXIT_SUCCESS, EXIT_FAILURE.
+ * @param exit_type
+ * @param massage
+ */
+void stop(int exit_type, const char* massage);
 #endif //ASSEMBLER_IN_OUT_TOOLS_H
