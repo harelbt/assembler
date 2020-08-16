@@ -18,7 +18,7 @@
 #define LINE_ASSUMED_LENGTH 100
 #define TYPE_MAX_LENGTH 4
 #define HEX_PRINT_LENGTH 6
-
+#define ADDRESS_MAX_LENGTH 7
 /*prints*/
 #define PRINT_ADDRESS fprintf(machine_code, "%07d ", last_IC)
 #define PRINT_LABEL fprintf(machine_code, "?%s", label_name)
@@ -82,7 +82,7 @@ void check_number_appearance(short int* did_number_appeared, char curr_char);
  * @return a string until a white space
  */
 char* get_until_white_char(const char* line, int index);
-FILE * open_machine_code(char* file_name);
+FILE * open_machine_code(char* file_name, const char* mode);
 char* get_file_name_without_type(char* file_name);
 void remove_output_files(char* file_name);
 void remove_ob_file(char* file_name);
@@ -96,5 +96,6 @@ void remove_unnecessary_files(char* name_without_type, const char* error_found, 
 void print_code_words(FILE* machine_code, char* line, line_indexes* indexes, int last_IC, int num_of_words, ...);
 void print_label(FILE* machine_code, const char* line, word* word_to_print);
 void print_data(FILE* machine_code,data_image* data, line_counters* counters);
-void print_instructions_data_count();
+void print_words_count(FILE* machine_code, line_counters* counters);
+void unite_temp_with_machine_code(FILE* temp_machine_code, FILE* machine_code);
 #endif //ASSEMBLER_IN_OUT_TOOLS_H

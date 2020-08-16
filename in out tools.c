@@ -196,12 +196,12 @@ void remove_ext_file(char* file_name){
     strcat(to_remove, ".ext\0");
     remove(to_remove);
 }
-FILE* open_machine_code(char* file_name){
+FILE* open_machine_code(char* file_name, const char* mode){
     char to_open[strlen(file_name) + TYPE_MAX_LENGTH];
     FILE* machine_code;
     strcpy(to_open, file_name);
     strcat(to_open, ".ob\0");
-    machine_code = open_file(to_open, "w+");
+    machine_code = open_file(to_open, mode);
     return machine_code;
 }
 FILE* create_ent_files(char* name_without_type){
@@ -285,7 +285,16 @@ void print_data(FILE* machine_code, data_image* data, line_counters* counters){
     PRINT_DATA_WORD;
     free(data);
 }
-void print_instructions_data_count(FILE* machine_code, line_counters* counters){
-    fseek(machine_code, START, SEEK_SET);
-    fprintf(machine_code,"%d\n");
+void print_words_count(FILE* machine_code, line_counters* counters){
+    fprintf(machine_code,"%d %d\n", counters->IC-100, counters->DC-100);
+}
+void unite_temp_with_machine_code(FILE* temp_machine_code, FILE* machine_code){
+    fseek(temp_machine_code, START, SEEK_SET);
+    int curr_char = fgetc(temp_machine_code);
+    while (curr_char != EOF){
+        fputc(curr_char, machine_code);
+        curr_char = fgetc(temp_machine_code);
+    }
+    fclose(temp_machine_code);
+    remove("temp.TXT");
 }

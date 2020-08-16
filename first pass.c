@@ -51,10 +51,8 @@ void first_pass(FILE* source, char* file_name, FILE* machine_code, symbol* symbo
         }
         free_line(&sentence);
     }
-    printf("%d", counters->IC);
-    fprintf(machine_code,"\n++++++++++++++++++++++++++++++++++++HERE\n");
     print_data(machine_code, data, counters);
-    print_instructions_data_count();
+    print_words_count(machine_code, counters);
     if (*error_found == TRUE) {
         print_errors_summary(file_name, counters->error_number);
     }
