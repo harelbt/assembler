@@ -33,9 +33,8 @@ int main (int argc, char* argv[]){
         unite_temp_with_machine_code(temp_machine_code, machine_code);
         second_pass(machine_code, symbol_table, source, &counters, &error_found, name_without_type,
                     &is_entry, &is_external);
-        fclose(machine_code);
         remove_unnecessary_files(name_without_type, &error_found, &is_external, &is_entry);
-            free_symbol_table(symbol_table, source);
+        free_symbol_table(symbol_table, source);
         error_found = FALSE;/*resets error flag for the next file*/
         i++;
     }

@@ -6,15 +6,15 @@
 #include "symbol table.h"
 #include "string.h"
 #include "translator.h"
-void second_pass(FILE * first_pass_file, symbol * symbol_table,FILE * input_file,
-        line_counters* counters, char* error_found, char* file_name_without_type, char* is_entry, char* is_external){
+void second_pass(FILE * machine_code, symbol * symbol_table, FILE * input_file,
+                 line_counters* counters, char* error_found, char* file_name_without_type, char* is_entry, char* is_external){
     FILE* externals_file = create_ext_files(file_name_without_type);
     FILE* entries_file = create_ent_files(file_name_without_type);
     //code_symbols(first_pass_file, symbol_table, externals_file, is_external);
     if (*error_found == FALSE) {
         *is_entry = add_entries(input_file, symbol_table, entries_file, counters, error_found);
     }
-    close_ext_ent(externals_file, entries_file);
+    close_files(externals_file, entries_file, machine_code);
 }
 
 static void code_symbols(FILE* machine_code, symbol* symbol_table, FILE* externals_file, char* is_external) {
@@ -92,7 +92,7 @@ static char add_entries(FILE* input_file, symbol* symbol_table, FILE* entries_fi
     symbol* entry_symbol;
     int line_length = 0;
     char is_entry = FALSE;
-    //fseek(input_file, START, SEEK_SET);
+    fseek(input_file, START, SEEK_SET);
     counters->line_number = 0;
     while (strcmp(line = get_line_dynamic(input_file, &line_length), "") != 0){
         counters->line_number++;
@@ -147,7 +147,8 @@ static char* get_entry(char* line){
     free(label);
     return "";
 }
-static void close_ext_ent(FILE* externals_file, FILE* entries_file){
+static void close_files(FILE *externals_file, FILE *entries_file, FILE *machine_code) {
     fclose(externals_file);
     fclose(entries_file);
+    fclose(machine_code);
 }

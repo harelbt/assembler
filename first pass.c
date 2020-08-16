@@ -52,7 +52,6 @@ void first_pass(FILE* source, char* file_name, FILE* machine_code, symbol* symbo
         free_line(&sentence);
     }
     print_data(machine_code, data, counters);
-    print_words_count(machine_code, counters);
     if (*error_found == TRUE) {
         print_errors_summary(file_name, counters->error_number);
     }

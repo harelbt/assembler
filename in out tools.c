@@ -282,7 +282,7 @@ void print_data(FILE* machine_code, data_image* data, line_counters* counters){
         data_print_counter++;
     }
     data_to_print =  data->word.word;
-    PRINT_DATA_WORD;
+    PRINT_LAST_DATA_WORD;
     free(data);
 }
 void print_words_count(FILE* machine_code, line_counters* counters){

@@ -18,12 +18,13 @@
 #define LINE_ASSUMED_LENGTH 100
 #define TYPE_MAX_LENGTH 4
 #define HEX_PRINT_LENGTH 6
-#define ADDRESS_MAX_LENGTH 7
+
 /*prints*/
 #define PRINT_ADDRESS fprintf(machine_code, "%07d ", last_IC)
 #define PRINT_LABEL fprintf(machine_code, "?%s", label_name)
 #define PRINT_CODE_WORD fprintf(machine_code, "%06x\n", to_print)
-#define PRINT_DATA_WORD fprintf(machine_code,"%d %06x\n", counters->last_instruction_address + data->DC, data_to_print)
+#define PRINT_DATA_WORD fprintf(machine_code,"%07d %06x\n", counters->last_instruction_address + data->DC, data_to_print)
+#define PRINT_LAST_DATA_WORD fprintf(machine_code,"%07d %06x", counters->last_instruction_address + data->DC, data_to_print)
 
 /*general*/
 #define START 0
