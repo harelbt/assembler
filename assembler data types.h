@@ -10,12 +10,14 @@
 #define FALSE 0
 #define NOT_FOUND -1
 #define EXTERN 1
-
+#define CODE 1
+#define DATA 2
 /*STRUCTS*/
 typedef struct __attribute__((packed)) symbol_table{
     char name[LABEL_MAX_LENGTH];
     int address;
-    char extern_or_entry;
+    char external;
+    char sentence_type;
     struct symbol_table* next;
 } symbol;
 typedef struct{

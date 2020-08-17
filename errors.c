@@ -7,7 +7,7 @@
 /*~~general functions~~*/
 char errors_inspection(line* sentence, line_indexes* indexes, line_counters* counters){
     char error_found = FALSE;
-    if (*(sentence->label.name) != '\0' && sentence->label.extern_or_entry == FALSE){
+    if (*(sentence->label.name) != '\0' && sentence->label.external == FALSE){
         inspect_label(sentence, indexes, counters, indexes->first_char_index, &error_found);
     }
     if (*(sentence->label.name) == '\0' && indexes->colon_index != NOT_FOUND &&
@@ -263,6 +263,10 @@ void report_error(char* line, char error_code, line_counters* counters, ...){
         case NUMBER_TOO_LARGE:{
             print_char_indication = 1;
             printf("Number too large. line %d.\n", counters->line_number);
+            break;
+        }
+        case LABEL_DOESNT_EXIST:{
+            printf("label doesn't exist. line %d.\n", counters->line_number);
             break;
         }
         default:
@@ -729,7 +733,7 @@ static char* check_operand_first_char_syntax(line* sentence, line_indexes* index
     return "";
 }
 static void check_operand_body_syntax(char* i, short int* is_propper){
-    while (*i && *i != ' ' && *i != '\t'){
+    while (*i && *i != ' ' && *i != '\t' && *i != ','){
         if (ILLEGAL_OPERAND_BODY_CONDITION){
             *is_propper = FALSE;
         }

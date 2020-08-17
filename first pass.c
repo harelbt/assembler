@@ -28,6 +28,7 @@ void first_pass(FILE* source, char* file_name, FILE* machine_code, symbol* symbo
         initialize_line_tools(&sentence, counters, &indexes);
         /**/
         counters->line_number++;
+        printf("%d\n", counters->line_number);
         /**/
         /*'\n' or '\r' line is a line we want to count but not to read("read_line" can't skip '\n' because it needs to stop at the end of the line)*/
         if (strcmp(sentence.line, "\n") != 0 && strcmp(sentence.line, "\r") != 0) {

@@ -58,6 +58,7 @@ void free_symbol_table(symbol* symbol_table){
 static void symbol_copy(symbol* dest, symbol* source){
     strcpy(dest->name, source->name);
     dest->address = source->address;
-    dest->extern_or_entry = source->extern_or_entry;
+    dest->external = source->external;
+    dest->sentence_type = source->sentence_type;
     dest->next = source->next;
 }

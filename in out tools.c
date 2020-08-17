@@ -145,13 +145,14 @@ FILE* open_machine_code(char* file_name, const char* mode){
     return machine_code;
 }
 void unite_temp_with_machine_code(FILE* temp_machine_code, FILE* machine_code){
-    fseek(temp_machine_code, START, SEEK_SET);
-    int curr_char = fgetc(temp_machine_code);
-    while (curr_char != EOF){
-        fputc(curr_char, machine_code);
-        curr_char = fgetc(temp_machine_code);
-    }
+    //fseek(temp_machine_code, START, SEEK_SET);
+   // int curr_char = fgetc(temp_machine_code);
+   // while (curr_char != EOF){
+       // fputc(curr_char, machine_code);
+      //  curr_char = fgetc(temp_machine_code);
+    //}
     fclose(temp_machine_code);
+    fclose(machine_code);
     remove("temp.TXT");
 }
 FILE* create_ent_files(char* name_without_type){
@@ -239,7 +240,7 @@ void print_label(FILE* machine_code, const char* line, word* word_to_print) {
         if (word_to_print->is_jump == TRUE){
             i++;/*the '&' counts*/
         }
-        while (i != HEX_PRINT_LENGTH) {
+        while (i < HEX_PRINT_LENGTH) {
             fprintf(machine_code, " ");
             i++;
         }
@@ -265,7 +266,7 @@ void print_data(FILE* machine_code, data_image* data, line_counters* counters){
     free(data);
 }
 void print_words_count(FILE* machine_code, line_counters* counters){
-    fprintf(machine_code,"%d %d\n", counters->IC-100, counters->DC-100);
+    fprintf(machine_code,"%d %d\n", counters->IC-100, counters->DC);
 }
 void print_visual_indication(int index, const char* line) {
     int i = index;
@@ -280,9 +281,13 @@ void print_visual_indication(int index, const char* line) {
     puts("^");
     printf("Starting at the character ' %c '\n", *(line + index));
 }
-void print_entry_extern(FILE* file, symbol* entry_extern){
-    fprintf(file, "%s ", entry_extern->name);
-    fprintf(file, "%07d", entry_extern->address);
+void print_extern(FILE* file, symbol* external, char* current_address){
+    fprintf(file, "%s ", external->name);
+    fprintf(file, "%07d", (int)strtod(current_address, NULL));
+}
+void print_entry(FILE* file, symbol* entry){
+    fprintf(file, "%s ", entry->name);
+    fprintf(file, "%07d", entry->address);
 }
 /**/
 void stop(int exit_type, const char* to_print) {

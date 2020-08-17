@@ -62,6 +62,7 @@
 #define LABEL_IS_RESERVED 42
 #define SECOND_LABEL_DEFINITION 43
 #define ENTRY_NOT_EXIST 46
+#define LABEL_DOESNT_EXIST 47
 /**/
 /*macros for more elegant code*/
 #define PRINT_ERROR_DESCRIPTION puts(line);\
@@ -97,8 +98,6 @@ curr_char != ',' && curr_char != '-' && curr_char != '+'\
 /*GENERAL*/
 #define NUMBER_OF_RESERVED_WORDS 27
 #define NUMBER_MAX_VAL 8388607
-#define NUMBER_MIN_VAL -8388607
-#define NUMBER_MAX_LENGTH 7
 
 /*FUNCTIONS DECLARATION*/
 /*~~general functions~~*/

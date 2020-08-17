@@ -90,7 +90,8 @@ void print_label(FILE* machine_code, const char* line, word* word_to_print);
 void print_data(FILE* machine_code,data_image* data, line_counters* counters);
 void print_words_count(FILE* machine_code, line_counters* counters);
 void print_visual_indication(int index, const char* line);
-void print_entry_extern(FILE* file, symbol* entry_extern);
+void print_extern(FILE* file, symbol* external, char* current_address);
+void print_entry(FILE* file, symbol* entry);
 /**/
 /**
  * stops with exit code, optional - custom massage, if a massage isn't provided, ""(empty string) is required instead:

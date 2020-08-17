@@ -136,13 +136,19 @@ static void translate_numbers_sequence(const char* numbers_sequence, line_indexe
 static void translate_string_sequence(const char* string_sequence, int last_DC, int second_quotemark_index, data_image* data){
     int index = 1;
     while (index != second_quotemark_index){
-        data_image* new_data = allocate_memory(1, DATA_IMAGE);
-        new_data->DC = last_DC + index;
-        new_data->next = NULL;
-        new_data->word.word = *(string_sequence + index);
+        data_image* new_data = allocate_memory(ONE_UNIT, DATA_IMAGE);
+        translate_character(new_data, *(string_sequence + index), last_DC, index);
         insert_data_node(data, new_data);
         index++;
     }
+    data_image* new_data = allocate_memory(ONE_UNIT, DATA_IMAGE);
+    translate_character(new_data, 0, last_DC, index);
+    insert_data_node(data, new_data);
+}
+static void translate_character(data_image* new_data, char character, int last_DC, int index) {
+    new_data->DC = last_DC + index;
+    new_data->next = NULL;
+    new_data->word.word = character;
 }
 static char* get_number(const char* line, int index){
     char* number_str = allocate_memory(NUMBER_ALLOWED_LENGTH, CHAR);
@@ -182,7 +188,8 @@ static void code_number(word* word, const char* line, int index, char mode){
     to_code = get_number(line, index);
     word->word = strtod(to_code, NULL);
     if (is_sign == TRUE){
-        word->word ^= (unsigned int) TWOS_COMP_MASK;
+        word->word ^= ONES_COMP_MASK;
+        word->word += COMPLEMENT_TO_TWO;
     }
     if (mode == CODE) {
         word->word <<= 3u;
@@ -378,7 +385,7 @@ static int get_source_addressing(const char* line, line_indexes* indexes){
     }
 }
 static int get_dest_addressing(const char* line, line_indexes* indexes){
-    if (indexes->first_operand_index == NOT_FOUND || *(line + indexes->second_operand_index) == '#') {
+    if ((indexes->first_operand_index == NOT_FOUND && indexes->second_operand_index == NOT_FOUND) || *(line + indexes->second_operand_index) == '#') {
         return 0;
     } else if (*(line + indexes->second_operand_index) == '&') {
         return 2;
@@ -406,7 +413,7 @@ void calculate_order_word(line* sentence, line_indexes indexes, line_counters* c
     if (strcmp(sentence->data_parts.order, "extern") != 0 && strcmp(sentence->data_parts.order, "entry") != 0) {
         counters->last_data_address = counters->DC;
         counters->DC += counters->number_of_quotation_marks == 2 ?
-                        indexes.second_quotation_mark_index - indexes.first_quotation_mark_index - 1 :
+                        indexes.second_quotation_mark_index - indexes.first_quotation_mark_index :
                         counters->number_of_commas + 1;
     }
 }

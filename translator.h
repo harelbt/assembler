@@ -2,8 +2,9 @@
 #define ASSEMBLER_TRANSLATOR_H
 #include "assembler data types.h"
 
-/*MASKS*/
-#define TWOS_COMP_MASK 0b1111111111111111111110u
+/*GENERAL MASKS*/
+#define ONES_COMP_MASK 0b111111111111111111111111u
+
 /*opcodes*/
 #define OPCODE_ONE 0b000001000000000000000000u
 #define OPCODE_TWO 0b000010000000000000000000u
@@ -54,6 +55,7 @@
 /*GENERAL*/
 #define ONE_WORD 1
 #define NUMBER_ALLOWED_LENGTH 8
+#define COMPLEMENT_TO_TWO 1
 /*general*/
 void first_pass_translation(FILE* machine_code, line* sentence, line_indexes* indexes, line_counters* counters, data_image* data);
 /*instruction translation functions*/
@@ -70,6 +72,7 @@ static void code_instruction_word(word* word, const char* line, int index, line_
 static void data_translation(line* sentence, line_indexes* indexes, line_counters* counters, data_image* data);
 static void translate_numbers_sequence(const char* numbers_sequence, line_indexes* indexes, int last_DC, data_image* data);
 static void translate_string_sequence(const char* string_sequence, int last_DC, int second_quotemark_index, data_image* data);
+static void translate_character(data_image* new_data, char character, int last_DC, int index);
 static char* get_number(const char* line, int index);
 static void get_to_next_number(int* index, const char* line);
 static void code_number(word* word, const char* line, int index, char mode);

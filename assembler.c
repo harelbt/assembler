@@ -33,8 +33,8 @@ int main (int argc, char* argv[]){
         /*ASSEMBLING*/
         first_pass(source, *(argv + i), temp_machine_code, symbol_table, &counters, &error_found);
         print_words_count(machine_code, &counters);
+        second_pass(machine_code, temp_machine_code, symbol_table, source, &counters, &error_found, file_name_without_type);
         unite_temp_with_machine_code(temp_machine_code, machine_code);
-        second_pass(machine_code, symbol_table, source, &counters, &error_found, file_name_without_type);
         /*resets error flag for the next file*/
         error_found = FALSE;
         i++;

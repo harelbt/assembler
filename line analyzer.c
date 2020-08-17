@@ -63,10 +63,12 @@ static void find_line_components(line* sentence, line_indexes* indexes, line_cou
 void prepare_label(line* sentence, int data_index){
     /*prepares sentence type*/
     if (sentence->flags.is_code == TRUE) {
-        sentence->label.extern_or_entry = FALSE;
+        sentence->label.external = FALSE;
+        sentence->label.sentence_type = CODE;
     } else{
+        sentence->label.sentence_type = DATA;
         if (!strcmp(sentence->data_parts.order, "extern")) {
-            sentence->label.extern_or_entry = EXTERN;
+            sentence->label.external = EXTERN;
             strncpy(sentence->label.name, sentence->line + data_index, LABEL_MAX_LENGTH);
         }
     }
@@ -162,10 +164,10 @@ static void data_check(line_indexes* indexes, char* order_ended, char* data_foun
 }
 static void operands_check(line* sentence, line_counters* counters, line_indexes* indexes, char* operand_ended, char curr_char, int index){
     if (sentence->code_parts.opcode != NOT_FOUND) {
-        if (curr_char == ' ' || curr_char == '\t') {
+        if (curr_char == ' ' || curr_char == '\t' || curr_char == ',') {
             *operand_ended = TRUE;
         }
-        if (curr_char != ' ' && curr_char != '\t' && *operand_ended == TRUE){
+        if (curr_char != ' ' && curr_char != '\t' && curr_char != ',' &&*operand_ended == TRUE){
             counters->number_of_operands++;
             if (counters->number_of_operands == 1) {
                 indexes->first_operand_index = index;
