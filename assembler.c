@@ -1,6 +1,7 @@
 #include <stdlib.h>/*for EXIT_FAILURE macro*/
 #include "first pass.h"
 #include "second_pass.h"
+#include "errors.h"
 int main (int argc, char* argv[]){
     /*errors_flag*/
     char error_found = FALSE;
@@ -32,9 +33,19 @@ int main (int argc, char* argv[]){
         temp_machine_code = open_file("temp.TXT", "w+");
         /*ASSEMBLING*/
         first_pass(source, *(argv + i), temp_machine_code, symbol_table, &counters, &error_found);
-        print_words_count(machine_code, &counters);
-        second_pass(machine_code, temp_machine_code, symbol_table, source, &counters, &error_found, file_name_without_type);
-        unite_temp_with_machine_code(temp_machine_code, machine_code);
+        if (error_found == FALSE) {
+            print_words_count(machine_code, &counters);
+            second_pass(machine_code, temp_machine_code, symbol_table, source, &counters, &error_found,
+                        file_name_without_type);
+        } else{
+            fclose(machine_code);
+            remove_ob_file(file_name_without_type);
+        }
+        fclose(temp_machine_code);
+        remove_temp_file();
+        if (error_found == TRUE){
+            print_errors_summary(file_name_without_type, counters.error_number);
+        }
         /*resets error flag for the next file*/
         error_found = FALSE;
         i++;

@@ -75,11 +75,11 @@ void* realloc_memory (void* ptr, int size, char arr_type);
  */
 FILE* open_file(const char* file_name, const char* mode);
 FILE * open_machine_code(char* file_name, const char* mode);
-void unite_temp_with_machine_code(FILE* temp_machine_code, FILE* machine_code);
 FILE* create_ent_files(char* name_without_type);
 FILE* create_ext_files(char* name_without_type);
 char* get_file_name_without_type(char* file_name);
 void remove_output_files(char* file_name);
+void remove_temp_file();
 void remove_ob_file(char* file_name);
 void remove_ent_file(char* file_name);
 void remove_ext_file(char* file_name);
@@ -91,7 +91,7 @@ void print_data(FILE* machine_code,data_image* data, line_counters* counters);
 void print_words_count(FILE* machine_code, line_counters* counters);
 void print_visual_indication(int index, const char* line);
 void print_extern(FILE* file, symbol* external, char* current_address);
-void print_entry(FILE* file, symbol* entry);
+void print_entry(FILE* file, symbol* entry, int IC);
 /**/
 /**
  * stops with exit code, optional - custom massage, if a massage isn't provided, ""(empty string) is required instead:

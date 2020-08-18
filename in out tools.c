@@ -144,17 +144,6 @@ FILE* open_machine_code(char* file_name, const char* mode){
     machine_code = open_file(to_open, mode);
     return machine_code;
 }
-void unite_temp_with_machine_code(FILE* temp_machine_code, FILE* machine_code){
-    //fseek(temp_machine_code, START, SEEK_SET);
-   // int curr_char = fgetc(temp_machine_code);
-   // while (curr_char != EOF){
-       // fputc(curr_char, machine_code);
-      //  curr_char = fgetc(temp_machine_code);
-    //}
-    fclose(temp_machine_code);
-    fclose(machine_code);
-    remove("temp.TXT");
-}
 FILE* create_ent_files(char* name_without_type){
     char ent_file_name[strlen(name_without_type) + TYPE_MAX_LENGTH + 1];
     strcpy(ent_file_name, name_without_type);
@@ -180,6 +169,9 @@ void remove_output_files(char* file_name){
     remove_ob_file(file_name);
     remove_ent_file(file_name);
     remove_ext_file(file_name);
+}
+void remove_temp_file(){
+    remove("temp.TXT");
 }
 void remove_ob_file(char* file_name){
     char to_remove [strlen(file_name) + TYPE_MAX_LENGTH];
@@ -282,12 +274,17 @@ void print_visual_indication(int index, const char* line) {
     printf("Starting at the character ' %c '\n", *(line + index));
 }
 void print_extern(FILE* file, symbol* external, char* current_address){
+    int address = strtod(current_address, NULL);
     fprintf(file, "%s ", external->name);
-    fprintf(file, "%07d", (int)strtod(current_address, NULL));
+    fprintf(file, "%07d\n", address);
 }
-void print_entry(FILE* file, symbol* entry){
+void print_entry(FILE* file, symbol* entry, int IC){
+    int address = entry->address;
+    if (entry->sentence_type == DATA){
+        address += IC;
+    }
     fprintf(file, "%s ", entry->name);
-    fprintf(file, "%07d", entry->address);
+    fprintf(file, "%07d\n", address);
 }
 /**/
 void stop(int exit_type, const char* to_print) {

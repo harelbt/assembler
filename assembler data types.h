@@ -20,6 +20,9 @@ typedef struct __attribute__((packed)) symbol_table{
     char sentence_type;
     struct symbol_table* next;
 } symbol;
+typedef struct __attribute__((packed)) {
+    unsigned int label_address_binary: 24;
+} address;
 typedef struct{
     char operator_name[OPERATOR_MAX_LENGTH];
     int opcode;
@@ -51,6 +54,7 @@ typedef struct __attribute__((packed)){
     int second_register_index;
     int first_quotation_mark_index;
     int second_quotation_mark_index;
+    int last_comma_index;
     int operator_index;
     int first_operand_index;
     int second_operand_index;

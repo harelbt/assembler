@@ -109,6 +109,22 @@ void report_error(char* line, char error_code, line_counters* counters, ...){
             printf("Illegal code before the operator. line %d.\n", counters->line_number);
             break;
         }
+        case NO_COMMAS_ALLOWED:{
+        printf("Commas are not allowed here. line %d.\n", counters->line_number);
+        break;
+        }
+        case EXTRA_COMMAS:{
+            printf("Too many commas, only one comma is allowed. line %d.\n", counters->line_number);
+            break;
+        }
+        case COMMA_NOT_IN_PLACE:{
+            printf("Comma is not in place, commas need to separate operands. line %d.\n", counters->line_number);
+            break;
+        }
+        case COMMA_REQUIRED:{
+            printf("A comma is required to separate operands. line %d.\n", counters->line_number);
+            break;
+        }
         case MIXED_SENTENCE:{
             printf("Mixed code and data order in line %d.\n", counters->line_number);
             break;
@@ -215,7 +231,7 @@ void report_error(char* line, char error_code, line_counters* counters, ...){
         }
         case LABEL_TOO_LONG:{
             print_char_indication = TRUE;
-            printf("The LABEL is TOO LONG. _label should be in length of 1-31_. line %d.\n", counters->line_number);
+            printf("The LABEL is TOO LONG. _label should be in length of 1-31. line %d.\n", counters->line_number);
             break;
         }
         case MISSING_LABEL:{
@@ -266,7 +282,7 @@ void report_error(char* line, char error_code, line_counters* counters, ...){
             break;
         }
         case LABEL_DOESNT_EXIST:{
-            printf("label doesn't exist. line %d.\n", counters->line_number);
+            printf("Usage of a label that doesn't exist.\n");
             break;
         }
         default:
@@ -613,6 +629,19 @@ static void check_operands_syntax(line* sentence, line_indexes* indexes, line_co
         case 4:{
             check_source_operand_syntax(sentence, indexes, counters, error_found);
             check_dest_operand_syntax(sentence, indexes, counters, error_found);
+            if (counters->number_of_commas > 1){
+                report_error(sentence->line, EXTRA_COMMAS, counters);
+                *error_found = TRUE;
+            }
+            if (counters->number_of_commas == 0){
+                report_error(sentence->line, COMMA_REQUIRED, counters);
+                *error_found = TRUE;
+            }
+            if (indexes->last_comma_index != NOT_FOUND &&
+            (indexes->last_comma_index < indexes->first_operand_index || indexes->last_comma_index > indexes->second_operand_index)){
+                report_error(sentence->line, COMMA_NOT_IN_PLACE, counters);
+                *error_found = TRUE;
+            }
             break;
         }
         case 5:{}
@@ -625,9 +654,12 @@ static void check_operands_syntax(line* sentence, line_indexes* indexes, line_co
         case 12:{}
         case 13:{
             check_dest_operand_syntax(sentence, indexes, counters, error_found);
-            break;
         }
         default:{
+            if (counters->number_of_commas > 0){
+                report_error(sentence->line, NO_COMMAS_ALLOWED, counters);
+                *error_found = TRUE;
+            }
             return;
         }
     }
@@ -672,7 +704,7 @@ static void check_number_size(char* line, int index, line_counters* counters, ch
 static void check_dest_operand_syntax(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found){
     if (is_operand_proper(sentence, indexes, DEST_OPERAND) == TRUE){
         if (*(sentence->line + indexes->second_operand_index) == '#'){
-            check_number_size(sentence->line, indexes->second_operand_index, counters, error_found);
+            check_number_size(sentence->line, indexes->second_operand_index + 1, counters, error_found);
         }
         /*opcodes 1,3: can have any operand except jump to label, which is taken care of next*/
         /*opcodes 0,2-5,12: can't be a number*/

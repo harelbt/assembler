@@ -23,6 +23,7 @@ static void initialize_indexes(line_indexes* indexes){
     indexes->dot_index = NOT_FOUND;
     indexes->colon_index = NOT_FOUND;
     indexes->semicolon_index = NOT_FOUND;
+    indexes->last_comma_index = NOT_FOUND;
     indexes->operator_index = NOT_FOUND;
     indexes->first_operand_index = NOT_FOUND;
     indexes->second_operand_index = NOT_FOUND;

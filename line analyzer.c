@@ -150,6 +150,7 @@ static void signs_check(line* sentence, line_counters* counters, line_indexes* i
         }
         case ',':{
             counters->number_of_commas++;
+            indexes->last_comma_index = index;
         }
     }
 }

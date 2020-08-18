@@ -3,8 +3,8 @@
 #include "assembler data types.h"
 
 /*conditions*/
-#define REGISTER_CONDITION ((index+1) < sentence->length && *(sentence->line+index+1) >= '0' && *(sentence->line+index+1) <= '7') &&\
-((index > 0 && (*(sentence->line+index-1) == ' ' || *(sentence->line+index-1) == '\t' ))\
+#define REGISTER_CONDITION ((index+1) <= sentence->length && *(sentence->line+index+1) >= '0' && *(sentence->line+index+1) <= '7') &&\
+((index > 0 && (*(sentence->line+index-1) == ' ' || *(sentence->line+index-1) == '\t' || *(sentence->line+index-1) == ','))\
 ||(index == 0) && counters->number_of_quotation_marks == 0)
 /**/
 #define OPERATOR_CONDITION (i == 0 || *(sentence->line+i-1) == ' ' || *(sentence->line+i-1) == '\t')\

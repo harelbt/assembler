@@ -2,30 +2,30 @@
 .string "label:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
 .string "label:"
 .data +7,-0, -3
-LABEL1:	mov	#7	r1	
-mov str stri
-LABEL2:	mov	#-9	r2	
-	mov	r3	r2	
-	mov	r1	r2	
-	cmp	#-9	r2	
-	cmp	#-9	X		
-	cmp	#-9	#8
-	cmp	#9	#8	
-	cmp	r1	r2	
-	cmp	r1	#7	
-	cmp	#9	r2	
-	add	#7	r1	
-	add	LABEL1	r1	
-	add	#-9	r2					
-X:	add	r3	r2	
-	add	r1	r2	
-	add	#5	abc	
-	sub	#7	r1	
-	sub	#-9	r2	
-	sub	r3	r2	
-	sub	r1	r2	
-	lea	X r3
-	lea	DATA	X	  
+LABEL1:	mov	#7,	r1	
+mov str, stri
+LABEL2:	mov	#-9	,r2
+	mov	r3	,r2	
+	mov	r1	,r2	
+	cmp	#-9	,r2	
+	cmp	#-9	,X		
+	cmp	#-9,	#8
+	cmp	#9,	#8	
+	cmp	r1  ,	r2	
+	cmp	r1     ,	#7	
+	cmp	#9   	,	r2	
+	add	#7	,r1	
+	add	LABEL1	,r1	
+	add	#-9	,r2					
+X:	add	r3	,r2	
+	add	r1	,r2	
+	add	#5,	abc	
+	sub	#7,	r1	
+	sub	#-9	,r2	
+	sub	r3	,r2	
+	sub	r1	,r2	
+	lea	X ,r3
+	lea	DATA	,X	  
 	clr	DATA		
 	clr	X		
 	clr	r1		

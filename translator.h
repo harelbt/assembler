@@ -91,4 +91,7 @@ static int get_source_addressing(const char* line, line_indexes* indexes);
 void calculate_number_of_words(line* sentence, line_indexes indexes, line_counters* counters);
 void calculate_instruction_word(line* sentence, line_indexes indexes, line_counters* counters);
 void calculate_order_word(line* sentence, line_indexes indexes, line_counters* counters);
+/*label translation*/
+void code_jump(FILE* machine_code, symbol* symbol_table, char* i, line_counters* counters, address* label_address, char* curr_address, char* error_found);
+void code_label_address(FILE* machine_code, FILE* externals_file, symbol* symbol_table, char* i, line_counters* counters, address* label_address, char* curr_address, char* error_found, char* is_external);
 #endif //ASSEMBLER_TRANSLATOR_H

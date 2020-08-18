@@ -4,6 +4,8 @@
 #include <string.h>
 #include "translator.h"
 #include "in out tools.h"
+#include "symbol table.h"
+#include "errors.h"
 void first_pass_translation(FILE* machine_code, line* sentence, line_indexes* indexes, line_counters* counters, data_image* data){
     if (sentence->flags.is_code == TRUE){
         code_translation(machine_code, sentence, indexes, counters);
@@ -415,5 +417,51 @@ void calculate_order_word(line* sentence, line_indexes indexes, line_counters* c
         counters->DC += counters->number_of_quotation_marks == 2 ?
                         indexes.second_quotation_mark_index - indexes.first_quotation_mark_index :
                         counters->number_of_commas + 1;
+    }
+}
+/*labels coding*/
+void code_jump(FILE* machine_code, symbol* symbol_table, char* i, line_counters* counters, address* label_address, char* curr_address, char* error_found){
+    symbol* symbol_to_code = get_symbol(symbol_table, get_symbol_name(i));
+    int distance;
+    if (symbol_to_code == NULL) {
+        report_error(i, LABEL_DOESNT_EXIST, counters);
+        *error_found = TRUE;
+    } else {
+        distance = symbol_to_code->address - ((int) strtod(curr_address, NULL) - ONE_WORD);
+        if (distance < 0) {
+            label_address->label_address_binary = abs(distance);
+            label_address->label_address_binary ^= ONES_COMP_MASK;
+            label_address->label_address_binary += COMPLEMENT_TO_TWO;
+            label_address->label_address_binary <<= 3u;
+            label_address->label_address_binary |= ABSOLUTE;//turn on the A bit
+        } else {
+            label_address->label_address_binary = (((unsigned) distance << 3u) |
+                                                  ABSOLUTE);//turn on the A bit
+        }
+        fprintf(machine_code, "%06x\n",
+                (signed int) label_address->label_address_binary);/*write in hexa the labels address */
+    }
+}
+void code_label_address(FILE* machine_code, FILE* externals_file, symbol* symbol_table, char* i, line_counters* counters, address* label_address, char* curr_address, char* error_found, char* is_external){
+    symbol *symbol_to_code = get_symbol(symbol_table, get_symbol_name(i));
+    if (symbol_to_code == NULL) {
+        report_error(i, LABEL_DOESNT_EXIST, counters);
+        *error_found = TRUE;
+    } else {
+        if (symbol_to_code->external == EXTERN) {
+            print_extern(externals_file, symbol_to_code, curr_address);
+            *is_external = TRUE;
+            label_address->label_address_binary |= EXTERNAL;
+        }
+        if (symbol_to_code->external != EXTERN) {
+            label_address->label_address_binary = symbol_to_code->address;
+            if (symbol_to_code->sentence_type == DATA) {
+                label_address->label_address_binary += counters->IC;
+            }
+            label_address->label_address_binary <<= 3U;
+            label_address->label_address_binary |= RELOCATABLE;
+        }
+        fprintf(machine_code, "%06x\n",
+                (signed int) label_address->label_address_binary);/*write in hexa the labels address */
     }
 }

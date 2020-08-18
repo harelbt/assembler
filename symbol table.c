@@ -47,6 +47,17 @@ void* get_symbol(symbol* symbol_table, char* symbol_name){
     }
     return NULL;
 }
+char* get_symbol_name(char* symbol_start){
+    char* symbol = allocate_memory(LABEL_MAX_LENGTH, SYMBOL);
+    int i = 0;
+    while (*symbol_start && *symbol_start != ' ' && *symbol_start != '\t' && *symbol_start != ',' && *symbol_start != '\n' && *symbol_start != '\r'){
+        *(symbol + i) = *symbol_start;
+        i++;
+        symbol_start++;
+    }
+    *(symbol + i) = '\0';
+    return symbol;
+}
 void free_symbol_table(symbol* symbol_table){
     while (symbol_table != NULL){
         symbol* next_pointer = symbol_table->next;
