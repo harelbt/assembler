@@ -421,7 +421,8 @@ void calculate_order_word(line* sentence, line_indexes indexes, line_counters* c
 }
 /*labels coding*/
 void code_jump(FILE* machine_code, symbol* symbol_table, char* i, line_counters* counters, address* label_address, char* curr_address, char* error_found){
-    symbol* symbol_to_code = get_symbol(symbol_table, get_symbol_name(i));
+    char* symbol_name = get_symbol_name(i);
+    symbol* symbol_to_code = get_symbol(symbol_table, symbol_name);
     int distance;
     if (symbol_to_code == NULL) {
         report_error(i, LABEL_DOESNT_EXIST, counters);
@@ -441,9 +442,11 @@ void code_jump(FILE* machine_code, symbol* symbol_table, char* i, line_counters*
         fprintf(machine_code, "%06x\n",
                 (signed int) label_address->label_address_binary);/*write in hexa the labels address */
     }
+    free(symbol_name);
 }
 void code_label_address(FILE* machine_code, FILE* externals_file, symbol* symbol_table, char* i, line_counters* counters, address* label_address, char* curr_address, char* error_found, char* is_external){
-    symbol *symbol_to_code = get_symbol(symbol_table, get_symbol_name(i));
+    char* symbol_name = get_symbol_name(i);
+    symbol *symbol_to_code = get_symbol(symbol_table, symbol_name);
     if (symbol_to_code == NULL) {
         report_error(i, LABEL_DOESNT_EXIST, counters);
         *error_found = TRUE;
@@ -464,4 +467,5 @@ void code_label_address(FILE* machine_code, FILE* externals_file, symbol* symbol
         fprintf(machine_code, "%06x\n",
                 (signed int) label_address->label_address_binary);/*write in hexa the labels address */
     }
+    free(symbol_name);
 }

@@ -52,6 +52,9 @@ static void code_symbols(FILE* machine_code, FILE* temp_machine_code, symbol* sy
             } else {
                 code_label_address(machine_code, externals_file, symbol_table, i, counters, &label_address, curr_address, error_found, is_external);
             }
+            if (strcmp(curr_line, "") != 0){
+                free(curr_line);
+            }
         } else {
             fputc(curr_char, machine_code);
         }
