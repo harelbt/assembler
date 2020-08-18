@@ -667,7 +667,7 @@ static void check_operands_syntax(line* sentence, line_indexes* indexes, line_co
 static void check_source_operand_syntax(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found){
     if (is_operand_proper(sentence, indexes, SOURCE_OPERAND) == TRUE) {
         if (*(sentence->line + indexes->first_operand_index) == '#'){
-            check_number_size(sentence->line, indexes->first_operand_index, counters, error_found);
+            check_number_size(sentence->line, indexes->first_operand_index + 1, counters, error_found);
         }
         /*"jump to label" is not allowed as a source operand*/
         if (*(sentence->line+indexes->first_operand_index) == '&'){
