@@ -5,6 +5,9 @@
 #include "errors.h"
 #include "in out tools.h"
 /*~~general functions~~*/
+/*
+ * inspect a line for all kinds of errors, requires struct line counters and indexes
+ */
 char errors_inspection(line* sentence, line_indexes* indexes, line_counters* counters){
     char error_found = FALSE;
     if (*(sentence->label.name) != '\0' && sentence->label.external == FALSE){
@@ -306,8 +309,7 @@ static char inspect_order_line(line* sentence, line_indexes* indexes, line_count
 static short int is_order_proper(line* sentence) {
     short int is_proper = TRUE;
     if (!strcmp(sentence->data_parts.order, "data") || !strcmp(sentence->data_parts.order, "string") ||
-        !strcmp(sentence->data_parts.order, "entry") || !strcmp(sentence->data_parts.order, "extern") ||
-            !strcmp(sentence->data_parts.order, "stop")) {
+        !strcmp(sentence->data_parts.order, "entry") || !strcmp(sentence->data_parts.order, "extern")) {
         return is_proper;
     }
     is_proper = FALSE;
@@ -809,7 +811,7 @@ static void check_label_length(line* sentence, line_indexes* indexes, line_count
         while (*i != ' ' && *i != '\t' && *i){
             i++;
         }
-        /*calculates the length with the address of the last char for efficiency*/
+        /*calculates the length with the label_address of the last char for efficiency*/
         label_length = i - sentence->line - indexes->data_index;
         label_index = indexes->data_index;
     }

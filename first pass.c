@@ -9,15 +9,15 @@ void first_pass(FILE* source, char* file_name, FILE* machine_code, symbol* symbo
     /*structs*/
     line sentence;
     line_indexes indexes;
-    data_image* data = allocate_memory(1, DATA_IMAGE);
+    data_image* data = allocate_memory(ONE_UNIT, DATA_IMAGE);
     (data->word.word) = 0;
     /**/
     counters->line_number = 0;
     counters->error_number = 0;
     counters->IC = 100;
-    counters->last_instruction_address = 100;
+    counters->last_IC = 100;
     counters->DC = 0;
-    counters->last_data_address = 0;
+    counters->last_DC = 0;
     data->next = NULL;
     data->is_head_filled = FALSE;
     /**/
@@ -25,7 +25,7 @@ void first_pass(FILE* source, char* file_name, FILE* machine_code, symbol* symbo
     /**/
     while (!read_line(source, &sentence)) {/*"read_line" returns 0 at EOF*/
         /*resets the variables for each line*/
-        initialize_line_tools(&sentence, counters, &indexes);
+        initialize_line_variables(&sentence, counters, &indexes);
         /**/
         counters->line_number++;
         /**/

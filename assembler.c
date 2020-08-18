@@ -1,3 +1,10 @@
+/*
+ *ASSUMPTIONS:
+ * flags are declared with char to save space.
+ *code line refers to instruction lne, order/data line refers to lines with .data/.string/.extern/.entry orders.
+ * SETTINGS:
+ * structs that are not being taken by their label_address are compressed to their real required size using __attribute__((packed)).
+ * */
 #include <stdlib.h>/*for EXIT_FAILURE macro*/
 #include "first pass.h"
 #include "second_pass.h"
@@ -13,14 +20,14 @@ int main (int argc, char* argv[]){
     char* file_name_without_type;
     /**/
     int i = 1;
-    /*checks if operators isn't supplied*/
+    /*checks if files wasn't supplied*/
     if (argc == 1) {
         /*prints this error to stderr with exit code 1*/
         stop(EXIT_FAILURE, "no assembly code was supplied.\nassembly codes can be given as command line arguments");
     }
     /*assembles each supplied file, all the program executes through this loop*/
     while (i < argc) {
-        /*a type that contains all the necessary counters for the program, including IC, DC*/
+        /*a struct that contains all the necessary counters for the program, including IC, DC*/
         line_counters counters;
         /*symbol_table_head*/
         symbol* symbol_table = allocate_memory(ONE_UNIT, SYMBOL);/*this custom function can handle malloc failure*/
@@ -32,9 +39,12 @@ int main (int argc, char* argv[]){
         machine_code = open_machine_code(file_name_without_type, "w+");
         temp_machine_code = open_file("temp.TXT", "w+");
         /*ASSEMBLING*/
+        /*analyzes the input, finds errors and produces the machine code (.ob) without the labels coding*/
         first_pass(source, *(argv + i), temp_machine_code, symbol_table, &counters, &error_found);
         if (error_found == FALSE) {
+            /*prints the words count (instructions and data count) to the first line of the machine code*/
             print_words_count(machine_code, &counters);
+            /*completes the label coding in the machine code and produces .ext .ent*/
             second_pass(machine_code, temp_machine_code, symbol_table, source, &counters, &error_found,
                         file_name_without_type);
         } else{
@@ -46,7 +56,7 @@ int main (int argc, char* argv[]){
         if (error_found == TRUE){
             print_errors_summary(file_name_without_type, counters.error_number);
         }
-        /*resets error flag for the next file*/
+        /*resets the error flag for the next file*/
         error_found = FALSE;
         i++;
     }

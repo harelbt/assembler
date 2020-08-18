@@ -80,7 +80,7 @@ char* get_until_white_char(const char* line, int index) {
 }
 /*memory allocation functions*/
 /*allocates memory for array of any type safely and exits program in case of failure with a proper massage to stderr
- * returns the address*/
+ * returns the label_address*/
 void* allocate_memory (int size, char type){
     /*allocation*/
     if (type == SYMBOL) {
@@ -103,7 +103,7 @@ void* allocate_memory (int size, char type){
 }
 
 /*reallocates memory for array of any type safely and exits program in case of failure with a proper massage to stderr
- * returns the address*/
+ * returns the label_address*/
 void* realloc_memory (void* ptr, int size, char type){
     /*reallocation*/
     if (type == SYMBOL) {

@@ -18,18 +18,18 @@ static void code_translation(FILE* machine_code, line* sentence, line_indexes* i
     word instruction_word;
     word second_word;
     word third_word;
-    int distance_from_last_IC = counters->IC - counters->last_instruction_address;
+    int distance_from_last_IC = counters->IC - counters->last_IC;
     prepare_instruction_word(&instruction_word, sentence, indexes);
     if(distance_from_last_IC == 1){
-        print_code_words(machine_code, sentence->line, counters->last_instruction_address, distance_from_last_IC, &instruction_word);
+        print_code_words(machine_code, sentence->line, counters->last_IC, distance_from_last_IC, &instruction_word);
         return;
     }
     if (distance_from_last_IC == 2) {
         prepare_extra_words(sentence->line, indexes, distance_from_last_IC, &second_word);
-        print_code_words(machine_code, sentence->line, counters->last_instruction_address, distance_from_last_IC, &instruction_word, &second_word);
+        print_code_words(machine_code, sentence->line, counters->last_IC, distance_from_last_IC, &instruction_word, &second_word);
     } else{
         prepare_extra_words(sentence->line, indexes, distance_from_last_IC, &second_word, &third_word);
-        print_code_words(machine_code, sentence->line, counters->last_instruction_address, distance_from_last_IC, &instruction_word, &second_word, &third_word);
+        print_code_words(machine_code, sentence->line, counters->last_IC, distance_from_last_IC, &instruction_word, &second_word, &third_word);
     }
 }
 static void prepare_instruction_word(word* to_prepare, line* sentence, line_indexes* indexes){
@@ -117,9 +117,9 @@ static void code_instruction_word(word* word, const char* line, int index, line_
 /*data translation functions*/
 static void data_translation(line* sentence, line_indexes* indexes, line_counters* counters, data_image* data){
     if (indexes->first_quotation_mark_index != NOT_FOUND){
-        translate_string_sequence(sentence->line + indexes->data_index, counters->last_data_address,indexes->second_quotation_mark_index-indexes->data_index, data);
+        translate_string_sequence(sentence->line + indexes->data_index, counters->last_DC, indexes->second_quotation_mark_index - indexes->data_index, data);
     } else{
-        translate_numbers_sequence(sentence->line + indexes->data_index, indexes, counters->last_data_address, data);
+        translate_numbers_sequence(sentence->line + indexes->data_index, indexes, counters->last_DC, data);
     }
 }
 static void translate_numbers_sequence(const char* numbers_sequence, line_indexes* indexes, int last_DC, data_image* data){
@@ -408,19 +408,19 @@ void calculate_number_of_words(line* sentence, line_indexes indexes, line_counte
 }
 void calculate_instruction_word(line* sentence, line_indexes indexes, line_counters* counters){
     /*every operand costs a word, unless it's a register*/
-    counters->last_instruction_address = counters->IC;
+    counters->last_IC = counters->IC;
     counters->IC += counters->number_of_operands - counters->number_of_registers + ONE_WORD;/*one word for the assembly line*/
 }
 void calculate_order_word(line* sentence, line_indexes indexes, line_counters* counters){
     if (strcmp(sentence->data_parts.order, "extern") != 0 && strcmp(sentence->data_parts.order, "entry") != 0) {
-        counters->last_data_address = counters->DC;
+        counters->last_DC = counters->DC;
         counters->DC += counters->number_of_quotation_marks == 2 ?
                         indexes.second_quotation_mark_index - indexes.first_quotation_mark_index :
                         counters->number_of_commas + 1;
     }
 }
 /*labels coding*/
-void code_jump(FILE* machine_code, symbol* symbol_table, char* i, line_counters* counters, address* label_address, char* curr_address, char* error_found){
+void code_jump(FILE* machine_code, symbol* symbol_table, char* i, line_counters* counters, label_address* label_address, char* curr_address, char* error_found){
     char* symbol_name = get_symbol_name(i);
     symbol* symbol_to_code = get_symbol(symbol_table, symbol_name);
     int distance;
@@ -440,11 +440,11 @@ void code_jump(FILE* machine_code, symbol* symbol_table, char* i, line_counters*
                                                   ABSOLUTE);//turn on the A bit
         }
         fprintf(machine_code, "%06x\n",
-                (signed int) label_address->label_address_binary);/*write in hexa the labels address */
+                (signed int) label_address->label_address_binary);/*write in hexa the labels label_address */
     }
     free(symbol_name);
 }
-void code_label_address(FILE* machine_code, FILE* externals_file, symbol* symbol_table, char* i, line_counters* counters, address* label_address, char* curr_address, char* error_found, char* is_external){
+void code_label_address(FILE* machine_code, FILE* externals_file, symbol* symbol_table, char* i, line_counters* counters, label_address* label_address, char* curr_address, char* error_found, char* is_external){
     char* symbol_name = get_symbol_name(i);
     symbol *symbol_to_code = get_symbol(symbol_table, symbol_name);
     if (symbol_to_code == NULL) {
@@ -465,7 +465,7 @@ void code_label_address(FILE* machine_code, FILE* externals_file, symbol* symbol
             label_address->label_address_binary |= RELOCATABLE;
         }
         fprintf(machine_code, "%06x\n",
-                (signed int) label_address->label_address_binary);/*write in hexa the labels address */
+                (signed int) label_address->label_address_binary);/*write in hexa the labels label_address */
     }
     free(symbol_name);
 }

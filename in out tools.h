@@ -23,8 +23,8 @@
 #define PRINT_ADDRESS fprintf(machine_code, "%07d ", last_IC)
 #define PRINT_LABEL fprintf(machine_code, "?%s", label_name)
 #define PRINT_CODE_WORD fprintf(machine_code, "%06x\n", to_print)
-#define PRINT_DATA_WORD fprintf(machine_code,"%07d %06x\n", counters->last_instruction_address + data->DC, data_to_print)
-#define PRINT_LAST_DATA_WORD fprintf(machine_code,"%07d %06x", counters->last_instruction_address + data->DC, data_to_print)
+#define PRINT_DATA_WORD fprintf(machine_code,"%07d %06x\n", counters->last_IC + data->DC, data_to_print)
+#define PRINT_LAST_DATA_WORD fprintf(machine_code,"%07d %06x", counters->last_IC + data->DC, data_to_print)
 
 /*general*/
 #define START 0

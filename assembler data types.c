@@ -1,10 +1,11 @@
 #include "assembler data types.h"
-/*-explain tools or replace name-*/
-void initialize_line_tools(line* sentence, line_counters* counters, line_indexes* indexes){
+/*initializes line variables for next line processing. line tools are structs that supply counters, indexes, flags, lengths etc... for a line processing*/
+void initialize_line_variables(line* sentence, line_counters* counters, line_indexes* indexes){
     initialize_counters(counters);
     initialize_indexes(indexes);
     initialize_line(sentence);
 }
+/*initializes line counters to 0*/
 static void initialize_counters(line_counters* counters){
     counters->number_of_quotation_marks = 0;
     counters->number_of_dots = 0;
@@ -14,6 +15,7 @@ static void initialize_counters(line_counters* counters){
     counters->number_of_operands = 0;
     counters->number_of_commas = 0;
 }
+/*initializes line indexes to -1*/
 static void initialize_indexes(line_indexes* indexes){
     indexes->first_char_index = NOT_FOUND;
     indexes->first_register_index = NOT_FOUND;
@@ -29,6 +31,7 @@ static void initialize_indexes(line_indexes* indexes){
     indexes->second_operand_index = NOT_FOUND;
     indexes->data_index = NOT_FOUND;
 }
+/*initializes line variables*/
 static void initialize_line(line* sentence){
     sentence->flags.is_empty_line = FALSE;
     sentence->flags.is_data = FALSE;

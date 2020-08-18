@@ -23,13 +23,13 @@ symbol* insert_symbol(symbol* to_insert, symbol* symbol_table, char* is_first_sy
 void update_symbol_address(line* sentence, line_counters counters){
     if (sentence->flags.is_code == TRUE){
         if (*sentence->label.name != '\0'){
-            int distance_from_last_IC = counters.IC - counters.last_instruction_address;
+            int distance_from_last_IC = counters.IC - counters.last_IC;
             sentence->label.address = counters.IC - (distance_from_last_IC);
         }
     } else{
         if (*sentence->label.name != '\0'){
             if (strcmp(sentence->data_parts.order, "extern") != 0) {
-                int distance_from_last_DC = counters.DC - counters.last_data_address;
+                int distance_from_last_DC = counters.DC - counters.last_DC;
                 sentence->label.address = counters.DC - (distance_from_last_DC);
             } else{
                 sentence->label.address = 1;

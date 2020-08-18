@@ -23,7 +23,7 @@ void second_pass(FILE * machine_code, FILE* temp_machine_code, symbol * symbol_t
 }
 /**/
 static void code_symbols(FILE* machine_code, FILE* temp_machine_code, symbol* symbol_table, line_counters* counters, FILE* externals_file, char* is_external, char* error_found) {
-    address label_address;
+    label_address label_address;
     symbol *symbol_to_code;
     char *curr_line;
     char curr_address[NUMBER_ALLOWED_LENGTH];
