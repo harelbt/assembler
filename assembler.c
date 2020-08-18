@@ -1,8 +1,11 @@
 /*
  *ASSUMPTIONS:
- * flags are declared with char to save space.
- *code line refers to instruction lne, order/data line refers to lines with .data/.string/.extern/.entry orders.
+ *
+ * code line refers to instruction lne, order/data line refers to lines with .data/.string/.extern/.entry orders.
+ * an order is .data/.string/.extern/.entry.
+ * "line" and "sentence" refers to an assembly line.
  * SETTINGS:
+ * flags are declared with char to save space.
  * structs that are not being taken by their label_address are compressed to their real required size using __attribute__((packed)).
  * */
 #include <stdlib.h>/*for EXIT_FAILURE macro*/
@@ -49,7 +52,7 @@ int main (int argc, char* argv[]){
                         file_name_without_type);
         } else{
             fclose(machine_code);
-            remove_ob_file(file_name_without_type);
+            remove_output_files(file_name_without_type);
         }
         fclose(temp_machine_code);
         remove_temp_file();

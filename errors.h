@@ -49,7 +49,7 @@
 #define COMMA_NO_FOLLOWING_NUMBER 34
 #define ARITHMETIC_SIGN_NOT_IN_PLACE 35
 #define NUMBER_TOO_LARGE 36
-#define SIGN_NOT_NY_NUM 37
+#define SIGN_NOT_BY_NUM 37
 /*EXTERN AND ENTRY*/
 #define CHARS_BEFORE_EXTERN_OR_ENTRY 38
 #define EXTERN_ENTRY_NO_LABEL 39
@@ -106,27 +106,27 @@ curr_char != ',' && curr_char != '-' && curr_char != '+'\
 /*~~general functions~~*/
 char errors_inspection(line* sentence, line_indexes* indexes, line_counters* counters);
 void report_error(char* line, char error_code, line_counters* counters, ...);
-static void check_number_appearance(short int* did_number_appeared, char curr_char);
+static void check_number_appearance(char* did_number_appeared, char curr_char);
 /*~~order inspection section~~*/
-static char inspect_order_line(line* sentence, line_indexes* indexes, line_counters* counters);
-static short int is_order_proper(line* sentence);
+static void inspect_order_line(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found);
+static char is_order_proper(line* sentence);
 static void detect_string_errors(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found);
 static void detect_two_quotes_errors(line* sentence, line_counters* counters, line_indexes* indexes, short int is_string_order, char* error_found);
 static void detect_data_errors(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found);
-static short int is_data_values_proper(line* sentence, line_indexes* indexes, line_counters* counters);
-static short int inspect_data_values(line* sentence, int index, line_counters* counters);
+static char is_data_values_proper(line* sentence, line_indexes* indexes, line_counters* counters);
+static char inspect_data_values(line* sentence, int index, line_counters* counters);
 static void values_check(line* sentence, line_counters *counters, char curr_char, int last_char, short int is_after_comma,
                          short int is_data_order, char* error_found, short int did_number_appeared, int index);
-static void check_if_after_comma(const char *curr_char, short int *is_after_comma);
+static void check_if_after_comma(const char *curr_char, char* is_after_comma);
 static void update_loop_data_inspection_variables(line* sentence, char* curr_char, char* last_char, int* index);
 static void detect_extern_entry_errors(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found);
 static void check_pre_order_chars(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found);
-static void check_after_data_chars(line* sentence, line_counters* counters, line_indexes* indexes, char* error_found);
+static void check_after_data_label_chars(line* sentence, line_counters* counters, line_indexes* indexes, char* error_found);
 static void inspect_data_label(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found);
 /*~~code inspection section~~*/
 static void inspect_code_line(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found);
-static short int check_operands_count(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found);
-static short int check_operators_count(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found);
+static char check_operands_count(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found);
+static char check_operators_count(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found);
 static void check_operands_syntax(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found);
 static void check_number_size(char* line, int index, line_counters* counters, char* error_found);
 static void check_source_operand_syntax(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found);

@@ -6,32 +6,39 @@
 #include "in out tools.h"
 /*~~general functions~~*/
 /*
- * inspect a line for all kinds of errors, requires struct line counters and indexes
+ * inspect a line for all kinds of errors.
  */
 char errors_inspection(line* sentence, line_indexes* indexes, line_counters* counters){
-    char error_found = FALSE;
-    if (*(sentence->label.name) != '\0' && sentence->label.external == FALSE){
+    char error_found = FALSE;/*flag to return*/
+    if (*(sentence->label.name) != '\0' && sentence->label.external == FALSE){/*if its a label declaration with a colon ":"*/
         inspect_label(sentence, indexes, counters, indexes->first_char_index, &error_found);
     }
+    /*if a label was declared with ":" (not within a string) and no label name was supplied*/
     if (*(sentence->label.name) == '\0' && indexes->colon_index != NOT_FOUND &&
             ((indexes->first_quotation_mark_index != NOT_FOUND && indexes->colon_index < indexes->first_quotation_mark_index) ||
             indexes->first_quotation_mark_index == NOT_FOUND)){
         report_error(sentence->line, MISSING_LABEL, counters, indexes->colon_index);
         error_found = TRUE;
     }
+    /*if the line is instruction an order at once*/
     if (sentence->flags.is_data == TRUE && sentence->flags.is_code == TRUE){
         report_error(sentence->line, MIXED_SENTENCE, counters);
         error_found = TRUE;
-    } else if (sentence->flags.is_data == TRUE){
-        error_found = inspect_order_line(sentence, indexes, counters);
-    } else if(sentence->flags.is_code == TRUE){
+    } else if (sentence->flags.is_data == TRUE){/*if the line is an order line*/
+        inspect_order_line(sentence, indexes, counters, &error_found);
+    } else if(sentence->flags.is_code == TRUE){/*if the line is an instruction line*/
         inspect_code_line(sentence, indexes, counters, &error_found);
-    } if (sentence->flags.is_data == FALSE && sentence->flags.is_code == FALSE){
+    } if (sentence->flags.is_data == FALSE && sentence->flags.is_code == FALSE){/*if the line is not an instruction and not an order at once*/
         report_error(sentence->line, NO_SENTENCE_TYPE, counters);
         error_found = TRUE;
     }
     return error_found;
 }
+/*
+ * prints an error to stdout with error number, line number, a line string and in most cases, a char which where the error occurs.
+ * extra optional argument is for the index of the error case. this argument is required in some cases and useless in others/
+ * requires  error code. 51 error codes are defined as macros in errors.h
+ */
 void report_error(char* line, char error_code, line_counters* counters, ...){
     int unexpected;
     short int print_char_indication = FALSE;
@@ -207,7 +214,7 @@ void report_error(char* line, char error_code, line_counters* counters, ...){
             printf("Arithmetic sign can only be after ',' or spaces. line %d.\n", counters->line_number);
             break;
         }
-        case SIGN_NOT_NY_NUM:{
+        case SIGN_NOT_BY_NUM:{
             print_char_indication = TRUE;
             printf("Arithmetic sign is not by a number. line %d.\n", counters->line_number);
             break;
@@ -294,20 +301,24 @@ void report_error(char* line, char error_code, line_counters* counters, ...){
     PRINT_ERROR_DESCRIPTION
 }
 /*~~order inspection section~~*/
-static char inspect_order_line(line* sentence, line_indexes* indexes, line_counters* counters){
-    char error_found = FALSE;
-    if (!is_order_proper(sentence)) {
+/*
+ * inspects order line, from the order itself to the data
+ */
+static void inspect_order_line(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found){
+    if (!is_order_proper(sentence)) {/*if order is not proper*/
         report_error(sentence->line, NO_SUCH_ORDER, counters, indexes->dot_index);
-        error_found = FALSE;
-        return error_found;
+        *error_found = TRUE;
+        return;
     }
-    detect_string_errors(sentence, indexes, counters, &error_found);
-    detect_data_errors(sentence, indexes, counters, &error_found);
-    detect_extern_entry_errors(sentence, indexes, counters, &error_found);
-    return error_found;
+    detect_string_errors(sentence, indexes, counters, error_found);
+    detect_data_errors(sentence, indexes, counters, error_found);
+    detect_extern_entry_errors(sentence, indexes, counters, error_found);
 }
-static short int is_order_proper(line* sentence) {
-    short int is_proper = TRUE;
+/*
+ * checks if the order in the line (.data/.string/.extern/.entry) is proper, returns TRUE if proper, else FALSE
+ */
+static char is_order_proper(line* sentence) {
+    char is_proper = TRUE;/*to return*/
     if (!strcmp(sentence->data_parts.order, "data") || !strcmp(sentence->data_parts.order, "string") ||
         !strcmp(sentence->data_parts.order, "entry") || !strcmp(sentence->data_parts.order, "extern")) {
         return is_proper;
@@ -315,55 +326,68 @@ static short int is_order_proper(line* sentence) {
     is_proper = FALSE;
     return is_proper;
 }
+/*
+ * detects and reports string errors.
+ */
 static void detect_string_errors(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found) {
-    short int is_string_order;
-    /**/
+    char is_string_order;/*flag to clarify if the order is .string*/
+    /*prepares the is_string_order flag*/
     if (!strcmp(sentence->data_parts.order, "string")){
         is_string_order = TRUE;
     } else{
         is_string_order = FALSE;
     }
-    /**/
+    /*if a .string order exists without a string afterwards*/
     if (counters->number_of_quotation_marks == 0){
         if (is_string_order == TRUE){
             report_error(sentence->line, ORDER_NO_STRING, counters);
             *error_found = TRUE;
         }
     }
-    /**/
+    /*if only opening quote mark exists*/
     if (counters->number_of_quotation_marks == 1) {
         report_error(sentence->line, SINGLE_QUOTMARK, counters, indexes->first_quotation_mark_index);
         *error_found = TRUE;
     }
-    /**/
+    /*if a proper string was found, detects errors of a line with a proper string*/
     if (counters->number_of_quotation_marks >= 2) {
         detect_two_quotes_errors(sentence, counters, indexes, is_string_order, error_found);
     }
+    /*if .string exists checks the code before the .string order*/
     if (is_string_order == TRUE) {
         check_pre_order_chars(sentence, indexes, counters, error_found);
     }
 }
+/*
+ * detects errors in a line with with a proper string
+ */
 static void detect_two_quotes_errors(line* sentence, line_counters* counters, line_indexes* indexes, short int is_string_order, char* error_found){
-    int char_after_string_index = find_next_word(sentence->line, indexes->second_quotation_mark_index+1);
-    int char_after_order_index = find_next_word(sentence->line, indexes->dot_index+(int)strlen(sentence->data_parts.order)+1);
-    if (is_string_order == FALSE) {
+    /*index of the next word after the string in the line*/
+    int index_of_word_after_string = find_next_word(sentence->line, indexes->second_quotation_mark_index + 1);
+    /*index of the next word after the order in the line*/
+    int index_of_word_after_order = find_next_word(sentence->line, indexes->dot_index + (int)strlen(sentence->data_parts.order) + 1);
+    if (is_string_order == FALSE) {/*if a string exists without .string order*/
         report_error(sentence->line, STRING_NO_ORDER, counters);
         *error_found = TRUE;
     }
-    /*if code was found after the string, ignores the next char is in the '\0' index (the string's length)*/
-    if (indexes->second_quotation_mark_index < char_after_string_index && char_after_string_index < sentence->length){
-        report_error(sentence->line, CODE_AFTER_QUOTE, counters, char_after_string_index);
+    /*if code wasn't found after the string, the next char is in the '\0' index (the string's length).
+     * so checks if the next word index is before the line's length. and if there's a word after, reports an error*/
+    if (indexes->second_quotation_mark_index < index_of_word_after_string && index_of_word_after_string < sentence->length){
+        report_error(sentence->line, CODE_AFTER_QUOTE, counters, index_of_word_after_string);
         *error_found = TRUE;
     }
-    if (is_string_order == TRUE){
+    if (is_string_order == TRUE){/*checks string errors with .string order*/
+        /*.string exists. so the dot index, which refers to the first dot the refers to the .string index, needs to be before the string*/
         if (indexes->first_quotation_mark_index < indexes->dot_index){
             report_error(sentence->line, STRING_BEFORE_STRING_ORDER, counters, indexes->second_quotation_mark_index);
             *error_found = TRUE;
         }
-        if (char_after_order_index < indexes->first_quotation_mark_index){
-            report_error(sentence->line, CHARS_BETWEEN_ORDER_STRING, counters, char_after_order_index);
+        /*if there are chars between .string and the string*/
+        if (index_of_word_after_order < indexes->first_quotation_mark_index){
+            report_error(sentence->line, CHARS_BETWEEN_ORDER_STRING, counters, index_of_word_after_order);
             *error_found = TRUE;
         }
+        /*if there is no space before the string*/
         if (indexes->first_quotation_mark_index > 0 && *(sentence->line + indexes->first_quotation_mark_index-1) != ' ' &&
                 indexes->first_quotation_mark_index > 0 && *(sentence->line + indexes->first_quotation_mark_index-1) != '\t'){
             report_error(sentence->line, NO_SPACE_BEFORE_QUOTE, counters, indexes->first_quotation_mark_index);
@@ -371,22 +395,29 @@ static void detect_two_quotes_errors(line* sentence, line_counters* counters, li
         }
     }
 }
+/*
+ * detects .data order line errors
+ */
 static void detect_data_errors(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found){
-    short int is_data_order;
+    short int is_data_order;/*flag to clarify if the order is .data*/
+    /*prepares the is_data_order flag*/
     if(!strcmp(sentence->data_parts.order,"data")){
         is_data_order = TRUE;
     } else{
         is_data_order = FALSE;
     }
+    /*if there's no string (strings errors are being detected in a different function)*/
     if (counters->number_of_quotation_marks == 0){
-        if (is_data_order == TRUE){
+        if (is_data_order == TRUE){/*if .data exists*/
+            /*if data values not proper, errors were found = TRUE, the error report is inside the is_data_values_proper function*/
             if (!is_data_values_proper(sentence, indexes, counters)){
                 *error_found = TRUE;
             }
-            /*unexpected chars check*/
+            /*checks for unexpected chars before .data*/
             check_pre_order_chars(sentence, indexes, counters, error_found);
         }
         if (is_data_order == FALSE){
+            /*if .data doesn't exist but there are data values, reports error*/
             if (is_data_values_proper(sentence, indexes, counters) == TRUE){
                 report_error(sentence->line, DATA_NO_ORDER, counters);
                 *error_found = TRUE;
@@ -394,41 +425,52 @@ static void detect_data_errors(line* sentence, line_indexes* indexes, line_count
         }
     }
 }
-static short int is_data_values_proper(line* sentence, line_indexes* indexes, line_counters* counters){
-    short int is_data_values_proper = TRUE;
-    short int is_data_order;
+/*
+ *checks if data values are proper. for example (2,4,6)
+ */
+static char is_data_values_proper(line* sentence, line_indexes* indexes, line_counters* counters){
+    char is_data_values_proper = TRUE;/*to return*/
+    char is_data_order;/*flag to clarify if the order is .data*/
+    /*sets the is_data_order flag*/
     if(!strcmp(sentence->data_parts.order,"data")){
         is_data_order = TRUE;
     } else{
         is_data_order = FALSE;
     }
+    /*if no data exists and .data exists, reports error and is_data_values_proper = FALSE*/
     if (indexes->data_index == NOT_FOUND){/*no data was found*/
         if (is_data_order == TRUE) {
             report_error(sentence->line, ORDER_NO_DATA, counters);
         }
         is_data_values_proper = FALSE;
-    }else {
+    }else {/*if the values exists inspect them for errors*/
         if (inspect_data_values(sentence, indexes->data_index, counters) == TRUE) {
             is_data_values_proper = FALSE;
         }
     }
     return is_data_values_proper;
 }
-static short int inspect_data_values(line* sentence, int index, line_counters* counters) {
-    char error_found = FALSE;
+/*
+ * inspects the data values for example (2,3,8), if errors found returns TRUE else FALSE
+ */
+static char inspect_data_values(line* sentence, int index, line_counters* counters) {
+    char error_found = FALSE;/*to return*/
     char last_char = '\0';
     char curr_char = *(sentence->line + index);
-    short int is_after_comma = FALSE;
-    short int did_number_appeared = FALSE;
-    short int is_data_order;
+    char is_after_comma = FALSE;/*flag to clarify if a comma is the last non-white char*/
+    char did_number_appeared = FALSE;/*flag to clarify if a number already appeared*/
+    char is_data_order;/*flag to clarify if .data exists*/
+    /*sets is_data_order flag*/
     if (!strcmp(sentence->data_parts.order, "data")) {
         is_data_order = TRUE;
     } else {
         is_data_order = FALSE;
     }
+    /*checks valus*/
     while (index < sentence->length) {
         /*checks if current char is illegal*/
         if (ILLEGAL_DATA_CHAR_CONDITION) {
+            /*reports an error only if .data exists. if .data doesn't exist, reports a different error in is_data_values_proper function*/
             if (is_data_order == TRUE) {
                 report_error(sentence->line, UNEXPECTED_CHARACTER, counters, curr_char, index);
             }
@@ -444,23 +486,26 @@ static short int inspect_data_values(line* sentence, int index, line_counters* c
     }
         return error_found;
 }
+/*
+ * data values check for inspect_data_values function
+ */
 static void values_check(line* sentence, line_counters* counters, char curr_char, int last_char, short int is_after_comma,
                          short int is_data_order, char* error_found, short int did_number_appeared, int index) {
-        if (is_after_comma == TRUE && curr_char == ',') {
-            if (is_data_order == TRUE) {
+        if (is_after_comma == TRUE && curr_char == ',') {/*if two comma exists without a number between*/
+            if (is_data_order == TRUE){/*reports an error if .data exists*/
                 report_error(sentence->line, NO_NUMBERS_BETWEEN_COMMAS, counters, index);
             }
             *error_found = TRUE;
         }
-        if (curr_char == ',' && did_number_appeared == FALSE) {
-            if (is_data_order == TRUE) {
+        if (curr_char == ',' && did_number_appeared == FALSE) {/*if a comma appeared before a number*/
+            if (is_data_order == TRUE) {/*reports an error if .data exists*/
                 report_error(sentence->line, COMMA_NO_NUMBERS, counters, index-1);
             }
             *error_found = TRUE;
         }
-        if ((curr_char == '-' || curr_char == '+') && index + 1 != sentence->length && *(sentence->line + index) < '0'
-        && *(sentence->line + index) > '9'){
-            report_error(sentence->line, SIGN_NOT_NY_NUM, counters, index);
+        if ((curr_char == '-' || curr_char == '+') && ((index + 1 != sentence->length && *(sentence->line + index + 1) < '0'
+        || *(sentence->line + index + 1) > '9') || index + 1 == sentence->length)){/*if a '-' or '+' was written not by a number*/
+            report_error(sentence->line, SIGN_NOT_BY_NUM, counters, index);
             *error_found = TRUE;
         }
         if (did_number_appeared == TRUE) {
@@ -471,24 +516,30 @@ static void values_check(line* sentence, line_counters* counters, char curr_char
                 }
                 *error_found = TRUE;
             }
-            if (index == sentence->length-1 && curr_char == ','){
+            if (index == sentence->length-1 && (curr_char == ',' || is_after_comma == TRUE)){/*if no number shows up after a comma*/
                 report_error(sentence->line, COMMA_NO_FOLLOWING_NUMBER, counters, index);
                 *error_found = TRUE;
             }
         }
         if ((curr_char == '-' || curr_char == '+') && *(sentence->line + index - 1) != ' ' &&
-                *(sentence->line + index - 1) != '\t' && *(sentence->line + index - 1) != ','){
+                *(sentence->line + index - 1) != '\t' && *(sentence->line + index - 1) != ','){/*if '-' or '+' is not in a proper place*/
             report_error(sentence->line, ARITHMETIC_SIGN_NOT_IN_PLACE, counters, index);
             *error_found = TRUE;
         }
     }
-static void check_if_after_comma(const char *curr_char, short int *is_after_comma) {
+/*
+* turns on and off "is_after_comma" flag for inspect_data_values function
+*/
+static void check_if_after_comma(const char *curr_char, char *is_after_comma) {
     if (*curr_char == ',') {
         *is_after_comma = TRUE;
     } else if (*curr_char != ' ' && *curr_char != '\t') {
         *is_after_comma = FALSE;
     }
 }
+/*
+ * updates loop variables for inspect_data_values function
+ */
 static void update_loop_data_inspection_variables(line* sentence, char* curr_char, char* last_char, int* index){
     if (*index < sentence->length) {
         (*index)++;
@@ -496,38 +547,52 @@ static void update_loop_data_inspection_variables(line* sentence, char* curr_cha
         *curr_char = *(sentence->line + (*index));
     }
 }
+/*
+ * checks errors for .entry and .extern lines
+ */
 static void detect_extern_entry_errors(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found) {
+    /*checks errors only if the order in the line is .extern or .entry*/
     if (!strcmp(sentence->data_parts.order, "entry") || !strcmp(sentence->data_parts.order, "extern")) {
-        inspect_data_label(sentence, indexes, counters, error_found);
-        check_pre_order_chars(sentence, indexes, counters, error_found);
-        check_after_data_chars(sentence, counters, indexes, error_found);
+        inspect_data_label(sentence, indexes, counters, error_found);/*inspects the label after the order for errors*/
+        check_pre_order_chars(sentence, indexes, counters, error_found);/*checks the code before the order for errors*/
+        check_after_data_label_chars(sentence, counters, indexes, error_found);/*checks the code after the label for errors*/
     }
 }
+/*
+ * inspect a label that comes as data after .extern or .entry
+ */
 static void inspect_data_label(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found){
-    int order_end_index = indexes->dot_index + (int) strlen(sentence->data_parts.order);
-    if (indexes->data_index == NOT_FOUND) {/*label wasn't found*/
+    int order_end_index = indexes->dot_index + (int) strlen(sentence->data_parts.order);/*end index of .extern or .entry*/
+    if (indexes->data_index == NOT_FOUND) {/*label wasn't found. reports an error*/
         report_error(sentence->line, EXTERN_ENTRY_NO_LABEL, counters, order_end_index);
         *error_found = TRUE;
-    } else {
+    } else {/*if a label was found, inspects the label for errors*/
         inspect_label(sentence, indexes, counters, indexes->data_index, error_found);
     }
 }
-static void check_after_data_chars(line* sentence, line_counters* counters, line_indexes* indexes, char* error_found){
-    short int data_ended = FALSE;
-    char* i = sentence->line + indexes->data_index;
-    while (*i) {
+/*
+ * checks and reports if there are characters after a label in a .extern ot .entry line
+ */
+static void check_after_data_label_chars(line* sentence, line_counters* counters, line_indexes* indexes, char* error_found){
+    char data_ended = FALSE;/*flag to clarify if the data ended*/
+    char* i = sentence->line + indexes->data_index;/*the string that is being checked starts where the given label starts*/
+    while (*i) {/*while line hasn't ended*/
         if (!data_ended && (*i == ' ' || *i == '\t')){
             data_ended = TRUE;
         }
-        if (data_ended == TRUE && *i != ' ' && *i != '\t') {
+        if (data_ended == TRUE && *i != ' ' && *i != '\t') {/*if a character appeared after the label reports an error*/
             report_error(sentence->line, UNEXPECTED_CHARACTER, counters, *i, i - sentence->line);
             *error_found = TRUE;
         }
         i++;
     }
 }
+/*
+ * checks for illegal characters before an order in an order line
+ */
 static void check_pre_order_chars(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found){
-    char error_code;
+    char error_code;/*the error code to report if an error was found*/
+    /*sets "error code" according to the order*/
     if (!strcmp(sentence->data_parts.order, "data")){
         error_code = CHARS_BEFORE_DATA_ORDER;
     }
@@ -537,37 +602,47 @@ static void check_pre_order_chars(line* sentence, line_indexes* indexes, line_co
     if (!strcmp(sentence->data_parts.order, "extern") || !strcmp(sentence->data_parts.order, "entry")){
         error_code = CHARS_BEFORE_EXTERN_OR_ENTRY;
     }
-    /*we are  here only if the first dot is a proper order, so the dot index surely is the index of the order*/
-    /*check if there are chars between the label and the order*/
-    if (*(sentence->label.name) != '\0' && indexes->colon_index < indexes->dot_index){
+    /*we are here only if the first dot starts proper order, so the dot index surely is the index of the order*/
+    /*checks if there are chars between the label and the order*/
+    if (*(sentence->label.name) != '\0' && indexes->colon_index < indexes->dot_index){/*if there's a label declaration*/
+        /*the index of the first non-white character after the label declaration*/
         int index_of_word_after_label = find_next_word(sentence->line, indexes->colon_index+1);
-        if (*(sentence->line + index_of_word_after_label) != '.') {
+        if (*(sentence->line + index_of_word_after_label) != '.') {/*if after the label declaration it's not the order, reports an error*/
             report_error(sentence->line, error_code, counters, index_of_word_after_label);
             *error_found = TRUE;
         }
-    } else if (*(sentence->line + indexes->first_char_index) != '.'){
+    } else if (*(sentence->line + indexes->first_char_index) != '.'){/*if there's no label declaration but the order is not the first in the line*/
         report_error(sentence->line, error_code, counters, indexes->first_char_index);
         *error_found = TRUE;
     }
 }
 /*~~code inspection section~~*/
+/*
+ * checks a code line for errors
+ */
 static void inspect_code_line(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found) {
-    /*the functions below report errors and return 1 if error found*/
-    short int is_operand_count_not_okay = check_operands_count(sentence, indexes, counters, error_found);
-    short int is_operators_count_not_okay = check_operators_count(sentence, indexes, counters, error_found);
+    /*the functions below report errors and return TRUE if an error found*/
+    /*inspects the number of operands*/
+    char is_operand_count_not_okay = check_operands_count(sentence, indexes, counters, error_found);
+    /*inspects the number of operators*/
+    char is_operators_count_not_okay = check_operators_count(sentence, indexes, counters, error_found);
+    /*if the operands and operators count okay checks the operands syntax and pre operators chars errors */
     if (!is_operand_count_not_okay && !is_operators_count_not_okay) {
         check_operands_syntax(sentence, indexes, counters, error_found);
         check_pre_operator_chars(sentence, indexes, counters, error_found);
     }
 }
-static short int check_operands_count(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found){
-    short int is_error = FALSE;
+/*
+ * checks if the number of operands is legal for the operator, reports errors. returns TRUE if error found, else returns FALSE
+ */
+static char check_operands_count(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found){
+    char is_error = FALSE;/* to return*/
     switch (sentence->code_parts.opcode) {
         case 0:{}
         case 1:{}
         case 2:{}
         case 3:{}
-        case 4:{
+        case 4:{/*this case and all the cases above requires exactly 2 operands*/
             if (counters->number_of_operands < 2){
                 report_error(sentence->line, FEW_OPERANDS, counters);
                 *error_found = TRUE;
@@ -588,7 +663,7 @@ static short int check_operands_count(line* sentence, line_indexes* indexes, lin
         case 10:{}
         case 11:{}
         case 12:{}
-        case 13:{
+        case 13:{/*all the cases from case 5 to case 13 requires exactly 1 operand*/
             if (counters->number_of_operands < 1){
                 report_error(sentence->line, FEW_OPERANDS, counters);
                 *error_found = TRUE;
@@ -602,7 +677,7 @@ static short int check_operands_count(line* sentence, line_indexes* indexes, lin
             break;
         }
         case 14:{}
-        case 15:{
+        case 15:{/*cases 14 and 15exactly 0 operands*/
             if (counters->number_of_operands > 0){
                 report_error(sentence->line, EXTRA_OPERANDS, counters);
                 *error_found = TRUE;
@@ -613,8 +688,11 @@ static short int check_operands_count(line* sentence, line_indexes* indexes, lin
     }
     return is_error;
 }
-static short int check_operators_count(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found){
-    short int is_error = FALSE;
+/*
+ * checks if the number of operators is greater than 1, if so reports an error and returns TRUE. else returns FALSE
+ */
+static char check_operators_count(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found){
+    char is_error = FALSE;/*to return*/
     if (counters->number_of_operators > 1){
         report_error(sentence->line, EXTRA_OPERATORS, counters);
         *error_found = TRUE;
@@ -622,6 +700,9 @@ static short int check_operators_count(line* sentence, line_indexes* indexes, li
     }
     return is_error;
 }
+/*
+ * checks operands syntax according to the operator and commas conditions, reports errors
+ */
 static void check_operands_syntax(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found){
     switch (sentence->code_parts.opcode) {
         case 0:{}
@@ -631,6 +712,7 @@ static void check_operands_syntax(line* sentence, line_indexes* indexes, line_co
         case 4:{
             check_source_operand_syntax(sentence, indexes, counters, error_found);
             check_dest_operand_syntax(sentence, indexes, counters, error_found);
+            /*checks if there's exactly one comma*/
             if (counters->number_of_commas > 1){
                 report_error(sentence->line, EXTRA_COMMAS, counters);
                 *error_found = TRUE;
@@ -638,7 +720,7 @@ static void check_operands_syntax(line* sentence, line_indexes* indexes, line_co
             if (counters->number_of_commas == 0){
                 report_error(sentence->line, COMMA_REQUIRED, counters);
                 *error_found = TRUE;
-            }
+            }/*checks the last comma position(before first operand or after last operand is an error)*/
             if (indexes->last_comma_index != NOT_FOUND &&
             (indexes->last_comma_index < indexes->first_operand_index || indexes->last_comma_index > indexes->second_operand_index)){
                 report_error(sentence->line, COMMA_NOT_IN_PLACE, counters);
@@ -657,7 +739,7 @@ static void check_operands_syntax(line* sentence, line_indexes* indexes, line_co
         case 13:{
             check_dest_operand_syntax(sentence, indexes, counters, error_found);
         }
-        default:{
+        default:{/*for operators with only 1 operand, comma is not allowed*/
             if (counters->number_of_commas > 0){
                 report_error(sentence->line, NO_COMMAS_ALLOWED, counters);
                 *error_found = TRUE;
@@ -666,8 +748,13 @@ static void check_operands_syntax(line* sentence, line_indexes* indexes, line_co
         }
     }
 }
+/*
+ *checks source operand syntax and reports errors
+ */
 static void check_source_operand_syntax(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found){
+    /*if the operand is proper. if so, checks if it fits the operator*/
     if (is_operand_proper(sentence, indexes, SOURCE_OPERAND) == TRUE) {
+        /*if the operand is a number, checks the number size*/
         if (*(sentence->line + indexes->first_operand_index) == '#'){
             check_number_size(sentence->line, indexes->first_operand_index + 1, counters, error_found);
         }
@@ -676,36 +763,45 @@ static void check_source_operand_syntax(line* sentence, line_indexes* indexes, l
             report_error(sentence->line, NO_SOURCE_JUMP_LABEL_ALLOWED, counters, indexes->first_operand_index);
             *error_found = TRUE;
         }
-        /*opcode 4 has more restrictions*/
+        /*opcode 4 has more restrictions, no number or register is allowed*/
         if (sentence->code_parts.opcode == 4){
             if (*(sentence->line + indexes->first_operand_index) == '#') {
                 report_error(sentence->line, NO_SOURCE_NUMBER_ALLOWED, counters, indexes->first_operand_index);
                 *error_found = TRUE;
             }
-            if (indexes->first_operand_index == indexes->first_register_index){
+            if (indexes->first_operand_index == indexes->first_register_index){/*first operand can't be second register*/
                 report_error(sentence->line, NO_SOURCE_REGISTER_ALLOWED, counters, indexes->first_operand_index);
                 *error_found = TRUE;
             }
         }
-    }
-    else{
+    }else{/*if operand is not proper, reports an error*/
         report_error(sentence->line, NOT_AN_OPERAND , counters, indexes->first_operand_index);
         *error_found = TRUE;
     }
 }
+/*
+ * gets a number in char*, number can be with a sign, and reports an error if number is too large
+ */
 static void check_number_size(char* line, int index, line_counters* counters, char* error_found){
+    long long number;
+    /*skips the sign*/
     if (*(line + index) == '-' || *(line + index) == '+'){
         index++;
     }
-    long number = strtod(line + index, NULL);
-    if (number > NUMBER_MAX_VAL){
+    number = strtod(line + index, NULL);
+    if (number > NUMBER_MAX_VAL){/*checks number size*/
         report_error(line, NUMBER_TOO_LARGE, counters, index);
         *error_found = TRUE;
     }
 }
+/*
+ * checks destination operand syntax and reports errors
+ */
 static void check_dest_operand_syntax(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found){
+    /*if the operand is proper. if so, checks if it fits the operator*/
     if (is_operand_proper(sentence, indexes, DEST_OPERAND) == TRUE){
         if (*(sentence->line + indexes->second_operand_index) == '#'){
+            /*if the operand is a number, checks the number size*/
             check_number_size(sentence->line, indexes->second_operand_index + 1, counters, error_found);
         }
         /*opcodes 1,3: can have any operand except jump to label, which is taken care of next*/
@@ -732,14 +828,13 @@ static void check_dest_operand_syntax(line* sentence, line_indexes* indexes, lin
                 report_error(sentence->line, NO_DEST_REGISTER_ALLOWED, counters, indexes->second_operand_index);
                 *error_found = TRUE;
             }
-        }
-        else{/*jump to label operand is allowed only for opcode 9*/
+        }else{/*jump to label operand is allowed only for opcode 9*/
             if (*(sentence->line + indexes->second_operand_index) == '&'){
                 report_error(sentence->line, NO_DEST_JUMP_LABEL_ALLOWED, counters, indexes->second_operand_index);
                 *error_found = TRUE;
             }
         }
-    } else{
+    } else{/*if operand isn't proper*/
         report_error(sentence->line, NOT_AN_OPERAND , counters, indexes->second_operand_index);
         *error_found = TRUE;
     }
@@ -892,7 +987,7 @@ void print_errors_summary(char* file_name, int errors_count){
     puts("NO OUTPUT FILES WERE GENERATED"
          "\n*************************************************************************************");
 }
-static void check_number_appearance(short int *did_number_appeared, char curr_char) {
+static void check_number_appearance(char* did_number_appeared, char curr_char) {
     if (*did_number_appeared == 0) {
         if (curr_char >= '0' && curr_char <= '9') {
             *did_number_appeared = 1;
