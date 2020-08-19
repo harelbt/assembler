@@ -839,36 +839,48 @@ static void check_dest_operand_syntax(line* sentence, line_indexes* indexes, lin
         *error_found = TRUE;
     }
 }
-static short int is_operand_proper(line* sentence, line_indexes* indexes, short int source_or_dest){
-    short int is_propper = TRUE;
-    char* i;
+/*
+ * returns TRUE if operand is proper, else returns FALSE
+ */
+static char is_operand_proper(line* sentence, line_indexes* indexes, char source_or_dest){
+    char is_propper = TRUE;/*to return*/
+    char* i;/*gets the line from the second char of the operand, used to continue to check the operand's body*/
     i = check_operand_first_char_syntax(sentence, indexes, &is_propper, source_or_dest);
     check_operand_body_syntax(i, &is_propper);
     return is_propper;
 }
-static char* check_operand_first_char_syntax(line* sentence, line_indexes* indexes, short int* is_propper, short int source_or_dest){
+/*
+ * checks the syntax of the first char of the operand, sets the "is_propper" flag that is given as an argument.
+ * requires source_or_dest flag with macros: SOURCE_OPERAND, DEST_OPERAND. due to different checks.
+ * returns the line from the second char of the operand
+ */
+static char* check_operand_first_char_syntax(line* sentence, line_indexes* indexes, char* is_propper, char source_or_dest){
+    /*checks the first according to the operand (source or destination)*/
     if (source_or_dest == SOURCE_OPERAND){
-        if (ILLEGAL_SRC_OPERAND_FIRST_CHAR_CONDITION){
+        if (ILLEGAL_SRC_OPERAND_FIRST_CHAR_CONDITION){/*check source operand's first char*/
             *is_propper = FALSE;
         }
-        return sentence->line + indexes->first_operand_index+1;
+        return sentence->line + indexes->first_operand_index+1;/*returns char* from one char after the first operand's char*/
     }
     if (source_or_dest == DEST_OPERAND) {
-        if (ILLEGAL_DEST_OPERAND_FIRST_CHAR_CONDITION){
+        if (ILLEGAL_DEST_OPERAND_FIRST_CHAR_CONDITION){/*check destination operand's first char*/
             *is_propper = FALSE;
         }
-        return sentence->line + indexes->second_operand_index+1;
+        return sentence->line + indexes->second_operand_index+1;/*returns char* from one char after the first operand's char*/
     }
-    return "";
+    return "";/*in case "source_or_dest" argument wasn't supplied correctly*/
 }
-static void check_operand_body_syntax(char* i, short int* is_propper){
-    while (*i && *i != ' ' && *i != '\t' && *i != ','){
+/*
+ * checks the syntax of the operand's body. sets the "is_propper" flag that is given as an argument.
+ */
+static void check_operand_body_syntax(char* i, char* is_proper){
+    while (*i && *i != ' ' && *i != '\t' && *i != ','){/*runs as long as the operand isn't ended*/
         if (ILLEGAL_OPERAND_BODY_CONDITION){
-            *is_propper = FALSE;
+            *is_proper = FALSE;
         }
-        /*if the - or + is not after a #*/
+        /*if the - or + is not after a # the operand isn't proper*/
         if ((*i == '-' || *i == '+') && *(i-1) != '#'){
-            *is_propper = FALSE;
+            *is_proper = FALSE;
         }
         i++;
     }

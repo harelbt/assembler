@@ -131,10 +131,10 @@ static void check_operands_syntax(line* sentence, line_indexes* indexes, line_co
 static void check_number_size(char* line, int index, line_counters* counters, char* error_found);
 static void check_source_operand_syntax(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found);
 static void check_dest_operand_syntax(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found);
-static short int is_operand_proper(line* sentence, line_indexes* indexes, short int source_or_dest);
+static char is_operand_proper(line* sentence, line_indexes* indexes, char source_or_dest);
 static void check_pre_operator_chars(line* sentence, line_indexes* indexes, line_counters* counters, char* error_found);
-static void check_operand_body_syntax(char* i, short int* is_propper);
-static char* check_operand_first_char_syntax(line* sentence, line_indexes* indexes, short int* is_propper, short int source_or_dest);
+static void check_operand_body_syntax(char* i, char* is_proper);
+static char* check_operand_first_char_syntax(line* sentence, line_indexes* indexes, char* is_propper, char source_or_dest);
 /*~~label inspection section~~*/
 static void inspect_label(line* sentence, line_indexes* indexes, line_counters* counters, int start_index, char* error_found);
 static void check_label_length(line* sentence, line_indexes* indexes, line_counters* counters, int start_index, char* error_found);

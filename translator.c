@@ -124,7 +124,7 @@ static void data_translation(line* sentence, line_indexes* indexes, line_counter
 }
 static void translate_numbers_sequence(const char* numbers_sequence, line_indexes* indexes, int last_DC, data_image* data){
     int index = 0;
-    int DC_addition = 0;
+    int DC_addition = 1;
     while (*(numbers_sequence + index)){
         data_image* new_data = allocate_memory(1, DATA_IMAGE);
         new_data->DC = last_DC + DC_addition;
