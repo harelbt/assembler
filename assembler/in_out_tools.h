@@ -13,6 +13,7 @@
 #define CHAR 1
 #define SYMBOL 2
 #define DATA_IMAGE 3
+#define LINE_OF_LABEL 4
 
 /*lengths*/
 #define LINE_ASSUMED_LENGTH 100

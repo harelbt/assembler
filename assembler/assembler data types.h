@@ -5,6 +5,7 @@
 #define LABEL_MAX_LENGTH 32
 #define ORDER_MAX_LENGTH 7
 #define OPERATOR_MAX_LENGTH 5
+#define ASSUMED_LABELS_NUMBER 100
 
 /*FLAGS*/
 #define TRUE 1
@@ -69,6 +70,11 @@ typedef struct __attribute__((packed)){
     int second_operand_index;
     int data_index;
 }line_indexes;
+/*linked list that conatains the line number of every usage of a label(used for error messages in the second pass)*/
+typedef struct __attribute__((packed)) label_line{
+    int line_number;
+    struct label_line* next;
+}line_of_label_usage;
 /*contains all the relevant counters of the program*/
 typedef struct __attribute__((packed)){
     int IC;
@@ -84,6 +90,7 @@ typedef struct __attribute__((packed)){
     int error_number;
     int number_of_operands;
     int number_of_commas;
+    line_of_label_usage label_usage_line;
 }line_counters;
 /*represent a word of memory */
 typedef struct __attribute__((packed)){
@@ -99,6 +106,7 @@ typedef  struct __attribute__((packed)) data_binary_node{
     char is_head_filled;/*flag for filling the first node instead of inserting after it*/
     struct data_binary_node * next;
 }data_image;
+
 
 /*FUNCTIONS DECLARATION*/
 /**

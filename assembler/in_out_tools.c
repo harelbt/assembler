@@ -115,7 +115,12 @@ void* allocate_memory (int size, char type){
         return p;
     }
     if (type == DATA_IMAGE) {
-        char* p = (char*) malloc(sizeof(data_image) * size);
+        data_image* p = (data_image*) malloc(sizeof(data_image) * size);
+        POINTER_CHECK
+        return p;
+    }
+    if (type == LINE_OF_LABEL){
+        line_of_label_usage* p = (line_of_label_usage*) malloc(sizeof(line_of_label_usage) * size);
         POINTER_CHECK
         return p;
     }
@@ -219,6 +224,9 @@ char* get_file_name_without_type(char* file_name){
     }
     /*cuts the type*/
     *i = '\0';
+    if(strcmp(i+1, "as") != 0){
+        return "";
+    }
     return file_name;
 }
 /*

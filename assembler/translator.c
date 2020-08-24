@@ -38,10 +38,10 @@ void code_translation(FILE* machine_code, line* sentence, line_indexes* indexes,
         return;
     }
     if (distance_from_last_IC == 2) {/*2 words are required*/
-        prepare_extra_words(sentence->line, indexes, distance_from_last_IC, &second_word);
+        prepare_extra_words(sentence->line, indexes, counters, distance_from_last_IC, &second_word);
         print_code_words(machine_code, sentence->line, counters->last_IC, distance_from_last_IC, &instruction_word, &second_word);
     } else{/*3 words are required*/
-        prepare_extra_words(sentence->line, indexes, distance_from_last_IC, &second_word, &third_word);
+        prepare_extra_words(sentence->line, indexes, counters, distance_from_last_IC, &second_word, &third_word);
         print_code_words(machine_code, sentence->line, counters->last_IC, distance_from_last_IC, &instruction_word, &second_word, &third_word);
     }
 }
@@ -103,7 +103,7 @@ void prepare_full_instruction_word(word* to_prepare, line_indexes* indexes, cons
  * struct word to code to can be given as ... arguments(in the end of the signature)
  * requires a number of word for the line (1-3)
  */
-void prepare_extra_words(const char* line, line_indexes* indexes, int num_of_words, ...){
+void prepare_extra_words(const char* line, line_indexes* indexes, line_counters* counters, int num_of_words, ...){
     va_list arg_pointer;/*"..." argument pointer*/
     va_start(arg_pointer, num_of_words);
     if (num_of_words == 2){/*num of extra words to code is ONE*/
@@ -116,12 +116,12 @@ void prepare_extra_words(const char* line, line_indexes* indexes, int num_of_wor
         } else{
             index = indexes->second_operand_index;
         }
-        code_word(second_word, line, index, indexes, CODE);/*codes the word according to the given index*/
+        code_word(second_word, line, index, indexes, counters, CODE);/*codes the word according to the given index*/
     } else{/*num of word = 3, codes the 2 extra words*/
         word* second_word = va_arg(arg_pointer, word*);
         word* third_word = va_arg(arg_pointer, word*);
-        code_word(second_word, line, indexes->first_operand_index, indexes, CODE);
-        code_word(third_word, line, indexes->second_operand_index, indexes, CODE);
+        code_word(second_word, line, indexes->first_operand_index, indexes, counters, CODE);
+        code_word(third_word, line, indexes->second_operand_index, indexes, counters, CODE);
     }
     va_end(arg_pointer);
 }
@@ -130,9 +130,9 @@ void prepare_extra_words(const char* line, line_indexes* indexes, int num_of_wor
  * codes one operand or one number to one struct word
  * requires a "mode" flag (CODE or DATA macros) to know the type of the coding
  */
-void code_word( word* word, const char* line, int index, line_indexes* indexes, char mode){
+void code_word( word* word, const char* line, int index, line_indexes* indexes,line_counters* counters, char mode){
     if (mode == CODE){
-        code_instruction_word(word, line, index, indexes);
+        code_instruction_word(word, line, index, indexes, counters);
     } else{
         code_number(word, line, index, DATA);
     }
@@ -141,12 +141,12 @@ void code_word( word* word, const char* line, int index, line_indexes* indexes, 
  * FIRST PASS LEVEL
  * codes one operand to one struct word
  */
-void code_instruction_word(word* word, const char* line, int index, line_indexes* indexes){
+void code_instruction_word(word* word, const char* line, int index, line_indexes* indexes, line_counters* counters){
     /*resets the label flags for later use*/
     word->label_index = NOT_FOUND;
     word->is_label = FALSE;
     word->is_jump = FALSE;
-    /*checks the operand's type. and acts accordingly*/
+    /*checks the operand's type, and acts accordingly*/
     switch (*(line + index)) {
         case '#':{
             code_number(word, line, index, CODE);
@@ -155,12 +155,14 @@ void code_instruction_word(word* word, const char* line, int index, line_indexes
         case '&':{
             word->is_jump = TRUE;
             word->label_index = index;
+            insert_symbol_usage_line(counters);/*saves the line number for the second pass*/
             break;
         }
-        default:{/*if it's a regular label*/
+        default:{/*if it's a regular label(not '&', '#' or register(the condition below))*/
             if (index != indexes->first_register_index && index != indexes->second_register_index) {
                 word->is_label = TRUE;
                 word->label_index = index;
+                insert_symbol_usage_line(counters);/*saves the line number for the second pass*/
             }
         }
     }
@@ -173,7 +175,7 @@ void data_translation(line* sentence, line_indexes* indexes, line_counters* coun
     if (indexes->first_quotation_mark_index != NOT_FOUND){/*if a string exists, translates a string*/
         translate_string_sequence(sentence->line + indexes->data_index, counters->last_DC, indexes->second_quotation_mark_index - indexes->data_index, data);
     } else{/*translates data*/
-        translate_numbers_sequence(sentence->line + indexes->data_index, indexes, counters->last_DC, data);
+        translate_numbers_sequence(sentence->line + indexes->data_index, indexes, counters, counters->last_DC, data);
     }
 }
 /*
@@ -181,7 +183,7 @@ void data_translation(line* sentence, line_indexes* indexes, line_counters* coun
  * translates a sequence of numbers(after a .data order)
  * requires the number sequence as a string
  */
-void translate_numbers_sequence(const char* numbers_sequence, line_indexes* indexes, int last_DC, data_image* data){
+void translate_numbers_sequence(const char* numbers_sequence, line_indexes* indexes, line_counters* counters, int last_DC, data_image* data){
     int index = 0;
     int DC_addition = 1;/*indicates the count of number to code and whats it's address relatively to the last dc*/
     while (*(numbers_sequence + index)){/*while the string didn't end*/
@@ -190,7 +192,7 @@ void translate_numbers_sequence(const char* numbers_sequence, line_indexes* inde
         /*sets the DC(last dc + count of number to code)*/
         new_data->DC = last_DC + DC_addition;
         new_data->next = NULL;
-        code_word(&new_data->word, numbers_sequence, index, indexes, DATA);
+        code_word(&new_data->word, numbers_sequence, index, indexes, counters, DATA);
         insert_data_node(data, new_data);
         get_to_next_number(&index, numbers_sequence);/*for the next loop*/
         DC_addition++;

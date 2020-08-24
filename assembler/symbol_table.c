@@ -100,3 +100,40 @@ void symbol_copy(symbol* dest, symbol* source){
     dest->sentence_type = source->sentence_type;
     dest->next = source->next;
 }
+/*
+ * inserts a "line_of_label_usage" node to the list that is in the "counters" variable.
+ * the node contains the current line number of the current label usage (not declaration);
+ * enters the node to the end of the list chronologically.
+ */
+void insert_symbol_usage_line(line_counters* counters) {
+    line_of_label_usage *new_label_line;/*to insert*/
+    line_of_label_usage* label_line_pointer = &counters->label_usage_line;/*helper pointer to the list*/
+    if (counters->label_usage_line.line_number == 0){
+        counters->label_usage_line.line_number = counters->line_number;
+        counters->label_usage_line.next = NULL;
+        return;
+    }
+    /*prepares the new node*/
+    new_label_line = allocate_memory(ONE_UNIT, LINE_OF_LABEL);
+    new_label_line->line_number = counters->line_number;
+    new_label_line->next = NULL;
+    /*skips to the end of the list*/
+    while (label_line_pointer->next != NULL) {
+        label_line_pointer = label_line_pointer->next;
+    }
+    label_line_pointer->next = new_label_line;/*inserts*/
+}
+/*
+ * returns the line number of the the current symbol usage and frees the last one.
+ * use only when a label usage shows up (not declaration), else values will be permanently lost.
+ */
+int get_symbol_usage_line(line_counters* counters){
+    line_of_label_usage* label_line_pointer = &counters->label_usage_line;/*points to the start*/
+    int line_number = label_line_pointer->line_number;/*to return(the current line)*/
+    label_line_pointer = counters->label_usage_line.next;/*saves the address of the next node*/
+    if (counters->label_usage_line.next != NULL) {
+        counters->label_usage_line = *counters->label_usage_line.next;/*turns the value of the next node to the current value*/
+    }
+    free(label_line_pointer);/*freeing the allocated address of the node we made it's value to the current value*/
+    return line_number;
+}

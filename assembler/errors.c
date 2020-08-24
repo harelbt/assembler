@@ -292,7 +292,7 @@ void report_error(char* line, char error_code, line_counters* counters, ...){
             break;
         }
         case LABEL_DOESNT_EXIST:{
-            printf("Usage of a label that doesn't exist.\n");
+            printf("Usage of a label that doesn't exist. line %d\n", counters->line_number);
             break;
         }
         default:

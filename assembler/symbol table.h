@@ -43,5 +43,19 @@ void free_symbol_table(symbol* symbol_table);
  * @param source dest to copy from
  */
 void symbol_copy(symbol* dest, symbol* source);
+/**
+ * inserts a "line_of_label_usage" node to the list that is in the "counters" variable.
+ * the node contains the current line number of the current label usage (not declaration);
+ * enters the node to the end of the list chronologically.
+ * @param counters struct line_counters pointer
+ */
+void insert_symbol_usage_line(line_counters* counters);
+/**
+ * returns the line number of the the current symbol usage and frees the last one.
+ * use only when a label usage shows up (not declaration), else values will be permanently lost.
+ * @param counters struct line_counters pointer
+ * @return the current label usage line number
+ */
+int get_symbol_usage_line(line_counters* counters);
 /**/
 #endif /*ASSEMBLER_SYMBOL_TABLE_H*/

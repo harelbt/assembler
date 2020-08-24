@@ -111,10 +111,11 @@ void prepare_instruction_word(word* to_prepare, line* sentence, line_indexes* in
  * requires a number of words for the line (1-3)
  * @param line string of the line to translate
  * @param indexes struct line_indexes pointer
+ * @param counters struct line_counters pointer
  * @param num_of_words num number of words for the line (1-3)
  * @param ... word pointer (max 2) to code to
  */
-void prepare_extra_words(const char* line, line_indexes* indexes, int num_of_words, ...);
+void prepare_extra_words(const char* line, line_indexes* indexes, line_counters* counters, int num_of_words, ...);
 /**
  * FIRST PASS LEVEL
  * codes one operand or one number to one struct word
@@ -123,9 +124,10 @@ void prepare_extra_words(const char* line, line_indexes* indexes, int num_of_wor
  * @param line string of the line to translate
  * @param index index of the number or operand (if #, index of #)
  * @param indexes struct line_indexes pointer
+ * @param counters struct line_counters pointer
  * @param mode CODE or DATA macros (instruction or order)
  */
-void code_word( word* word, const char* line, int index, line_indexes* indexes, char mode);
+void code_word( word* word, const char* line, int index, line_indexes* indexes, line_counters* counters, char mode);
 /**
  * FIRST PASS LEVEL
  * codes one operand to one struct word
@@ -133,8 +135,9 @@ void code_word( word* word, const char* line, int index, line_indexes* indexes, 
  * @param line string of the line to translate
  * @param index index of the operand
  * @param indexes struct line_indexes pointer
+ * @param counters struct line_counters pointer
  */
-void code_instruction_word(word* word, const char* line, int index, line_indexes* indexes);
+void code_instruction_word(word* word, const char* line, int index, line_indexes* indexes, line_counters* counters);
 /*data translation functions*/
 /**
  * FIRST PASS LEVEL
@@ -151,10 +154,11 @@ void data_translation(line* sentence, line_indexes* indexes, line_counters* coun
  * requires the number sequence as a string
  * @param numbers_sequence string of the number sequence
  * @param indexes struct line_indexes pointer
+ * @param counters struct line_counters pointer
  * @param last_DC the last DC(found in counters struct)
  * @param data data image head
  */
-void translate_numbers_sequence(const char* numbers_sequence, line_indexes* indexes, int last_DC, data_image* data);
+void translate_numbers_sequence(const char* numbers_sequence, line_indexes* indexes, line_counters* counters, int last_DC, data_image* data);
 /**
  * FIRST PASS LEVEL
  * translates a sequence of chars(after a .string order)

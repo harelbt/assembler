@@ -41,7 +41,6 @@ void code_symbols(FILE* machine_code, FILE* temp_machine_code, symbol* symbol_ta
     int curr_char;
     int line_length;/*required as an argument for "get_line_dynamic" function that is being used next*/
     char *i;/*pointer to point to the start of the label*/
-    counters->line_number = 1;/*to track the line number*/
     fseek(temp_machine_code, START, SEEK_SET);
     while ((curr_char = fgetc(temp_machine_code)) != EOF) {/*until file ends*/
         if (curr_char >= '0' && curr_char <= '9') {/*inserts address from the temp machine code to the "curr_address" array*/
@@ -58,6 +57,7 @@ void code_symbols(FILE* machine_code, FILE* temp_machine_code, symbol* symbol_ta
             /*gets the line from the temp machine code*/
             curr_line = get_line_dynamic(temp_machine_code, &line_length);
             i = curr_line;
+            counters->line_number = get_symbol_usage_line(counters);
             if (*(i) == '&') {/*a "jump to label"*/
                 i++;
                 code_jump(machine_code, symbol_table, i, counters, &label_address, curr_address, error_found);
